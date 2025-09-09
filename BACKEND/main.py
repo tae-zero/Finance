@@ -805,14 +805,59 @@ def get_industry_analysis(name: str):
 @app.get("/company_metrics/{name}")
 def get_company_metrics(name: str):
     try:
-        with open("기업별_재무지표.json", "r", encoding="utf-8") as f:
+        # URL 디코딩 처리
+        import urllib.parse
+        decoded_name = urllib.parse.unquote(name)
+        print(f"🔍 기업 지표 요청: {decoded_name}")
+        
+        # 파일 경로 확인
+        file_path = "기업별_재무지표.json"
+        if not os.path.exists(file_path):
+            print(f"❌ 파일 없음: {file_path}")
+            # fallback 데이터 반환
+            return JSONResponse(content={
+                "기업명": decoded_name,
+                "매출액": "데이터 없음",
+                "영업이익": "데이터 없음",
+                "순이익": "데이터 없음",
+                "자산총계": "데이터 없음",
+                "부채총계": "데이터 없음",
+                "자본총계": "데이터 없음"
+            })
+        
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
-        if name in data:
-            return JSONResponse(content=data[name])
+        
+        if decoded_name in data:
+            print(f"✅ 기업 지표 찾음: {decoded_name}")
+            return JSONResponse(content=data[decoded_name])
         else:
-            raise HTTPException(status_code=404, detail="해당 기업 지표 없음")
+            print(f"⚠️ 기업 지표 없음: {decoded_name}")
+            # fallback 데이터 반환
+            return JSONResponse(content={
+                "기업명": decoded_name,
+                "매출액": "데이터 없음",
+                "영업이익": "데이터 없음",
+                "순이익": "데이터 없음",
+                "자산총계": "데이터 없음",
+                "부채총계": "데이터 없음",
+                "자본총계": "데이터 없음"
+            })
+            
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"❌ 기업 지표 오류: {e}")
+        import traceback
+        print(f"❌ 상세 오류: {traceback.format_exc()}")
+        # fallback 데이터 반환
+        return JSONResponse(content={
+            "기업명": name,
+            "매출액": "오류 발생",
+            "영업이익": "오류 발생",
+            "순이익": "오류 발생",
+            "자산총계": "오류 발생",
+            "부채총계": "오류 발생",
+            "자본총계": "오류 발생"
+        })
 
 
 

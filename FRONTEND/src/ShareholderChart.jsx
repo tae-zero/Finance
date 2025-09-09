@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Chart as ChartJS,
   BarElement,
+  BarController,
   LineElement,
   PointElement,
   CategoryScale,
@@ -15,6 +16,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels'; // ✅ 플러그인 imp
 
 ChartJS.register(
   BarElement,
+  BarController, // ✅ Bar 컨트롤러 등록
   LineElement,
   PointElement,
   CategoryScale,
