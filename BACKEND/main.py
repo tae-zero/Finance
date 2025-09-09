@@ -138,12 +138,25 @@ def setup_chrome_driver():
 
 # MongoDB 컬렉션 설정 (연결 실패 시 None 처리)
 if client:
-    db = client["testDB"]
-    collection = db["users"]
-    explain = db['explain']
-    outline = db['outline']
-    industry = db['industry_metrics']
+    try:
+        db = client["testDB"]
+        collection = db["users"]
+        explain = db['explain']
+        outline = db['outline']
+        industry = db['industry_metrics']
+        print(f"✅ MongoDB 컬렉션 설정 완료")
+        print(f"✅ collection: {collection}")
+        print(f"✅ explain: {explain}")
+        print(f"✅ outline: {outline}")
+    except Exception as e:
+        print(f"❌ MongoDB 컬렉션 설정 실패: {e}")
+        db = None
+        collection = None
+        explain = None
+        outline = None
+        industry = None
 else:
+    print("❌ MongoDB 클라이언트가 None입니다")
     db = None
     collection = None
     explain = None
@@ -181,6 +194,7 @@ def get_full_company_data(name: str):
         
         if collection is None:
             print("❌ collection이 None입니다")
+            print("❌ MongoDB 연결 상태를 확인하세요")
             raise HTTPException(status_code=503, detail="데이터베이스 연결 실패")
         
         print(f"🔍 MongoDB collection 사용 가능")
@@ -272,8 +286,8 @@ async def hot_news():
                 import requests
                 from bs4 import BeautifulSoup
                 
-                # 네이버 뉴스에서 코스피 관련 뉴스 가져오기
-                url = "https://search.naver.com/search.naver?where=news&query=코스피&sort=1"
+                # 다음뉴스에서 코스피 관련 뉴스 가져오기
+                url = "https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q=코스피"
                 headers = {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
                 }
@@ -282,7 +296,7 @@ async def hot_news():
                 soup = BeautifulSoup(response.content, 'html.parser')
                 
                 news_list = []
-                news_items = soup.select('.news_tit')[:5]  # 상위 5개 뉴스
+                news_items = soup.select('.tit_main')[:5]  # 상위 5개 뉴스
                 
                 for item in news_items:
                     title = item.get_text().strip()
@@ -330,8 +344,8 @@ async def main_news():
             import requests
             from bs4 import BeautifulSoup
             
-            # 네이버 뉴스에서 실적 발표 관련 뉴스 가져오기
-            url = "https://search.naver.com/search.naver?where=news&query=실적 발표&sort=1"
+            # 다음뉴스에서 실적 발표 관련 뉴스 가져오기
+            url = "https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q=실적 발표"
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
             }
@@ -340,7 +354,7 @@ async def main_news():
             soup = BeautifulSoup(response.content, 'html.parser')
             
             news_list = []
-            news_items = soup.select('.news_tit')[:5]  # 상위 5개 뉴스
+            news_items = soup.select('.tit_main')[:5]  # 상위 5개 뉴스
             
             for item in news_items:
                 title = item.get_text().strip()
