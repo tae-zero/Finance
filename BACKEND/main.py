@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+import chromedriver_autoinstaller
 from pymongo import MongoClient
 from pykrx.stock import get_market_trading_volume_by_date
 import json
@@ -41,6 +42,32 @@ client = MongoClient(MONGODB_URL)
 # 환경 설정
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+
+# Chrome 드라이버 자동 설치
+def setup_chrome_driver():
+    """Railway 환경에서 Chrome 드라이버를 자동으로 설정"""
+    try:
+        # Chrome 드라이버 자동 설치
+        chromedriver_autoinstaller.install()
+        
+        options = Options()
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--disable-gpu')
+        options.add_argument('--window-size=1920x1080')
+        options.add_argument('--disable-extensions')
+        options.add_argument('--disable-plugins')
+        options.add_argument('--disable-images')
+        options.add_argument('--disable-javascript')
+        
+        # Railway 환경에서 안정적인 Chrome 드라이버 설정
+        service = Service()
+        driver = webdriver.Chrome(service=service, options=options)
+        return driver
+    except Exception as e:
+        print(f"Chrome 드라이버 설정 실패: {e}")
+        return None
 
 db = client["testDB"]
 collection = db["users"]
@@ -88,10 +115,9 @@ def get_all_company_names():
 # 메인페이지 코스피 키워드 뉴스 리스트
 @app.get("/hot/")
 async def hot_news():
-    options = Options()
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    driver = webdriver.Chrome(options=options)
+    driver = setup_chrome_driver()
+    if not driver:
+        return JSONResponse(content={"error": "Chrome 드라이버 초기화 실패"}, status_code=500)
 
     driver.get('https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q=코스피')
 
@@ -107,10 +133,9 @@ async def hot_news():
 # 메인페이지 실적 발표 키워드 리스트
 @app.get("/main_news/")
 async def main_news():
-    options = Options()
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    driver = webdriver.Chrome(options=options)
+    driver = setup_chrome_driver()
+    if not driver:
+        return JSONResponse(content={"error": "Chrome 드라이버 초기화 실패"}, status_code=500)
 
     driver.get('https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q=실적 발표')
 
@@ -131,12 +156,9 @@ async def search_news(request: Request):
     if not keyword:
         return JSONResponse(content={"error": "keyword 파라미터가 필요합니다"}, status_code=400)
 
-    options = Options()
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--no-sandbox')
-
-    driver = webdriver.Chrome(options=options)
+    driver = setup_chrome_driver()
+    if not driver:
+        return JSONResponse(content={"error": "Chrome 드라이버 초기화 실패"}, status_code=500)
     search_url = f'https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q={keyword}'
     driver.get(search_url)
     time.sleep(2)
@@ -178,14 +200,9 @@ def get_price_data(ticker: str):
 # 기업상세페이지 종목분석 리포트
 @app.get("/report/")
 def get_report_summary(code: str = Query(..., description="종목 코드 (예: A005930)")):
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920x1080")
-
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver = setup_chrome_driver()
+    if not driver:
+        return JSONResponse(content={"error": "Chrome 드라이버 초기화 실패"}, status_code=500)
 
     url = f"https://comp.fnguide.com/SVO2/ASP/SVD_Consensus.asp?pGB=1&gicode={code}&MenuYn=Y&ReportGB=&NewMenuID=108"
     driver.get(url)
