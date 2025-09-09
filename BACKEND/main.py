@@ -33,8 +33,13 @@ app.add_middleware(
 )
 
 # MongoDB 연결 - 환경변수 사용
-MONGODB_URL = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-print(f"🔍 MongoDB URL: {MONGODB_URL[:20]}...")  # 처음 20자만 출력
+print(f"🔍 환경변수 확인:")
+print(f"🔍 MONGODB_URI: {os.getenv('MONGODB_URI', 'NOT_SET')}")
+print(f"🔍 MONGODB_URL: {os.getenv('MONGODB_URL', 'NOT_SET')}")
+
+# 임시로 하드코딩 (테스트용)
+MONGODB_URL = os.getenv("MONGODB_URI", "mongodb+srv://jeongtaeteong9388:5I78UBS-fvGZZBIzc@cluster0.u4x83vw.mongodb.net/?retryWrites=true&w=majority")
+print(f"🔍 최종 MongoDB URL: {MONGODB_URL[:30]}...")  # 처음 30자만 출력
 
 try:
     client = MongoClient(MONGODB_URL, serverSelectionTimeoutMS=5000)
