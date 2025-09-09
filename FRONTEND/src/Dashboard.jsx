@@ -12,7 +12,7 @@ import {
   Legend,
 } from 'chart.js';
 import './App.css';
-import InvestorTable from './InvestorTable';
+import InvestorTable from './investorTable';
 import TopRankings from './TopRankings';
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);

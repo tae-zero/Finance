@@ -6,12 +6,12 @@ import {
   Link,
   useNavigate
 } from 'react-router-dom';
-import IndustryAnalysis from './industryAnalysis.jsx';
+import IndustryAnalysis from './industryAnalysis';
 import Dashboard from './Dashboard';
 import CompanyDetail from './CompanyDetail';
 import TreasureHunt from './TreasureHunt';
-import Sidebar from './Sidebar.jsx';
-import GuidePopup from './GuidePopup.jsx';
+import Sidebar from './Sidebar';
+import GuidePopup from './GuidePopup';
 
 
 
