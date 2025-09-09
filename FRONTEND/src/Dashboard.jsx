@@ -14,6 +14,7 @@ import {
 import './App.css';
 import InvestorTable from './investorTable';
 import TopRankings from './TopRankings';
+import { API_ENDPOINTS } from './config/api';
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
 
@@ -24,15 +25,15 @@ function App() {
 
 
   useEffect(() => {
-    axios.get('http://localhost:8000/hot/')
+    axios.get(API_ENDPOINTS.HOT_NEWS)
       .then(res => setHotNews(res.data))
       .catch(err => console.error("📛 핫뉴스 오류:", err));
 
-    axios.get('http://localhost:8000/main_news/')
+    axios.get(API_ENDPOINTS.MAIN_NEWS)
       .then(res => setMainNews(res.data))
       .catch(err => console.error("📛 실적뉴스 오류:", err));
 
-    axios.get('http://localhost:8000/kospi/')
+    axios.get(API_ENDPOINTS.KOSPI_DATA)
       .then(res => {
         const data = res.data;
         if (!Array.isArray(data) || data.length === 0) {

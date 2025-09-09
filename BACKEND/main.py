@@ -27,7 +27,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://your-frontend-domain.vercel.app",  # Vercel 배포 후 실제 도메인으로 변경
+        "https://finance-dashboard-git-main-jeongtaeyeongs-projects.vercel.app",  # 실제 Vercel 도메인
         "https://*.vercel.app"  # Vercel의 모든 하위 도메인 허용
     ],
     allow_credentials=True,

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_ENDPOINTS } from './config/api';
 import {
   BrowserRouter as Router,
   Routes,
@@ -26,7 +27,7 @@ function Sidebar() {
   const location = useLocation(); 
 
   useEffect(() => {
-    fetch("http://localhost:8000/companies/names")
+    fetch(API_ENDPOINTS.COMPANY_NAMES)
       .then(res => res.json())
       .then(data => setCompanyList(data))
       .catch(err => console.error("기업명 불러오기 실패:", err));

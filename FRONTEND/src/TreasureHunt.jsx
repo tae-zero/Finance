@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import 'rc-slider/assets/index.css';
 import FinancialGraph from './FinancialGraph';
+import { API_ENDPOINTS } from './config/api';
 
 function TreasureHunt() {
   const [data, setData] = useState([]);
@@ -22,7 +23,7 @@ function TreasureHunt() {
     .then(res => res.json())
     .then(setIndustryMetrics);
 
-    fetch('http://localhost:8000/api/treasure')
+    fetch(API_ENDPOINTS.TREASURE_DATA)
       .then(res => res.json())
       .then(json => {
         const cleaned = json.filter(item => {

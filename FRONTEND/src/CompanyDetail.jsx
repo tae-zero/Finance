@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_ENDPOINTS } from './config/api';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -68,7 +69,7 @@ function CompanyDetail() {
     '비지배주주지분': '자회사 지분 중 우리 회사가 아닌 외부 사람들이 갖고 있는 비율이야.'}
 
   useEffect(() => {
-    axios.get(`http://localhost:8000/company/${encodeURIComponent(name)}`)
+    axios.get(API_ENDPOINTS.COMPANY_DETAIL(name))
       .then(res => {
         setCompany(res.data);
         setError(false);
@@ -76,20 +77,20 @@ function CompanyDetail() {
         const code = String(res.data.종목코드).padStart(6, '0');
         const ticker = code + '.KS';
 
-        axios.get(`http://localhost:8000/price/${ticker}`)
+        axios.get(API_ENDPOINTS.PRICE_DATA(ticker))
           .then(priceRes => setPriceData(priceRes.data));
 
-        axios.get(`http://localhost:8000/news/?keyword=${encodeURIComponent(res.data.기업명)}`)
+        axios.get(`${API_ENDPOINTS.NEWS}?keyword=${encodeURIComponent(res.data.기업명)}`)
           .then(newsRes => setNews(newsRes.data));
 
-        axios.get(`http://localhost:8000/report/?code=A${code}`)
+        axios.get(`${API_ENDPOINTS.REPORT}?code=A${code}`)
           .then(repRes => setReport(repRes.data));
 
-        axios.get(`http://localhost:8000/investors/?ticker=${code}`)
+        axios.get(`${API_ENDPOINTS.INVESTORS}?ticker=${code}`)
           .then(res => setInvestors(res.data))
           .catch(err => console.error("📛 투자자 매매 데이터 오류:", err));
 
-        axios.get(`http://localhost:8000/company_metrics/${encodeURIComponent(name)}`)
+        axios.get(API_ENDPOINTS.COMPANY_METRICS(name))
           .then(res => setMetrics(res.data));
       })
       .catch(err => {

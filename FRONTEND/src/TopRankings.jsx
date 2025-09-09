@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_ENDPOINTS } from './config/api';
 
 function TopRankings() {
   const [rankingData, setRankingData] = useState(null);
@@ -7,15 +8,15 @@ function TopRankings() {
   const [volumeData, setVolumeData] = useState(null);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/rankings/')
+    axios.get(API_ENDPOINTS.RANKINGS)
       .then(res => setRankingData(res.data))
       .catch(err => console.error("📛 랭킹 데이터 오류:", err));
 
-    axios.get('http://localhost:8000/marketcap/')
+    axios.get(API_ENDPOINTS.MARKET_CAP)
       .then(res => setMarketCapData(res.data.시가총액_TOP10))
       .catch(err => console.error("📛 시가총액 데이터 오류:", err));
 
-    axios.get('http://localhost:8000/top_volume')
+    axios.get(API_ENDPOINTS.TOP_VOLUME)
       .then(res => {
         console.log("🔥 거래량 데이터:", res.data);
         setVolumeData(res.data);

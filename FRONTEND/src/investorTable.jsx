@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_ENDPOINTS } from './config/api';
 
 function formatBillions(value) {
   return (value / 1e8).toFixed(2) + ' 억원';
@@ -9,7 +10,7 @@ function InvestorTable() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/investor/value/')
+    axios.get(API_ENDPOINTS.INVESTOR_VALUE)
       .then(res => setData(res.data))
       .catch(err => console.error('📛 투자자 데이터 오류:', err));
   }, []);

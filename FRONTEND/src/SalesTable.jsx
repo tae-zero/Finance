@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_ENDPOINTS } from './config/api';
 
 function SalesTable({ name }) {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
-    axios.get(`http://localhost:8000/sales/${name}`)
+    axios.get(API_ENDPOINTS.SALES_DATA(name))
       .then(res => setRows(res.data))
       .catch(err => console.error("매출 데이터 오류:", err));
   }, [name]);
