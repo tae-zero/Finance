@@ -1,0 +1,253 @@
+
+
+body {
+  font-family: 'Pretendard', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  background-color: #f8f9fb;
+  color: #333;
+  font-size: 16px; /* ✅ px 고정 */
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8f9fb;
+  align-items: center;
+  flex-direction: column; /* 추가 */
+}
+
+/* 줌아웃 방지를 위한 전체 래퍼 */
+.fixed-zoom-wrapper {
+  transform: scale(1);
+  transform-origin: top left;
+  width: 100%;
+  min-width: 1400px;
+}
+
+/* 사이드바 영역 */
+.sidebar {
+  width: 260px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.03);
+  flex-shrink: 0;
+  overflow-y: auto;
+  margin-top: 10px;
+  top: 210px;
+}
+
+.sidebar h3 {
+  margin-top: 0;
+  font-size: 16px;
+  color: #222;
+}
+
+.sidebar input {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  margin-bottom: 6px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.sidebar button {
+  padding: 6px 10px;
+  font-size: 14px;
+  background: #007acc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.sidebar button:hover {
+  background: #005fa3;
+}
+
+.sidebar details summary {
+  font-weight: 500;
+  margin-top: 20px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.sidebar a {
+  text-decoration: none;
+  color: #333;
+  background-color: #f0f0f0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  display: block;
+  font-size: 14px;
+}
+
+.sidebar a:hover {
+  background-color: #e0e0e0;
+}
+
+/* 본문 + 인사이트 영역 */
+.dashboard-container {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  padding: 40px 20px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1440px;
+  min-width: 1400px;
+  margin: 0 auto;
+}
+
+section {
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+section h2 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: #444;
+}
+
+ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+ul li {
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+ul li a {
+  text-decoration: none;
+  color: #0077cc;
+  transition: color 0.2s ease;
+}
+
+ul li a:hover {
+  color: #004f8a;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+thead {
+  background-color: #f0f0f0;
+}
+
+thead th {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+tbody td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.content-wrapper {
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.insight-panel {
+  width: 100%;
+  max-width: 300px;
+  padding: 24px;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  overflow-x: auto;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+}
+
+.dashboard-banner {
+  width: 100%;
+  padding: 20px 30px;
+  background-color: #007acc;
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-bottom: 1px solid #ccc;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+/* 배너 */
+.page-header-banner {
+  width: 75vw;
+  background-color: #f8f9fa;
+  color: black;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 999;
+  padding: 50px 0; 
+}
+
+
+.page-header-banner .inner {
+  width: 100%;
+  max-width: 1400px;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;  /* ✅ 수직 배치 */
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+.page-header-banner h1 {
+  font-size: 50px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.page-header-banner h2 {
+  font-size: 24px;
+  margin: 10px 0 0;
+  font-weight: 400;
+  color: #333;
+}
+
+.guide-button {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  padding: 8px 14px;
+  font-size: 14px;
+  border: 1px solid #007bff;
+  background: #fff;
+  color: #007bff;
+  border-radius: 6px;
+  cursor: pointer;
+}
