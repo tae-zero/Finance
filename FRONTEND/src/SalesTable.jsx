@@ -6,7 +6,11 @@ function SalesTable({ name }) {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
-    axios.get(API_ENDPOINTS.SALES_DATA(name))
+    // 한글 기업명을 URL 인코딩
+    const encodedName = encodeURIComponent(name);
+    console.log(`🔍 매출 데이터 요청: ${name} → ${encodedName}`);
+    
+    axios.get(API_ENDPOINTS.SALES_DATA(encodedName))
       .then(res => setRows(res.data))
       .catch(err => console.error("매출 데이터 오류:", err));
   }, [name]);

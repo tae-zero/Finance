@@ -37,8 +37,8 @@ print(f"🔍 환경변수 확인:")
 print(f"🔍 MONGODB_URI: {os.getenv('MONGODB_URI', 'NOT_SET')}")
 print(f"🔍 MONGODB_URL: {os.getenv('MONGODB_URL', 'NOT_SET')}")
 
-# 임시로 하드코딩 (테스트용)
-MONGODB_URL = os.getenv("MONGODB_URI", "mongodb+srv://jeongtaeteong9388:5I78UBS-fvGZZBIzc@cluster0.u4x83vw.mongodb.net/?retryWrites=true&w=majority")
+# MongoDB URL 우선순위: MONGODB_URL > MONGODB_URI > 기본값 (MONGODB_URL이 이미 설정되어 있음)
+MONGODB_URL = os.getenv("MONGODB_URL") or os.getenv("MONGODB_URI") or "mongodb://localhost:27017"
 print(f"🔍 최종 MongoDB URL: {MONGODB_URL[:30]}...")  # 처음 30자만 출력
 
 try:

@@ -69,7 +69,11 @@ function CompanyDetail() {
     '비지배주주지분': '자회사 지분 중 우리 회사가 아닌 외부 사람들이 갖고 있는 비율이야.'}
 
   useEffect(() => {
-    axios.get(API_ENDPOINTS.COMPANY_DETAIL(name))
+    // 한글 기업명을 URL 인코딩
+    const encodedName = encodeURIComponent(name);
+    console.log(`🔍 기업 검색: ${name} → ${encodedName}`);
+    
+    axios.get(API_ENDPOINTS.COMPANY_DETAIL(encodedName))
       .then(res => {
         setCompany(res.data);
         setError(false);
@@ -90,7 +94,7 @@ function CompanyDetail() {
           .then(res => setInvestors(res.data))
           .catch(err => console.error("📛 투자자 매매 데이터 오류:", err));
 
-        axios.get(API_ENDPOINTS.COMPANY_METRICS(name))
+        axios.get(API_ENDPOINTS.COMPANY_METRICS(encodedName))
           .then(res => setMetrics(res.data));
       })
       .catch(err => {
