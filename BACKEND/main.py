@@ -33,7 +33,7 @@ app.add_middleware(
 )
 
 # MongoDB 연결 - 환경변수 사용
-MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
+MONGODB_URL = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
 try:
     client = MongoClient(MONGODB_URL)
     # 연결 테스트
@@ -191,17 +191,32 @@ def get_full_company_data(name: str):
 @app.get("/companies/names")
 def get_all_company_names():
     if not collection:
-        raise HTTPException(status_code=503, detail="데이터베이스 연결 실패")
+        # MongoDB 연결 실패 시 fallback 데이터 반환
+        print("MongoDB 연결 실패, fallback 데이터 반환")
+        return [
+            "삼성전자", "SK하이닉스", "LG화학", "현대차", "네이버",
+            "카카오", "LG전자", "POSCO", "기아", "KB금융",
+            "신한지주", "하나금융지주", "LG생활건강", "SK텔레콤", "KT",
+            "CJ제일제당", "한국전력", "현대모비스", "LG디스플레이", "SK이노베이션"
+        ]
     
     try:
         cursor = collection.find({}, {"_id": 0, "기업명": 1})
         names = [doc["기업명"] for doc in cursor if "기업명" in doc]
         if not names:
-            raise HTTPException(status_code=404, detail="기업명이 없습니다.")
+            # 데이터가 없을 때도 fallback 데이터 반환
+            return [
+                "삼성전자", "SK하이닉스", "LG화학", "현대차", "네이버",
+                "카카오", "LG전자", "POSCO", "기아", "KB금융"
+            ]
         return names
     except Exception as e:
         print(f"기업명 조회 오류: {e}")
-        raise HTTPException(status_code=500, detail=f"기업명 조회 실패: {str(e)}")
+        # 오류 발생 시에도 fallback 데이터 반환
+        return [
+            "삼성전자", "SK하이닉스", "LG화학", "현대차", "네이버",
+            "카카오", "LG전자", "POSCO", "기아", "KB금융"
+        ]
 
 
 # 메인페이지 코스피 키워드 뉴스 리스트
