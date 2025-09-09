@@ -54,7 +54,7 @@ DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 def setup_chrome_driver():
     """Railway 환경에서 Chrome 드라이버를 자동으로 설정"""
     try:
-        # Nixpacks 환경에서 Chrome 경로 설정
+        # Chrome 경로 설정
         chrome_paths = [
             "/usr/bin/chromium",
             "/usr/bin/chromium-browser", 
@@ -73,75 +73,53 @@ def setup_chrome_driver():
         else:
             print("Chrome을 찾을 수 없습니다. 기본 경로 사용")
         
-        # undetected_chromedriver 시도
-        try:
-            import undetected_chromedriver as uc
-            
-            options = uc.ChromeOptions()
-            options.add_argument('--headless')
-            options.add_argument('--no-sandbox')
-            options.add_argument('--disable-dev-shm-usage')
-            options.add_argument('--disable-gpu')
-            options.add_argument('--window-size=1920x1080')
-            options.add_argument('--disable-extensions')
-            options.add_argument('--disable-plugins')
-            options.add_argument('--disable-images')
-            options.add_argument('--disable-javascript')
-            options.add_argument('--disable-blink-features=AutomationControlled')
-            options.add_argument('--disable-web-security')
-            options.add_argument('--allow-running-insecure-content')
-            
-            if chrome_path:
-                options.binary_location = chrome_path
-            
-            driver = uc.Chrome(options=options, version_main=None)
-            print("✅ undetected_chromedriver 성공")
-            return driver
-        except Exception as e:
-            print(f"undetected_chromedriver 실패: {e}")
+        # Selenium 설정
+        options = Options()
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--disable-gpu')
+        options.add_argument('--window-size=1920x1080')
+        options.add_argument('--disable-extensions')
+        options.add_argument('--disable-plugins')
+        options.add_argument('--disable-images')
+        options.add_argument('--disable-javascript')
+        options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_argument('--disable-web-security')
+        options.add_argument('--allow-running-insecure-content')
         
-        # Fallback: 일반 Selenium 사용
-        try:
-            options = Options()
-            options.add_argument('--headless')
-            options.add_argument('--no-sandbox')
-            options.add_argument('--disable-dev-shm-usage')
-            options.add_argument('--disable-gpu')
-            options.add_argument('--window-size=1920x1080')
-            options.add_argument('--disable-extensions')
-            options.add_argument('--disable-plugins')
-            
-            if chrome_path:
-                options.binary_location = chrome_path
-            
-            # chromedriver 경로 설정
-            chromedriver_paths = [
-                "/usr/bin/chromedriver",
-                "/usr/local/bin/chromedriver"
-            ]
-            
-            chromedriver_path = None
-            for path in chromedriver_paths:
-                if os.path.exists(path):
-                    chromedriver_path = path
-                    break
-            
-            if chromedriver_path:
-                service = Service(chromedriver_path)
-            else:
-                # webdriver-manager 사용
-                chromedriver_autoinstaller.install()
+        if chrome_path:
+            options.binary_location = chrome_path
+        
+        # chromedriver 경로 설정
+        chromedriver_paths = [
+            "/usr/bin/chromedriver",
+            "/usr/local/bin/chromedriver"
+        ]
+        
+        chromedriver_path = None
+        for path in chromedriver_paths:
+            if os.path.exists(path):
+                chromedriver_path = path
+                break
+        
+        if chromedriver_path:
+            service = Service(chromedriver_path)
+        else:
+            # webdriver-manager 사용
+            try:
+                from webdriver_manager.chrome import ChromeDriverManager
+                service = Service(ChromeDriverManager().install())
+            except Exception as e:
+                print(f"webdriver-manager 실패: {e}")
                 service = Service()
-            
-            driver = webdriver.Chrome(service=service, options=options)
-            print("✅ 일반 Selenium 성공")
-            return driver
-        except Exception as e2:
-            print(f"일반 Selenium도 실패: {e2}")
-            return None
+        
+        driver = webdriver.Chrome(service=service, options=options)
+        print("✅ Chrome 드라이버 성공")
+        return driver
             
     except Exception as e:
-        print(f"Chrome 드라이버 설정 전체 실패: {e}")
+        print(f"Chrome 드라이버 설정 실패: {e}")
         return None
 
 # MongoDB 컬렉션 설정 (연결 실패 시 None 처리)
