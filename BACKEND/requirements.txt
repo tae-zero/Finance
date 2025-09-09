@@ -9,3 +9,4 @@ pykrx==1.0.51
 webdriver-manager==4.0.1
 python-multipart==0.0.6
 chromedriver-autoinstaller==0.6.2
+undetected-chromedriver==3.5.4
