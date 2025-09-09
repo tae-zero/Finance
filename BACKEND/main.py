@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Request,HTTPException,Query
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.base import BaseHTTPMiddleware
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
@@ -22,34 +21,14 @@ from pykrx import stock
 
 app = FastAPI()
 
-# 커스텀 CORS 미들웨어 추가
-class CustomCORSMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request, call_next):
-        response = await call_next(request)
-        
-        # CORS 헤더 추가
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "*"
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-        
-        return response
-
-# 커스텀 CORS 미들웨어 적용
-app.add_middleware(CustomCORSMiddleware)
+# CORS 미들웨어는 아래에서 설정
 
 # CORS 설정 - 배포 환경에 맞게 수정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "https://finance-dashboard-git-main-jeongtaeyeongs-projects.vercel.app",
-        "https://*.vercel.app",
-        "https://vercel.app"
-    ],
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_origins=["*"],  # 모든 도메인 허용 (개발용)
+    allow_credentials=False,
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
@@ -68,18 +47,7 @@ except Exception as e:
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
-# OPTIONS 요청 처리
-@app.options("/{path:path}")
-async def options_handler(path: str):
-    return JSONResponse(
-        content={},
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-            "Access-Control-Allow-Headers": "*",
-            "Access-Control-Allow-Credentials": "true"
-        }
-    )
+# OPTIONS 요청은 FastAPI CORS 미들웨어가 자동 처리
 
 # Chrome 드라이버 자동 설치
 def setup_chrome_driver():
