@@ -1,11 +1,9 @@
 fastapi==0.104.1
 uvicorn==0.24.0
-selenium==4.15.2
 beautifulsoup4==4.12.2
 yfinance==0.2.18
 pandas==2.1.3
 pymongo==4.6.0
 pykrx==1.0.50
-webdriver-manager==4.0.1
 python-multipart==0.0.6
 requests==2.31.0

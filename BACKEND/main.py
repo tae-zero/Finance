@@ -1,16 +1,12 @@
 from fastapi import FastAPI, Request,HTTPException,Query
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import yfinance as yf
 import time
 import pandas as pd
 from datetime import datetime, timedelta
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+import requests
 from pymongo import MongoClient
 from pykrx.stock import get_market_trading_volume_by_date
 import json
@@ -57,97 +53,76 @@ DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 # OPTIONS 요청은 FastAPI CORS 미들웨어가 자동 처리
 
-# Chrome 드라이버 자동 설치
-def setup_chrome_driver():
-    """Railway 환경에서 Chrome 드라이버를 자동으로 설정"""
+# 뉴스 스크래핑 헬퍼 함수
+def scrape_news_with_requests(url: str, keyword: str = ""):
+    """requests와 BeautifulSoup을 사용한 뉴스 스크래핑"""
     try:
-        # Chrome 경로 설정
-        chrome_paths = [
-            "/usr/bin/chromium",
-            "/usr/bin/chromium-browser", 
-            "/usr/bin/google-chrome",
-            "/usr/bin/google-chrome-stable"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+        }
+        
+        response = requests.get(url, headers=headers, timeout=15)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        news_list = []
+        # 여러 선택자 시도
+        selectors = [
+            'a.tit_main',
+            '.tit_main',
+            '.news_tit',
+            '.news_area .news_tit',
+            '.item-title > strong > a',
+            '#dnsColl .item-title strong a'
         ]
         
-        chrome_path = None
-        for path in chrome_paths:
-            if os.path.exists(path):
-                chrome_path = path
+        news_items = []
+        for selector in selectors:
+            news_items = soup.select(selector)
+            if news_items:
+                print(f"✅ 선택자 {selector}로 {len(news_items)}개 뉴스 발견")
                 break
         
-        if chrome_path:
-            print(f"Chrome 발견: {chrome_path}")
-        else:
-            print("Chrome을 찾을 수 없습니다. 기본 경로 사용")
+        if not news_items:
+            # 다른 방법으로 시도
+            news_items = soup.find_all('a', class_='tit_main')
+            if not news_items:
+                news_items = soup.find_all('a', href=lambda x: x and 'news' in x)
         
-        # Selenium 설정
-        options = Options()
-        options.add_argument('--headless')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
-        options.add_argument('--disable-gpu')
-        options.add_argument('--window-size=1920x1080')
-        options.add_argument('--disable-extensions')
-        options.add_argument('--disable-plugins')
-        options.add_argument('--disable-images')
-        options.add_argument('--disable-javascript')
-        options.add_argument('--disable-blink-features=AutomationControlled')
-        options.add_argument('--disable-web-security')
-        options.add_argument('--allow-running-insecure-content')
-        options.add_argument('--remote-debugging-port=9222')
-        options.add_argument('--disable-logging')
-        options.add_argument('--log-level=3')
-        
-        if chrome_path:
-            options.binary_location = chrome_path
-        
-        # chromedriver 경로 설정
-        chromedriver_paths = [
-            "/usr/bin/chromedriver",
-            "/usr/local/bin/chromedriver"
-        ]
-        
-        chromedriver_path = None
-        for path in chromedriver_paths:
-            if os.path.exists(path):
-                chromedriver_path = path
-                break
-        
-        if chromedriver_path:
-            print(f"ChromeDriver 발견: {chromedriver_path}")
-            service = Service(chromedriver_path)
-        else:
-            # webdriver-manager 사용
+        for item in news_items[:5]:
             try:
-                print("webdriver-manager로 ChromeDriver 설치 시도...")
-                service = Service(ChromeDriverManager().install())
-            except Exception as e:
-                print(f"webdriver-manager 실패: {e}")
-                # 최후의 수단: 기본 Service 사용
-                service = Service()
+                title = item.get_text().strip()
+                link = item.get('href', '#')
+                if title and len(title) > 5:
+                    news_list.append({"title": title, "link": link})
+            except:
+                continue
         
-        driver = webdriver.Chrome(service=service, options=options)
-        print("✅ Chrome 드라이버 성공")
-        return driver
-            
+        return news_list
+        
     except Exception as e:
-        print(f"Chrome 드라이버 설정 실패: {e}")
-        import traceback
-        print(f"상세 오류: {traceback.format_exc()}")
-        return None
+        print(f"❌ 뉴스 스크래핑 실패: {e}")
+        return []
 
 # MongoDB 컬렉션 설정 (연결 실패 시 None 처리)
 if client:
     try:
-db = client["testDB"]
-collection = db["users"]
-explain = db['explain']
-outline = db['outline']
+        db = client["testDB"]
+        collection = db["users"]
+        explain = db['explain']
+        outline = db['outline']
         industry = db['industry_metrics']
+        kospi_cache = db['kospi_cache']  # KOSPI 데이터 캐싱용
         print(f"✅ MongoDB 컬렉션 설정 완료")
         print(f"✅ collection: {collection}")
         print(f"✅ explain: {explain}")
         print(f"✅ outline: {outline}")
+        print(f"✅ kospi_cache: {kospi_cache}")
     except Exception as e:
         print(f"❌ MongoDB 컬렉션 설정 실패: {e}")
         db = None
@@ -155,6 +130,7 @@ outline = db['outline']
         explain = None
         outline = None
         industry = None
+        kospi_cache = None
 else:
     print("❌ MongoDB 클라이언트가 None입니다")
     db = None
@@ -162,6 +138,7 @@ else:
     explain = None
     outline = None
     industry = None
+    kospi_cache = None
 
 #백엔드 메인페이지
 @app.get("/")
@@ -209,30 +186,30 @@ def get_full_company_data(name: str):
             base = collection.find_one({"기업명": {"$regex": decoded_name, "$options": "i"}}, {"_id": 0})
             print(f"🔍 정규식 검색 결과: {base is not None}")
             
-    if not base:
-                print(f"❌ 기업을 찾을 수 없음: {decoded_name}")
-        raise HTTPException(status_code=404, detail="기업을 찾을 수 없습니다.")
+        if not base:
+            print(f"❌ 기업을 찾을 수 없음: {decoded_name}")
+            raise HTTPException(status_code=404, detail="기업을 찾을 수 없습니다.")
 
         print(f"✅ 기업 데이터 찾음: {base.get('기업명', 'Unknown')}")
 
-    # 1. 짧은요약 (explain 컬렉션)
+        # 1. 짧은요약 (explain 컬렉션)
         if explain is not None:
             explain_doc = explain.find_one({"기업명": decoded_name}, {"_id": 0, "짧은요약": 1})
-    if explain_doc:
-        base["짧은요약"] = explain_doc.get("짧은요약")
+            if explain_doc:
+                base["짧은요약"] = explain_doc.get("짧은요약")
                 print(f"✅ 짧은요약 추가됨")
 
-    # 2. outline 정보 (outline 컬렉션)
+        # 2. outline 정보 (outline 컬렉션)
         if outline is not None:
-    code = base.get("종목코드")
-    if code:
-        outline_doc = outline.find_one({"종목코드": code}, {"_id": 0})
-        if outline_doc:
-            base["개요"] = outline_doc
+            code = base.get("종목코드")
+            if code:
+                outline_doc = outline.find_one({"종목코드": code}, {"_id": 0})
+                if outline_doc:
+                    base["개요"] = outline_doc
                     print(f"✅ 개요 정보 추가됨")
 
         print(f"✅ 최종 데이터 반환: {len(str(base))} 문자")
-    return base
+        return base
         
     except HTTPException:
         raise
@@ -256,15 +233,15 @@ def get_all_company_names():
         ]
     
     try:
-    cursor = collection.find({}, {"_id": 0, "기업명": 1})
-    names = [doc["기업명"] for doc in cursor if "기업명" in doc]
-    if not names:
+        cursor = collection.find({}, {"_id": 0, "기업명": 1})
+        names = [doc["기업명"] for doc in cursor if "기업명" in doc]
+        if not names:
             # 데이터가 없을 때도 fallback 데이터 반환
             return [
                 "삼성전자", "SK하이닉스", "LG화학", "현대차", "네이버",
                 "카카오", "LG전자", "POSCO", "기아", "KB금융"
             ]
-    return names
+        return names
     except Exception as e:
         print(f"기업명 조회 오류: {e}")
         # 오류 발생 시에도 fallback 데이터 반환
@@ -278,57 +255,14 @@ def get_all_company_names():
 @app.get("/hot/")
 async def hot_news():
     try:
-        driver = setup_chrome_driver()
-        if not driver:
-            print("Chrome 드라이버 실패, 실제 뉴스 스크래핑 시도...")
-            # Chrome 없이도 뉴스 가져오기 시도
-            try:
-                import requests
-                from bs4 import BeautifulSoup
-                
-                # 다음뉴스에서 코스피 관련 뉴스 가져오기
-                url = "https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q=코스피"
-                headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                }
-                
-            response = requests.get(url, headers=headers, timeout=15)
-            response.raise_for_status()
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            news_list = []
-            # 여러 선택자 시도
-            selectors = ['.tit_main', '.news_tit', '.news_area .news_tit', 'a.tit_main']
-            
-            for selector in selectors:
-                news_items = soup.select(selector)
-                if news_items:
-                    print(f"✅ 선택자 {selector}로 {len(news_items)}개 뉴스 발견")
-                    break
-            
-            if not news_items:
-                # 다른 방법으로 시도
-                news_items = soup.find_all('a', class_='tit_main')
-                if not news_items:
-                    news_items = soup.find_all('a', href=lambda x: x and 'news' in x)
-            
-            for item in news_items[:5]:
-                try:
-                    title = item.get_text().strip()
-                    link = item.get('href', '#')
-                    if title and len(title) > 5:
-                        news_list.append({"title": title, "link": link})
-                except:
-                    continue
-                
-                if news_list:
-                    print(f"✅ 실제 뉴스 스크래핑 성공: {len(news_list)}개")
-                    return JSONResponse(content=news_list)
-                    
-            except Exception as e:
-                print(f"실제 뉴스 스크래핑 실패: {e}")
-            
-            # 최후의 수단: fallback 데이터
+        url = "https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q=코스피"
+        news_list = scrape_news_with_requests(url, "코스피")
+        
+        if news_list:
+            print(f"✅ 코스피 뉴스 스크래핑 성공: {len(news_list)}개")
+            return JSONResponse(content=news_list)
+        else:
+            # fallback 데이터
             return JSONResponse(content=[
                 {"title": "코스피 시장 동향 분석", "link": "#"},
                 {"title": "주요 기업 실적 발표", "link": "#"},
@@ -336,93 +270,34 @@ async def hot_news():
                 {"title": "시장 전망 보고서", "link": "#"},
                 {"title": "금융 정책 변화", "link": "#"}
             ])
-
-    driver.get('https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q=코스피')
-
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
-    driver.quit()
-
-    path = '#dnsColl > div:nth-child(1) > ul > li > div.c-item-content > div > div.item-title > strong > a'
-    a_tags = soup.select(path)
-
-    news_list = [{"title": a.text.strip(), "link": a['href']} for a in a_tags[:5]]
-    return JSONResponse(content=news_list)
+            
     except Exception as e:
-        print(f"핫뉴스 오류: {str(e)}")
+        print(f"❌ 핫뉴스 오류: {str(e)}")
         return JSONResponse(content={"error": f"핫뉴스 조회 실패: {str(e)}"}, status_code=500)
 
 # 메인페이지 실적 발표 키워드 리스트
 @app.get("/main_news/")
 async def main_news():
-    driver = setup_chrome_driver()
-    if not driver:
-        print("Chrome 드라이버 실패, 실제 뉴스 스크래핑 시도...")
-        # Chrome 없이도 뉴스 가져오기 시도
-        try:
-            import requests
-            from bs4 import BeautifulSoup
-            
-            # 다음뉴스에서 실적 발표 관련 뉴스 가져오기
-            url = "https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q=실적 발표"
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-            }
-            
-            response = requests.get(url, headers=headers, timeout=15)
-            response.raise_for_status()
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            news_list = []
-            # 여러 선택자 시도
-            selectors = ['.tit_main', '.news_tit', '.news_area .news_tit', 'a.tit_main']
-            
-            for selector in selectors:
-                news_items = soup.select(selector)
-                if news_items:
-                    print(f"✅ 선택자 {selector}로 {len(news_items)}개 뉴스 발견")
-                    break
-            
-            if not news_items:
-                # 다른 방법으로 시도
-                news_items = soup.find_all('a', class_='tit_main')
-                if not news_items:
-                    news_items = soup.find_all('a', href=lambda x: x and 'news' in x)
-            
-            for item in news_items[:5]:
-                try:
-                    title = item.get_text().strip()
-                    link = item.get('href', '#')
-                    if title and len(title) > 5:
-                        news_list.append({"title": title, "link": link})
-                except:
-                    continue
-            
-            if news_list:
-                print(f"✅ 실제 실적뉴스 스크래핑 성공: {len(news_list)}개")
-                return JSONResponse(content=news_list)
-                
-        except Exception as e:
-            print(f"실제 실적뉴스 스크래핑 실패: {e}")
+    try:
+        url = "https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q=실적 발표"
+        news_list = scrape_news_with_requests(url, "실적 발표")
         
-        # 최후의 수단: fallback 데이터
-        return JSONResponse(content=[
-            {"title": "삼성전자 3분기 실적 발표", "link": "#"},
-            {"title": "SK하이닉스 매출 증가", "link": "#"},
-            {"title": "LG화학 신사업 확장", "link": "#"},
-            {"title": "현대차 전기차 판매 급증", "link": "#"},
-            {"title": "네이버 클라우드 사업 성장", "link": "#"}
-        ])
-
-    driver.get('https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q=실적 발표')
-
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
-    driver.quit()
-
-    path = '#dnsColl > div:nth-child(1) > ul > li > div.c-item-content > div > div.item-title > strong > a'
-    a_tags = soup.select(path)
-
-    news_list = [{"title": a.text.strip(), "link": a['href']} for a in a_tags[:5]]
-    return JSONResponse(content=news_list)
+        if news_list:
+            print(f"✅ 실적뉴스 스크래핑 성공: {len(news_list)}개")
+            return JSONResponse(content=news_list)
+        else:
+            # fallback 데이터
+            return JSONResponse(content=[
+                {"title": "삼성전자 3분기 실적 발표", "link": "#"},
+                {"title": "SK하이닉스 매출 증가", "link": "#"},
+                {"title": "LG화학 신사업 확장", "link": "#"},
+                {"title": "현대차 전기차 판매 급증", "link": "#"},
+                {"title": "네이버 클라우드 사업 성장", "link": "#"}
+            ])
+            
+    except Exception as e:
+        print(f"❌ 실적뉴스 오류: {str(e)}")
+        return JSONResponse(content={"error": f"실적뉴스 조회 실패: {str(e)}"}, status_code=500)
 
 
 # 기업 상세페이지 해당 기업 키워드 뉴스 리스트
@@ -432,29 +307,26 @@ async def search_news(request: Request):
     if not keyword:
         return JSONResponse(content={"error": "keyword 파라미터가 필요합니다"}, status_code=400)
 
-    driver = setup_chrome_driver()
-    if not driver:
-        # Chrome 드라이버 실패 시 fallback 데이터 반환
-        print("Chrome 드라이버 실패, fallback 데이터 반환")
-        return JSONResponse(content=[
-            {"title": f"{keyword} 관련 뉴스 1", "link": "#"},
-            {"title": f"{keyword} 관련 뉴스 2", "link": "#"},
-            {"title": f"{keyword} 관련 뉴스 3", "link": "#"},
-            {"title": f"{keyword} 관련 뉴스 4", "link": "#"},
-            {"title": f"{keyword} 관련 뉴스 5", "link": "#"}
-        ])
-    search_url = f'https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q={keyword}'
-    driver.get(search_url)
-    time.sleep(2)
-
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
-    driver.quit()
-
-    a_tags = soup.select('#dnsColl > div:nth-child(1) > ul > li > div.c-item-content > div > div.item-title > strong > a')
-    print(f"'{keyword}' 뉴스 개수: {len(a_tags)}")
-
-    news_list = [{"title": a.text.strip(), "link": a['href']} for a in a_tags[:10]]
-    return JSONResponse(content=news_list)
+    try:
+        search_url = f'https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q={keyword}'
+        news_list = scrape_news_with_requests(search_url, keyword)
+        
+        if news_list:
+            print(f"✅ '{keyword}' 뉴스 스크래핑 성공: {len(news_list)}개")
+            return JSONResponse(content=news_list[:10])  # 최대 10개
+        else:
+            # fallback 데이터
+            return JSONResponse(content=[
+                {"title": f"{keyword} 관련 뉴스 1", "link": "#"},
+                {"title": f"{keyword} 관련 뉴스 2", "link": "#"},
+                {"title": f"{keyword} 관련 뉴스 3", "link": "#"},
+                {"title": f"{keyword} 관련 뉴스 4", "link": "#"},
+                {"title": f"{keyword} 관련 뉴스 5", "link": "#"}
+            ])
+            
+    except Exception as e:
+        print(f"❌ '{keyword}' 뉴스 오류: {str(e)}")
+        return JSONResponse(content={"error": f"뉴스 조회 실패: {str(e)}"}, status_code=500)
 
 
 # 기업상세페이지 해당 기업 주가 시세
@@ -484,10 +356,61 @@ def get_price_data(ticker: str):
 # 기업상세페이지 종목분석 리포트
 @app.get("/report/")
 def get_report_summary(code: str = Query(..., description="종목 코드 (예: A005930)")):
-    driver = setup_chrome_driver()
-    if not driver:
-        # Chrome 드라이버 실패 시 fallback 데이터 반환
-        print("Chrome 드라이버 실패, fallback 데이터 반환")
+    try:
+        # Selenium 없이 requests로 시도
+        url = f"https://comp.fnguide.com/SVO2/ASP/SVD_Consensus.asp?pGB=1&gicode={code}&MenuYn=Y&ReportGB=&NewMenuID=108"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=15)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # 테이블 데이터 파싱 시도
+        data = []
+        rows = soup.select('#bodycontent4 tr')
+        
+        for row in rows[:5]:  # 최대 5개
+            try:
+                cells = row.find_all('td')
+                if len(cells) >= 6:
+                    date = cells[0].get_text().strip()
+                    title_cell = cells[1]
+                    title = title_cell.find('span', class_='txt2')
+                    title = title.get_text().strip() if title else ""
+                    
+                    summary_parts = title_cell.find_all('dd')
+                    summary = " / ".join([p.get_text().strip() for p in summary_parts if p.get_text().strip()])
+                    
+                    opinion = cells[2].get_text().strip() if len(cells) > 2 else ""
+                    target_price = cells[3].get_text().strip() if len(cells) > 3 else ""
+                    closing_price = cells[4].get_text().strip() if len(cells) > 4 else ""
+                    analyst = cells[5].get_text().strip() if len(cells) > 5 else ""
+                    
+                    if date and title:
+                        data.append({
+                            "date": date,
+                            "title": title,
+                            "summary": summary,
+                            "opinion": opinion,
+                            "target_price": target_price,
+                            "closing_price": closing_price,
+                            "analyst": analyst
+                        })
+            except Exception as e:
+                print(f"⚠️ 행 파싱 중 오류: {e}")
+                continue
+        
+        if data:
+            print(f"✅ 리포트 데이터 파싱 성공: {len(data)}개")
+            return data
+        else:
+            raise ValueError("데이터를 찾을 수 없습니다")
+            
+    except Exception as e:
+        print(f"❌ 리포트 스크래핑 실패: {e}")
+        # fallback 데이터
         return [
             {
                 "date": "2024-01-15",
@@ -500,66 +423,6 @@ def get_report_summary(code: str = Query(..., description="종목 코드 (예: A
             }
         ]
 
-    url = f"https://comp.fnguide.com/SVO2/ASP/SVD_Consensus.asp?pGB=1&gicode={code}&MenuYn=Y&ReportGB=&NewMenuID=108"
-    driver.get(url)
-    time.sleep(2)
-
-    data = []
-    try:
-        rows = driver.find_elements(By.XPATH, '//*[@id="bodycontent4"]/tr')
-        for row in rows:
-            try:
-                date = row.find_element(By.XPATH, './td[1]').text.strip()
-                title = row.find_element(By.XPATH, './td[2]//span[@class="txt2"]').text.strip()
-                summary_parts = row.find_elements(By.XPATH, './td[2]//dd')
-                summary = " / ".join([p.text.strip() for p in summary_parts if p.text.strip()])
-
-                # 추가 항목: 투자의견, 목표주가, 전일종가
-                opinion = ""
-                try:
-                    opinion = row.find_element(By.XPATH, './td[3]/span').text[1].strip()
-                except:
-                    pass
-
-                target_price = ""
-                try:
-                    target_price = row.find_element(By.XPATH, './td[4]/span').text.strip()
-                except:
-                    pass
-
-                closing_price = ""
-                try:
-                    closing_price = row.find_element(By.XPATH, './td[5]').text.strip()
-                except:
-                    pass
-
-                analyst = ""
-                try:
-                    analyst = row.find_element(By.XPATH, './td[6]').text.strip()
-                except:
-                    pass
-
-                data.append({
-                    "date": date,
-                    "title": title,
-                    "summary": summary,
-                    "opinion": opinion,
-                    "target_price": target_price,
-                    "closing_price": closing_price,
-                    "analyst": analyst
-                })
-
-                if len(data) >= 5:
-                    break
-
-            except Exception as e:
-                print("⚠️ 행 파싱 중 오류 발생:", e)
-                continue
-    finally:
-        driver.quit()
-
-    return data
-
 
 
 # 메인페이지 코스피 지수
@@ -569,7 +432,22 @@ def get_kospi_data():
         # 오늘 날짜 계산
         today = datetime.today().date()
         
-        # 더 강력한 yfinance 데이터 가져오기
+        # 1단계: MongoDB 캐시 확인
+        if kospi_cache is not None:
+            try:
+                cached_data = kospi_cache.find_one({"type": "kospi_data"})
+                if cached_data:
+                    cache_time = cached_data.get("timestamp", datetime.min)
+                    # 24시간 이내 데이터면 캐시 사용
+                    if (datetime.now() - cache_time).total_seconds() < 24 * 3600:
+                        print(f"✅ 캐시된 KOSPI 데이터 사용 (캐시 시간: {cache_time})")
+                        return JSONResponse(content=cached_data.get("data", []))
+                    else:
+                        print(f"⚠️ 캐시된 데이터가 오래됨 ({(datetime.now() - cache_time).total_seconds()/3600:.1f}시간 전)")
+            except Exception as e:
+                print(f"⚠️ 캐시 확인 중 오류: {e}")
+        
+        # 2단계: yfinance로 실제 데이터 가져오기
         df = None
         
         # 1단계: 다양한 심볼과 설정으로 시도
@@ -660,11 +538,19 @@ def get_kospi_data():
                     print(f"❌ 대안 심볼 실패: {alt_symbol} - {e}")
                     continue
         
-        # 4단계: 수동으로 데이터 생성 (실제 KOSPI와 유사한 패턴)
+        # 4단계: 캐시된 데이터가 있으면 사용 (오래된 데이터라도)
         if df is None or df.empty:
-            print("⚠️ 모든 데이터 소스 실패, 실제 KOSPI 패턴 기반 가상 데이터 생성")
+            if kospi_cache is not None:
+                try:
+                    cached_data = kospi_cache.find_one({"type": "kospi_data"})
+                    if cached_data and cached_data.get("data"):
+                        print(f"⚠️ yfinance 실패, 오래된 캐시 데이터 사용")
+                        return JSONResponse(content=cached_data.get("data", []))
+                except Exception as e:
+                    print(f"⚠️ 캐시 데이터 조회 실패: {e}")
             
-            # 실제 KOSPI와 유사한 패턴으로 데이터 생성
+            # 5단계: 최종 fallback - 가상 데이터 생성
+            print("⚠️ 모든 데이터 소스 실패, 가상 데이터 생성")
             import random
             base_price = 2500
             dates = []
@@ -680,14 +566,28 @@ def get_kospi_data():
                     base_price += change
                     closes.append(round(base_price, 2))
             
-            return JSONResponse(content=[{"Date": date, "Close": close} for date, close in zip(dates, closes)])
-        
-        # 최종 fallback: 가상 데이터 생성
-        if df is None or df.empty:
-            print("⚠️ 모든 yfinance 시도 실패, 가상 데이터 생성")
-            dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(30, 0, -1)]
-            closes = [2500 + i * 2 + (i % 7) * 10 for i in range(30)]
-            return JSONResponse(content=[{"Date": date, "Close": close} for date, close in zip(dates, closes)])
+            fallback_data = [{"Date": date, "Close": close} for date, close in zip(dates, closes)]
+            
+            # 가상 데이터도 캐시에 저장
+            if kospi_cache is not None:
+                try:
+                    cache_doc = {
+                        "type": "kospi_data",
+                        "timestamp": datetime.now(),
+                        "data": fallback_data,
+                        "data_count": len(fallback_data),
+                        "is_fallback": True
+                    }
+                    kospi_cache.replace_one(
+                        {"type": "kospi_data"}, 
+                        cache_doc, 
+                        upsert=True
+                    )
+                    print(f"✅ 가상 데이터 캐시 저장 완료")
+                except Exception as e:
+                    print(f"⚠️ 가상 데이터 캐시 저장 실패: {e}")
+            
+            return JSONResponse(content=fallback_data)
 
         # Close 컬럼 찾기
         close_col = None
@@ -708,7 +608,27 @@ def get_kospi_data():
         df['Date'] = df['Date'].astype(str)
         df['Close'] = df['Close'].astype(float)
 
-        return JSONResponse(content=df.to_dict(orient="records"))
+        result_data = df.to_dict(orient="records")
+        
+        # 3단계: 성공한 데이터를 MongoDB에 캐시 저장
+        if kospi_cache is not None:
+            try:
+                cache_doc = {
+                    "type": "kospi_data",
+                    "timestamp": datetime.now(),
+                    "data": result_data,
+                    "data_count": len(result_data)
+                }
+                kospi_cache.replace_one(
+                    {"type": "kospi_data"}, 
+                    cache_doc, 
+                    upsert=True
+                )
+                print(f"✅ KOSPI 데이터 캐시 저장 완료: {len(result_data)}개")
+            except Exception as e:
+                print(f"⚠️ 캐시 저장 실패: {e}")
+
+        return JSONResponse(content=result_data)
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
@@ -918,8 +838,6 @@ def get_top_volume():
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 # 주린이들을 위한 보물찾기
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
 
 @app.get("/api/treasure")
 def get_treasure_data():
@@ -967,7 +885,6 @@ def get_treasure_data():
         except Exception as e:
             print(f"❌ {기업명} 처리 중 오류:", e)
 
-    
     return JSONResponse(content=result)
 
 
