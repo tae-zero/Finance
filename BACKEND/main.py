@@ -34,13 +34,16 @@ app.add_middleware(
 
 # MongoDB 연결 - 환경변수 사용
 MONGODB_URL = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+print(f"🔍 MongoDB URL: {MONGODB_URL[:20]}...")  # 처음 20자만 출력
+
 try:
-    client = MongoClient(MONGODB_URL)
+    client = MongoClient(MONGODB_URL, serverSelectionTimeoutMS=5000)
     # 연결 테스트
     client.admin.command('ping')
     print("✅ MongoDB 연결 성공")
 except Exception as e:
     print(f"❌ MongoDB 연결 실패: {e}")
+    print(f"❌ MongoDB URL: {MONGODB_URL}")
     client = None
 
 # 환경 설정
@@ -164,33 +167,66 @@ async def health_check():
 #기업 상세페이지 기업개요, 기업 설명
 @app.get("/company/{name}")
 def get_full_company_data(name: str):
-    if not collection:
-        raise HTTPException(status_code=503, detail="데이터베이스 연결 실패")
-    
-    base = collection.find_one({"기업명": name}, {"_id": 0})
-    if not base:
-        raise HTTPException(status_code=404, detail="기업을 찾을 수 없습니다.")
+    try:
+        # URL 디코딩 처리 (한글 인코딩 문제 해결)
+        import urllib.parse
+        decoded_name = urllib.parse.unquote(name)
+        print(f"🔍 기업 검색 요청: {decoded_name}")
+        print(f"🔍 원본 name: {name}")
+        
+        if collection is None:
+            print("❌ collection이 None입니다")
+            raise HTTPException(status_code=503, detail="데이터베이스 연결 실패")
+        
+        print(f"🔍 MongoDB collection 사용 가능")
+        
+        # 기업명으로 검색
+        base = collection.find_one({"기업명": decoded_name}, {"_id": 0})
+        print(f"🔍 검색 결과: {base is not None}")
+        
+        if not base:
+            # 다른 방법으로 검색 시도
+            print(f"🔍 다른 방법으로 검색 시도...")
+            base = collection.find_one({"기업명": {"$regex": decoded_name, "$options": "i"}}, {"_id": 0})
+            print(f"🔍 정규식 검색 결과: {base is not None}")
+            
+            if not base:
+                print(f"❌ 기업을 찾을 수 없음: {decoded_name}")
+                raise HTTPException(status_code=404, detail="기업을 찾을 수 없습니다.")
 
-    # 1. 짧은요약 (explain 컬렉션)
-    if explain:
-        explain_doc = explain.find_one({"기업명": name}, {"_id": 0, "짧은요약": 1})
-        if explain_doc:
-            base["짧은요약"] = explain_doc.get("짧은요약")
+        print(f"✅ 기업 데이터 찾음: {base.get('기업명', 'Unknown')}")
 
-    # 2. outline 정보 (outline 컬렉션)
-    if outline:
-        code = base.get("종목코드")
-        if code:
-            outline_doc = outline.find_one({"종목코드": code}, {"_id": 0})
-            if outline_doc:
-                base["개요"] = outline_doc
+        # 1. 짧은요약 (explain 컬렉션)
+        if explain:
+            explain_doc = explain.find_one({"기업명": decoded_name}, {"_id": 0, "짧은요약": 1})
+            if explain_doc:
+                base["짧은요약"] = explain_doc.get("짧은요약")
+                print(f"✅ 짧은요약 추가됨")
 
-    return base
+        # 2. outline 정보 (outline 컬렉션)
+        if outline:
+            code = base.get("종목코드")
+            if code:
+                outline_doc = outline.find_one({"종목코드": code}, {"_id": 0})
+                if outline_doc:
+                    base["개요"] = outline_doc
+                    print(f"✅ 개요 정보 추가됨")
+
+        print(f"✅ 최종 데이터 반환: {len(str(base))} 문자")
+        return base
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ 기업 데이터 조회 오류: {e}")
+        import traceback
+        print(f"❌ 상세 오류: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"서버 오류: {str(e)}")
 
 #기업 재무재표
 @app.get("/companies/names")
 def get_all_company_names():
-    if not collection:
+    if collection is None:
         # MongoDB 연결 실패 시 fallback 데이터 반환
         print("MongoDB 연결 실패, fallback 데이터 반환")
         return [
@@ -225,8 +261,37 @@ async def hot_news():
     try:
         driver = setup_chrome_driver()
         if not driver:
-            # Chrome 드라이버 실패 시 fallback 데이터 반환
-            print("Chrome 드라이버 실패, fallback 데이터 반환")
+            print("Chrome 드라이버 실패, 실제 뉴스 스크래핑 시도...")
+            # Chrome 없이도 뉴스 가져오기 시도
+            try:
+                import requests
+                from bs4 import BeautifulSoup
+                
+                # 네이버 뉴스에서 코스피 관련 뉴스 가져오기
+                url = "https://search.naver.com/search.naver?where=news&query=코스피&sort=1"
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+                
+                response = requests.get(url, headers=headers, timeout=10)
+                soup = BeautifulSoup(response.content, 'html.parser')
+                
+                news_list = []
+                news_items = soup.select('.news_tit')[:5]  # 상위 5개 뉴스
+                
+                for item in news_items:
+                    title = item.get_text().strip()
+                    link = item.get('href', '#')
+                    news_list.append({"title": title, "link": link})
+                
+                if news_list:
+                    print(f"✅ 실제 뉴스 스크래핑 성공: {len(news_list)}개")
+                    return JSONResponse(content=news_list)
+                    
+            except Exception as e:
+                print(f"실제 뉴스 스크래핑 실패: {e}")
+            
+            # 최후의 수단: fallback 데이터
             return JSONResponse(content=[
                 {"title": "코스피 시장 동향 분석", "link": "#"},
                 {"title": "주요 기업 실적 발표", "link": "#"},
@@ -254,8 +319,37 @@ async def hot_news():
 async def main_news():
     driver = setup_chrome_driver()
     if not driver:
-        # Chrome 드라이버 실패 시 fallback 데이터 반환
-        print("Chrome 드라이버 실패, fallback 데이터 반환")
+        print("Chrome 드라이버 실패, 실제 뉴스 스크래핑 시도...")
+        # Chrome 없이도 뉴스 가져오기 시도
+        try:
+            import requests
+            from bs4 import BeautifulSoup
+            
+            # 네이버 뉴스에서 실적 발표 관련 뉴스 가져오기
+            url = "https://search.naver.com/search.naver?where=news&query=실적 발표&sort=1"
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            news_list = []
+            news_items = soup.select('.news_tit')[:5]  # 상위 5개 뉴스
+            
+            for item in news_items:
+                title = item.get_text().strip()
+                link = item.get('href', '#')
+                news_list.append({"title": title, "link": link})
+            
+            if news_list:
+                print(f"✅ 실제 실적뉴스 스크래핑 성공: {len(news_list)}개")
+                return JSONResponse(content=news_list)
+                
+        except Exception as e:
+            print(f"실제 실적뉴스 스크래핑 실패: {e}")
+        
+        # 최후의 수단: fallback 데이터
         return JSONResponse(content=[
             {"title": "삼성전자 3분기 실적 발표", "link": "#"},
             {"title": "SK하이닉스 매출 증가", "link": "#"},
