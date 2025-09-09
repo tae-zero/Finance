@@ -1,12 +1,13 @@
 from fastapi import FastAPI, Request,HTTPException,Query
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.base import BaseHTTPMiddleware
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import yfinance as yf
 import time
 import pandas as pd
-from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -21,16 +22,34 @@ from pykrx import stock
 
 app = FastAPI()
 
+# 커스텀 CORS 미들웨어 추가
+class CustomCORSMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        
+        # CORS 헤더 추가
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        
+        return response
+
+# 커스텀 CORS 미들웨어 적용
+app.add_middleware(CustomCORSMiddleware)
+
 # CORS 설정 - 배포 환경에 맞게 수정
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "http://localhost:3000",
         "http://localhost:5173",
-        "https://finance-dashboard-git-main-jeongtaeyeongs-projects.vercel.app",  # 실제 Vercel 도메인
-        "https://*.vercel.app"  # Vercel의 모든 하위 도메인 허용
+        "https://finance-dashboard-git-main-jeongtaeyeongs-projects.vercel.app",
+        "https://*.vercel.app",
+        "https://vercel.app"
     ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -48,6 +67,19 @@ except Exception as e:
 # 환경 설정
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+
+# OPTIONS 요청 처리
+@app.options("/{path:path}")
+async def options_handler(path: str):
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Credentials": "true"
+        }
+    )
 
 # Chrome 드라이버 자동 설치
 def setup_chrome_driver():
