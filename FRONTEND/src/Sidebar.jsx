@@ -62,111 +62,98 @@ function Sidebar() {
 
 
   return (
-    <aside className="sidebar" style={{ position: 'relative', borderRadius: '6px', }}>
-      <div style={{ marginTop: '30px' }}>
-        <h3>🔍 검색</h3>
-        <div style={{ display: 'flex', gap: '6px', marginBottom: '10px' }}>
+    <aside className="sidebar">
+      {/* 로고 섹션 */}
+      <div className="logo-section">
+        <h1 className="logo-title">주린이 놀이터</h1>
+        <p className="logo-subtitle">주린이를 위한 친절한 주식투자 대시보드</p>
+      </div>
+
+      {/* 검색 섹션 */}
+      <div className="search-section">
+        <div className="search-container">
+          <div className="search-icon">🔍</div>
           <input
             type="text"
+            className="search-input"
             placeholder="종목명 검색"
             value={searchTerm}
             onChange={handleChange}
             onKeyDown={handleSearch}
-            style={{
-              flex: 1,
-              padding: '8px',
-              boxSizing: 'border-box',
-            }}
           />
-          <button onClick={handleSearch} style={{ padding: '8px 12px' }}>
-            검색
-          </button>
         </div>
+        <button className="search-button" onClick={handleSearch}>
+          검색
+        </button>
+        
         {suggestions.length > 0 && (
-          <ul style={{
-            listStyle: 'none',
-            padding: '4px',
-            marginTop: '4px',
-            border: '1px solid #ccc',
-            backgroundColor: 'white',
-            maxHeight: '100px',
-            overflowY: 'auto',
-            position: 'absolute',
-            zIndex: 1000,
-            fontSize: '13px',
-            width: 'calc(100% - 20px)'
-          }}>
+          <div className="suggestions-dropdown">
             {suggestions.map((item, idx) => (
-              <li
+              <div
                 key={idx}
+                className="suggestion-item"
                 onClick={() => {
                   navigate(`/company/${encodeURIComponent(item)}`);
                   setSearchTerm("");
                   setSuggestions([]);
                 }}
-                style={{
-                  padding: '4px 6px',
-                  cursor: 'pointer',
-                  borderBottom: '1px solid #eee'
-                }}
               >
                 {item}
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
 
-      {/* ✅ 산업 리스트 및 보물찾기 버튼 */}
-      <div style={{ marginTop: '30px' }}>
+      {/* 필터 섹션 */}
+      <div className="filter-section">
         <details open>
-          <summary style={{ fontWeight: 'bold', fontSize: '15px', marginBottom: '10px', cursor: 'pointer' }}>
-            🏭 산업별 보기
+          <summary className="filter-title">
+            산업별 보기
           </summary>
 
-          {/* ✅ 보물찾기 버튼 추가 (맨 위) */}
+          {/* 보물찾기 버튼 */}
           <Link
             to="/treasure"
+            className="btn btn-warning w-full mb-4 text-center"
             style={{
-              gridColumn: '1 / -1',
-              padding: '8px 10px',
-              background: '#ffe599',
-              borderRadius: '8px',
+              background: 'var(--warning-gradient)',
+              color: 'white',
               textDecoration: 'none',
-              color: '#333',
-              fontWeight: 'bold',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '6px',
-              marginBottom: '10px'
+              marginBottom: 'var(--spacing-lg)'
             }}
           >
             🪙 보물찾기 (저PBR/PER/대형주 필터링)
           </Link>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '8px'
-          }}>
+          <div className="grid grid-cols-1 gap-2">
             {industryList.map((item, idx) => {
-              const isActive = location.pathname === `/industry/${encodeURIComponent(item)}`; // 현재 선택된 항목
+              const isActive = location.pathname === `/industry/${encodeURIComponent(item)}`;
 
               return (
                 <Link
                   key={idx}
                   to={`/industry/${encodeURIComponent(item)}`}
+                  className={`filter-checkbox ${isActive ? 'active' : ''}`}
                   style={{
-                    padding: '6px 10px',
-                    background: isActive ? '#555555' : '#f0f0f0',  // 선택된 항목 배경색
-                    borderRadius: '6px',
                     textDecoration: 'none',
-                    color: isActive ? 'white' : '#333',           // 선택된 항목 텍스트색
-                    fontWeight: isActive ? 'bold' : 'normal'
+                    background: isActive ? 'var(--primary-gradient)' : 'transparent',
+                    color: isActive ? 'white' : 'var(--light-text)',
+                    fontWeight: isActive ? '600' : '500',
+                    border: isActive ? 'none' : '1px solid var(--glass-border)',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: 'var(--spacing-sm) var(--spacing-md)',
+                    transition: 'var(--transition-normal)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--spacing-sm)'
                   }}
                 >
-                  {item}
+                  <span className="text-sm">{item}</span>
                 </Link>
               );
             })}
@@ -174,24 +161,13 @@ function Sidebar() {
         </details>
       </div>
 
-      {/* 🏠 홈으로 버튼 */}
-      <div style={{ marginTop: '30px' }}>
-        <button
-          onClick={() => navigate("/")}
-          style={{
-            width: '100%',
-            padding: '10px',
-            backgroundColor: '#007acc',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '6px',
-            fontWeight: 'bold',
-            cursor: 'pointer'
-          }}
-        >
-          🏠 홈으로
-        </button>
-      </div>
+      {/* 홈 버튼 */}
+      <button
+        onClick={() => navigate("/")}
+        className="home-button"
+      >
+        🏠 홈으로
+      </button>
     </aside>
   );
 }

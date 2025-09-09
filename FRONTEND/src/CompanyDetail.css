@@ -1,43 +1,618 @@
+/* 현대적 기업 상세 페이지 스타일 */
+
+/* 재무지표 테이블 */
 .indicator-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 16px;
-  font-size: 15px;
-  box-shadow: 0 0 6px rgba(0,0,0,0.5);
+  margin-top: var(--spacing-lg);
+  font-size: 0.95rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
+  position: relative;
+}
+
+.indicator-table::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--primary-gradient);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
 }
 
 .indicator-table th {
-  background-color: #004080;
+  background: var(--primary-gradient);
   color: white;
-  padding: 10px 14px;
+  padding: var(--spacing-lg);
   text-align: left;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+.indicator-table th::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .indicator-table td {
-  padding: 8px 14px;
-  border-bottom: 1px solid #ddd;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--glass-border);
+  color: var(--light-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: var(--transition-fast);
+}
+
+.indicator-table tr {
+  transition: var(--transition-fast);
+}
+
+.indicator-table tr:hover {
+  background: var(--glass-bg);
+  transform: scale(1.01);
 }
 
 .indicator-table tr.even {
-  background-color: #f9f9f9;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .indicator-table tr.odd {
-  background-color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.indicator-table tr:last-child td {
+  border-bottom: none;
 }
 
 .indicator-table td.right {
   text-align: right;
-
+  font-weight: 600;
+  color: var(--primary-color);
 }
+
+/* 설명 리스트 */
 ul {
-  margin-top: 10px;
-  padding-left: 20px;
+  margin-top: var(--spacing-lg);
+  padding-left: var(--spacing-xl);
+  list-style: none;
 }
 
 ul li {
-  margin-bottom: 10px;
+  margin-bottom: var(--spacing-lg);
+  line-height: 1.7;
+  position: relative;
+  padding-left: var(--spacing-lg);
+  color: var(--light-text);
+  font-size: 0.95rem;
+}
+
+ul li::before {
+  content: '💡';
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 1.1rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* 기업 요약 섹션 */
+.company-summary {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.company-summary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--accent-gradient);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+}
+
+.company-summary h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--light-text);
+  margin-bottom: var(--spacing-lg);
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.company-summary p {
+  color: var(--light-text-secondary);
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+/* 기업 개요 섹션 */
+.company-overview {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.company-overview::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--success-gradient);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+}
+
+.company-overview h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--light-text);
+  margin-bottom: var(--spacing-lg);
+  background: var(--success-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.overview-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--spacing-lg);
+}
+
+.overview-table th {
+  background: var(--success-gradient);
+  color: white;
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  width: 30%;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+
+.overview-table td {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--glass-border);
+  color: var(--light-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+}
+
+.overview-table tr:hover {
+  background: var(--glass-bg);
+  transform: scale(1.01);
+  transition: var(--transition-fast);
+}
+
+.overview-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* 차트 섹션 */
+.chart-section {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--warning-gradient);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+}
+
+.chart-section h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--light-text);
+  margin-bottom: var(--spacing-lg);
+  background: var(--warning-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 뉴스 섹션 */
+.news-section {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.news-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--error-gradient);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+}
+
+.news-section h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--light-text);
+  margin-bottom: var(--spacing-lg);
+  background: var(--error-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.news-item {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--glass-border);
+  transition: var(--transition-fast);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-sm);
+}
+
+.news-item:hover {
+  background: var(--glass-bg);
+  transform: translateX(8px);
+  box-shadow: var(--shadow-md);
+}
+
+.news-item:last-child {
+  border-bottom: none;
+}
+
+.news-item h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--light-text);
+  margin-bottom: var(--spacing-sm);
   line-height: 1.5;
 }
 
-/* CompanyDetail.css */
+.news-item p {
+  color: var(--light-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.news-item a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition-fast);
+}
+
+.news-item a:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+/* 리포트 섹션 */
+.report-section {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.report-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--secondary-gradient);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+}
+
+.report-section h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--light-text);
+  margin-bottom: var(--spacing-lg);
+  background: var(--secondary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.report-item {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--glass-border);
+  transition: var(--transition-fast);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-sm);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.report-item:hover {
+  background: var(--glass-bg);
+  transform: translateX(8px);
+  box-shadow: var(--shadow-md);
+}
+
+.report-item:last-child {
+  border-bottom: none;
+}
+
+.report-item h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--light-text);
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.5;
+}
+
+.report-item p {
+  color: var(--light-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: var(--spacing-sm);
+}
+
+.report-meta {
+  display: flex;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-sm);
+}
+
+.report-meta span {
+  background: var(--primary-gradient);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* 투자자 섹션 */
+.investor-section {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-2xl);
+  margin-bottom: var(--spacing-2xl);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.investor-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--accent-gradient);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+}
+
+.investor-section h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--light-text);
+  margin-bottom: var(--spacing-lg);
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 로딩 상태 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--glass-shadow);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--glass-border);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-left: var(--spacing-lg);
+  color: var(--light-text-secondary);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* 에러 상태 */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--glass-shadow);
+  padding: var(--spacing-2xl);
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-lg);
+  opacity: 0.7;
+}
+
+.error-text {
+  color: var(--error-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.error-description {
+  color: var(--light-text-secondary);
+  font-size: 0.9rem;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .indicator-table,
+  .overview-table {
+    font-size: 0.8rem;
+  }
+  
+  .indicator-table th,
+  .indicator-table td,
+  .overview-table th,
+  .overview-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  .company-summary,
+  .company-overview,
+  .chart-section,
+  .news-section,
+  .report-section,
+  .investor-section {
+    padding: var(--spacing-lg);
+  }
+  
+  .company-summary h3,
+  .company-overview h3,
+  .chart-section h3,
+  .news-section h3,
+  .report-section h3,
+  .investor-section h3 {
+    font-size: 1.25rem;
+  }
+  
+  .report-meta {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+}
+
+/* 애니메이션 */
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.8s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.scale-in {
+  animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

@@ -1027,7 +1027,7 @@ def get_treasure_data():
             })
         except Exception as e:
             print(f"❌ {기업명} 처리 중 오류:", e)
-
+    
     return JSONResponse(content=result)
 
 

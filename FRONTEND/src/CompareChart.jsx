@@ -1,17 +1,14 @@
 import React from 'react';
-import { Line } from 'react-chartjs-2';
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
-  Legend
-} from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, ChartDataLabels);
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 
 const CompareChart = ({ metrics, industryMetrics, companyName }) => {
   const metricKeys = ["PER", "PBR", "ROE"];
@@ -28,59 +25,53 @@ const CompareChart = ({ metrics, industryMetrics, companyName }) => {
         const companyValues = Object.values(companyMetric || {});
         const industryValues = Object.values(industryMetric || {});
 
+        // Recharts용 데이터 포맷으로 변환
+        const chartData = years.map((year, index) => ({
+          year: year,
+          [companyName]: companyValues[index],
+          '코스피 기준 업종 평균': industryValues[index]
+        }));
+
         return (
-          <div key={key} style={{ maxWidth: '600px', margin: '40px auto' }}>
-            <h4 style={{fontSize: '25px'}}>{key} 추이</h4>
-            <Line
-              data={{
-                labels: years,
-                datasets: [
-                  {
-                    label: `${companyName}`,
-                    data: companyValues,
-                    borderColor: 'blue',
-                    backgroundColor: 'rgba(0,0,255,0.1)',
-                    tension: 0.3,
-                    pointRadius: 3,
-                    borderWidth: 2,
-                  },
-                  {
-                    label: `코스피 기준 업종 평균`,
-                    data: industryValues,
-                    borderColor: 'orange',
-                    backgroundColor: 'rgba(255,165,0,0.1)',
-                    tension: 0.3,
-                    pointRadius: 3,
-                    borderWidth: 2,
-                  }
-                ]
-              }}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: { display: true },
-                  tooltip: {
-                    callbacks: {
-                      label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}`
-                    }
-                  },
-                  datalabels: {
-                    anchor: 'end',
-                    align: 'top',
-                    color: '#000',
-                    font: {
-                      weight: 'bold'
-                    },
-                    formatter: value => value
-                  }
-                },
-                scales: {
-                  y: {
-                    beginAtZero: false
-                  }
-                }
-              }}
-            />
+          <div key={key} style={{ maxWidth: '800px', margin: '40px auto' }}>
+            <h4 style={{fontSize: '25px', marginBottom: '20px', textAlign: 'center'}}>
+              {key} 추이 비교
+            </h4>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="year" 
+                  tick={{ fontSize: 12 }}
+                  tickLine={{ stroke: '#666' }}
+                />
+                <YAxis 
+                  tick={{ fontSize: 12 }}
+                  tickLine={{ stroke: '#666' }}
+                />
+                <Tooltip 
+                  formatter={(value, name) => [value.toFixed(2), name]}
+                  labelFormatter={(label) => `연도: ${label}`}
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey={companyName}
+                  stroke="#3b82f6"
+                  strokeWidth={3}
+                  dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="코스피 기준 업종 평균"
+                  stroke="#f59e0b"
+                  strokeWidth={3}
+                  dot={{ fill: '#f59e0b', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         );
       })}
