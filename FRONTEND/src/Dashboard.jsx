@@ -74,17 +74,8 @@ function App() {
   };
 
   return (
-    <>
-      <div
-        className="dashboard-container"
-        style={{
-          maxWidth: '1400px',
-          padding: '20px',
-          border: '2px solid rgba(0, 0, 0, 0.4)',       // ✅ 검은 테두리
-          borderRadius: '10px',             // ✅ 모서리 둥글게
-          boxShadow: '0 0 10px rgba(0,0,0,0.05)', // ✅ 그림자
-          backgroundColor: 'white'          // ✅ 배경 흰색
-        }}>
+    <div className="main-content">
+      <div className="modern-card">
         <div className="insight-panel">
           <section>
             <TopRankings />
@@ -202,7 +193,7 @@ function App() {
           </section>
         </main>
       </div>
-    </>
+    </div>
   );
 }
 
