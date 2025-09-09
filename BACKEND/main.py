@@ -139,10 +139,10 @@ def setup_chrome_driver():
 # MongoDB 컬렉션 설정 (연결 실패 시 None 처리)
 if client:
     try:
-        db = client["testDB"]
-        collection = db["users"]
-        explain = db['explain']
-        outline = db['outline']
+db = client["testDB"]
+collection = db["users"]
+explain = db['explain']
+outline = db['outline']
         industry = db['industry_metrics']
         print(f"✅ MongoDB 컬렉션 설정 완료")
         print(f"✅ collection: {collection}")
@@ -209,30 +209,30 @@ def get_full_company_data(name: str):
             base = collection.find_one({"기업명": {"$regex": decoded_name, "$options": "i"}}, {"_id": 0})
             print(f"🔍 정규식 검색 결과: {base is not None}")
             
-            if not base:
+    if not base:
                 print(f"❌ 기업을 찾을 수 없음: {decoded_name}")
-                raise HTTPException(status_code=404, detail="기업을 찾을 수 없습니다.")
+        raise HTTPException(status_code=404, detail="기업을 찾을 수 없습니다.")
 
         print(f"✅ 기업 데이터 찾음: {base.get('기업명', 'Unknown')}")
 
-        # 1. 짧은요약 (explain 컬렉션)
-        if explain:
+    # 1. 짧은요약 (explain 컬렉션)
+        if explain is not None:
             explain_doc = explain.find_one({"기업명": decoded_name}, {"_id": 0, "짧은요약": 1})
-            if explain_doc:
-                base["짧은요약"] = explain_doc.get("짧은요약")
+    if explain_doc:
+        base["짧은요약"] = explain_doc.get("짧은요약")
                 print(f"✅ 짧은요약 추가됨")
 
-        # 2. outline 정보 (outline 컬렉션)
-        if outline:
-            code = base.get("종목코드")
-            if code:
-                outline_doc = outline.find_one({"종목코드": code}, {"_id": 0})
-                if outline_doc:
-                    base["개요"] = outline_doc
+    # 2. outline 정보 (outline 컬렉션)
+        if outline is not None:
+    code = base.get("종목코드")
+    if code:
+        outline_doc = outline.find_one({"종목코드": code}, {"_id": 0})
+        if outline_doc:
+            base["개요"] = outline_doc
                     print(f"✅ 개요 정보 추가됨")
 
         print(f"✅ 최종 데이터 반환: {len(str(base))} 문자")
-        return base
+    return base
         
     except HTTPException:
         raise
@@ -256,15 +256,15 @@ def get_all_company_names():
         ]
     
     try:
-        cursor = collection.find({}, {"_id": 0, "기업명": 1})
-        names = [doc["기업명"] for doc in cursor if "기업명" in doc]
-        if not names:
+    cursor = collection.find({}, {"_id": 0, "기업명": 1})
+    names = [doc["기업명"] for doc in cursor if "기업명" in doc]
+    if not names:
             # 데이터가 없을 때도 fallback 데이터 반환
             return [
                 "삼성전자", "SK하이닉스", "LG화학", "현대차", "네이버",
                 "카카오", "LG전자", "POSCO", "기아", "KB금융"
             ]
-        return names
+    return names
     except Exception as e:
         print(f"기업명 조회 오류: {e}")
         # 오류 발생 시에도 fallback 데이터 반환
@@ -292,16 +292,34 @@ async def hot_news():
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
                 }
                 
-                response = requests.get(url, headers=headers, timeout=10)
-                soup = BeautifulSoup(response.content, 'html.parser')
-                
-                news_list = []
-                news_items = soup.select('.tit_main')[:5]  # 상위 5개 뉴스
-                
-                for item in news_items:
+            response = requests.get(url, headers=headers, timeout=15)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            news_list = []
+            # 여러 선택자 시도
+            selectors = ['.tit_main', '.news_tit', '.news_area .news_tit', 'a.tit_main']
+            
+            for selector in selectors:
+                news_items = soup.select(selector)
+                if news_items:
+                    print(f"✅ 선택자 {selector}로 {len(news_items)}개 뉴스 발견")
+                    break
+            
+            if not news_items:
+                # 다른 방법으로 시도
+                news_items = soup.find_all('a', class_='tit_main')
+                if not news_items:
+                    news_items = soup.find_all('a', href=lambda x: x and 'news' in x)
+            
+            for item in news_items[:5]:
+                try:
                     title = item.get_text().strip()
                     link = item.get('href', '#')
-                    news_list.append({"title": title, "link": link})
+                    if title and len(title) > 5:
+                        news_list.append({"title": title, "link": link})
+                except:
+                    continue
                 
                 if news_list:
                     print(f"✅ 실제 뉴스 스크래핑 성공: {len(news_list)}개")
@@ -319,16 +337,16 @@ async def hot_news():
                 {"title": "금융 정책 변화", "link": "#"}
             ])
 
-        driver.get('https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q=코스피')
+    driver.get('https://search.daum.net/nate?w=news&nil_search=btn&DA=PGD&enc=utf8&cluster=y&cluster_page=1&q=코스피')
 
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
-        driver.quit()
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    driver.quit()
 
-        path = '#dnsColl > div:nth-child(1) > ul > li > div.c-item-content > div > div.item-title > strong > a'
-        a_tags = soup.select(path)
+    path = '#dnsColl > div:nth-child(1) > ul > li > div.c-item-content > div > div.item-title > strong > a'
+    a_tags = soup.select(path)
 
-        news_list = [{"title": a.text.strip(), "link": a['href']} for a in a_tags[:5]]
-        return JSONResponse(content=news_list)
+    news_list = [{"title": a.text.strip(), "link": a['href']} for a in a_tags[:5]]
+    return JSONResponse(content=news_list)
     except Exception as e:
         print(f"핫뉴스 오류: {str(e)}")
         return JSONResponse(content={"error": f"핫뉴스 조회 실패: {str(e)}"}, status_code=500)
@@ -350,16 +368,34 @@ async def main_news():
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
             }
             
-            response = requests.get(url, headers=headers, timeout=10)
+            response = requests.get(url, headers=headers, timeout=15)
+            response.raise_for_status()
             soup = BeautifulSoup(response.content, 'html.parser')
             
             news_list = []
-            news_items = soup.select('.tit_main')[:5]  # 상위 5개 뉴스
+            # 여러 선택자 시도
+            selectors = ['.tit_main', '.news_tit', '.news_area .news_tit', 'a.tit_main']
             
-            for item in news_items:
-                title = item.get_text().strip()
-                link = item.get('href', '#')
-                news_list.append({"title": title, "link": link})
+            for selector in selectors:
+                news_items = soup.select(selector)
+                if news_items:
+                    print(f"✅ 선택자 {selector}로 {len(news_items)}개 뉴스 발견")
+                    break
+            
+            if not news_items:
+                # 다른 방법으로 시도
+                news_items = soup.find_all('a', class_='tit_main')
+                if not news_items:
+                    news_items = soup.find_all('a', href=lambda x: x and 'news' in x)
+            
+            for item in news_items[:5]:
+                try:
+                    title = item.get_text().strip()
+                    link = item.get('href', '#')
+                    if title and len(title) > 5:
+                        news_list.append({"title": title, "link": link})
+                except:
+                    continue
             
             if news_list:
                 print(f"✅ 실제 실적뉴스 스크래핑 성공: {len(news_list)}개")
@@ -543,6 +579,9 @@ def get_kospi_data():
             ("^KS11", {"period": "6mo", "interval": "1d"}),
             ("^KS11", {"period": "3mo", "interval": "1d"}),
             ("^KS11", {"period": "1mo", "interval": "1d"}),
+            ("^KS11", {"start": "2023-01-01", "end": today.strftime("%Y-%m-%d")}),
+            ("^KS11", {"start": "2024-01-01", "end": today.strftime("%Y-%m-%d")}),
+            ("KS11", {"start": "2023-01-01", "end": today.strftime("%Y-%m-%d")}),
         ]
         
         for symbol, config in symbols_and_configs:
