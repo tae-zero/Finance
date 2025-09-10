@@ -22,7 +22,7 @@ const CompareChart = ({ metrics, industryMetrics, companyName }) => {
     <div style={{ marginTop: '40px' }}>
       {metricKeys.map((key) => {
         const companyMetric = metrics[key];
-        const industryMetric = industryMetrics[key];
+        const industryMetric = industryMetrics.metrics?.[key] || industryMetrics[key];
 
         // 데이터가 없으면 건너뛰기
         if (!companyMetric || !industryMetric) {
