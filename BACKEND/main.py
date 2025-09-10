@@ -1193,5 +1193,46 @@ def get_treasure_data():
     return JSONResponse(content=result)
 
 
+# 투자자별 매매 데이터
+@app.get("/investors/")
+def get_investor_data(ticker: str = Query(..., description="종목코드")):
+    try:
+        # 최근 10일 날짜 계산
+        end_date = datetime.today()
+        start_date = end_date - timedelta(days=10)
+
+        start = start_date.strftime("%Y%m%d")
+        end = end_date.strftime("%Y%m%d")
+
+        # pykrx로 투자자별 매매 데이터 가져오기
+        df = get_market_trading_value_by_investor(start, end, "KOSPI", ticker)
+
+        # 데이터가 없는 경우 처리
+        if df.empty:
+            print(f"⚠️ {ticker} 투자자 데이터 없음")
+            return []
+
+        # 날짜 인덱스 변환
+        try:
+            df.index = pd.to_datetime(df.index, format="%Y%m%d")
+            df.index = df.index.strftime('%Y-%m-%d')
+            df = df.reset_index(names="date")
+        except:
+            df = df.reset_index()
+
+        # 컬럼명 정리
+        df.columns = ['date', '기관합계', '개인', '외국인합계']
+        
+        # 최근 10개 데이터만 반환
+        result = df.tail(10).to_dict(orient="records")
+        
+        print(f"✅ {ticker} 투자자 데이터 로드 성공: {len(result)}개")
+        return result
+
+    except Exception as e:
+        print(f"❌ {ticker} 투자자 데이터 오류: {e}")
+        return []
+
+
 # uvicorn main:app --reload
 

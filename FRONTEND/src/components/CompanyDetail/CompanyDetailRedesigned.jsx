@@ -122,6 +122,8 @@ function CompanyDetailRedesigned() {
       try {
         setLoading(true);
         console.log('🔍 CompanyDetailRedesigned - 기업명:', name);
+        console.log('🔍 API_BASE_URL:', import.meta.env.VITE_API_URL);
+        console.log('🔍 COMPANY_DETAIL URL:', API_ENDPOINTS.COMPANY_DETAIL(encodeURIComponent(name)));
         
         // 먼저 기업 정보를 가져와서 종목코드를 얻기
         const companyRes = await axios.get(API_ENDPOINTS.COMPANY_DETAIL(encodeURIComponent(name)));
@@ -142,7 +144,7 @@ function CompanyDetailRedesigned() {
           axios.get(`${API_ENDPOINTS.PRICE_DATA}/${ticker}`),
           axios.get(`${API_ENDPOINTS.NEWS}?keyword=${encodeURIComponent(companyRes.data.기업명)}`),
           axios.get(`${API_ENDPOINTS.REPORT}?code=A${code}`),
-          axios.get(`${API_ENDPOINTS.INVESTOR_DATA}?ticker=${code}`),
+          axios.get(`${API_ENDPOINTS.INVESTORS}?ticker=${code}`),
           fetch('/기업별_재무지표.json').then(res => res.json())
         ]);
 
@@ -178,6 +180,13 @@ function CompanyDetailRedesigned() {
         }
       } catch (error) {
         console.error('데이터 로딩 오류:', error);
+        console.error('에러 상세:', {
+          message: error.message,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          url: error.config?.url
+        });
       } finally {
         setLoading(false);
       }
