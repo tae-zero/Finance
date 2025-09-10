@@ -515,7 +515,7 @@ def get_report_summary(code: str = Query(..., description="종목 코드 (예: A
         
         # JSON 데이터를 우리 형식으로 변환
         reports = []
-        for item in data.get('comp', [])[:10]:  # 최대 10개
+        for item in data.get('comp', [])[:5]:  # 최대 5개
             try:
                 # 날짜 형식 변환 (20250825 -> 2025/08/25)
                 date_str = item.get('BULLET_DT', '')

@@ -1,0 +1,596 @@
+/* ========================================
+   보물찾기 페이지 재설계 스타일
+   게이미피케이션 중심 디자인
+   ======================================== */
+
+.treasure-hunt-redesigned {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--dark-bg-primary) 0%, #1a1d2e 50%, #0f1419 100%);
+  padding: var(--space-6);
+  position: relative;
+  overflow-x: auto;
+}
+
+/* 로딩 상태 */
+.treasure-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: var(--space-6);
+}
+
+.loading-treasure {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.treasure-icon {
+  font-size: var(--text-5xl);
+  animation: treasureGlow 2s ease-in-out infinite;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--dark-border);
+  border-top: 3px solid var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  position: absolute;
+}
+
+.loading-text {
+  color: var(--text-secondary);
+  font-size: var(--text-lg);
+  font-weight: var(--font-medium);
+}
+
+@keyframes treasureGlow {
+  0%, 100% { 
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(0, 209, 178, 0.3));
+  }
+  50% { 
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 20px rgba(0, 209, 178, 0.6));
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 헤더 섹션 */
+.treasure-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-8);
+  padding: var(--space-6);
+  background: var(--dark-bg-secondary);
+  border: 1px solid var(--dark-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.treasure-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #FFD93D, #FF6B6B, #4FD1C7, #667EEA);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+}
+
+.header-content {
+  flex: 1;
+}
+
+.treasure-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.treasure-title h1 {
+  font-size: var(--text-4xl);
+  font-weight: var(--font-extrabold);
+  color: var(--text-primary);
+  margin: 0;
+  background: linear-gradient(135deg, #FFD93D, #FF6B6B, #4FD1C7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.title-icon {
+  font-size: var(--text-3xl);
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.treasure-subtitle {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  margin: 0;
+  font-weight: var(--font-medium);
+}
+
+.treasure-counter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-glow);
+}
+
+.counter-icon {
+  font-size: var(--text-2xl);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.counter-content {
+  text-align: center;
+}
+
+.counter-number {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-extrabold);
+  color: var(--text-inverse);
+  line-height: 1;
+}
+
+.counter-label {
+  font-size: var(--text-sm);
+  color: var(--text-inverse);
+  font-weight: var(--font-semibold);
+  opacity: 0.9;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* 보물 발견 애니메이션 */
+.treasure-found-animation {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: var(--z-toast);
+  text-align: center;
+  animation: celebrationPop 2s ease-out;
+}
+
+.celebration {
+  font-size: var(--text-6xl);
+  margin-bottom: var(--space-4);
+  animation: celebrationBounce 0.6s ease-out;
+}
+
+.celebration-text {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--accent-primary);
+  background: var(--dark-bg-secondary);
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2xl);
+}
+
+@keyframes celebrationPop {
+  0% { 
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  50% { 
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% { 
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes celebrationBounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-20px); }
+  60% { transform: translateY(-10px); }
+}
+
+/* 필터 컨트롤 */
+.filter-controls {
+  background: var(--dark-bg-secondary);
+  border: 1px solid var(--dark-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-6);
+  margin-bottom: var(--space-8);
+  box-shadow: var(--shadow-lg);
+}
+
+.controls-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.controls-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.toggle-filters {
+  background: var(--accent-primary);
+  color: var(--text-inverse);
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.toggle-filters:hover {
+  background: var(--accent-primary-hover);
+  transform: scale(1.05);
+}
+
+.filters-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.filter-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.label-icon {
+  font-size: var(--text-base);
+}
+
+.filter-select {
+  background: var(--dark-bg-tertiary);
+  border: 1px solid var(--dark-border);
+  color: var(--text-primary);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-glow);
+}
+
+.range-inputs {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.range-slider {
+  flex: 1;
+  height: 6px;
+  background: var(--dark-bg-tertiary);
+  border-radius: var(--radius-full);
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-fast);
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: var(--shadow-glow);
+}
+
+.range-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: var(--shadow-md);
+}
+
+.filter-actions {
+  display: flex;
+  gap: var(--space-3);
+  grid-column: 1 / -1;
+  justify-content: center;
+  margin-top: var(--space-4);
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border: none;
+  border-radius: var(--radius-xl);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: var(--transition-slow);
+}
+
+.action-button:hover::before {
+  left: 100%;
+}
+
+.action-button.primary {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-lg);
+}
+
+.action-button.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow-lg);
+}
+
+.action-button.secondary {
+  background: var(--dark-bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--dark-border);
+}
+
+.action-button.secondary:hover {
+  background: var(--dark-border);
+  transform: translateY(-2px);
+}
+
+.button-icon {
+  font-size: var(--text-base);
+}
+
+/* 결과 섹션 */
+.results-section {
+  background: var(--dark-bg-secondary);
+  border: 1px solid var(--dark-border);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-lg);
+}
+
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--dark-border);
+}
+
+.results-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.results-count {
+  background: var(--accent-primary);
+  color: var(--text-inverse);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+}
+
+.treasure-table-container {
+  overflow-x: auto;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--dark-border);
+}
+
+.treasure-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--dark-bg-tertiary);
+}
+
+.treasure-table th {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: var(--text-inverse);
+  padding: var(--space-4);
+  text-align: left;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.treasure-table th.sortable {
+  cursor: pointer;
+  transition: var(--transition-fast);
+  user-select: none;
+}
+
+.treasure-table th.sortable:hover {
+  background: linear-gradient(135deg, var(--accent-primary-hover), var(--accent-secondary));
+}
+
+.treasure-table td {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--dark-border);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+}
+
+.treasure-row {
+  transition: var(--transition-fast);
+}
+
+.treasure-row:hover {
+  background: var(--dark-bg-secondary);
+  transform: scale(1.01);
+}
+
+.treasure-row:last-child td {
+  border-bottom: none;
+}
+
+.metric-cell {
+  text-align: center;
+}
+
+.metric-value {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--accent-primary);
+  margin-bottom: var(--space-1);
+}
+
+.metric-trend {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  font-weight: var(--font-medium);
+}
+
+.company-cell {
+  min-width: 200px;
+}
+
+.company-name {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.company-badge {
+  background: var(--dark-bg-primary);
+  color: var(--text-secondary);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  display: inline-block;
+}
+
+.industry-cell,
+.market-cap-cell,
+.equity-cell,
+.income-cell {
+  text-align: center;
+  font-weight: var(--font-medium);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .filters-panel {
+    grid-template-columns: 1fr;
+  }
+  
+  .treasure-header {
+    flex-direction: column;
+    gap: var(--space-4);
+    text-align: center;
+  }
+  
+  .treasure-title {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .treasure-hunt-redesigned {
+    padding: var(--space-4);
+  }
+  
+  .treasure-title h1 {
+    font-size: var(--text-3xl);
+  }
+  
+  .filter-actions {
+    flex-direction: column;
+  }
+  
+  .action-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .treasure-table-container {
+    font-size: var(--text-xs);
+  }
+  
+  .treasure-table th,
+  .treasure-table td {
+    padding: var(--space-2);
+  }
+}

@@ -1,0 +1,231 @@
+/* ========================================
+   메인 App 컴포넌트 재설계 스타일
+   ======================================== */
+
+.app-redesigned {
+  min-height: 100vh;
+  background: var(--dark-bg-primary);
+  display: flex;
+  position: relative;
+}
+
+/* 사이드바 컨테이너 */
+.sidebar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: var(--z-fixed);
+}
+
+/* 메인 콘텐츠 */
+.main-content {
+  flex: 1;
+  margin-left: 320px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 헤더 배너 */
+.page-header-banner {
+  background: linear-gradient(135deg, var(--dark-bg-secondary) 0%, var(--dark-bg-tertiary) 100%);
+  border-bottom: 1px solid var(--dark-border);
+  padding: var(--space-6);
+  position: relative;
+  overflow: hidden;
+}
+
+.page-header-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+}
+
+.banner-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.banner-texts {
+  flex: 1;
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.banner-title {
+  font-size: var(--text-4xl);
+  font-weight: var(--font-extrabold);
+  color: var(--text-primary);
+  margin: 0;
+  background: linear-gradient(135deg, #FFD93D, #FF6B6B, #4FD1C7, #667EEA);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  position: relative;
+}
+
+.banner-title:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 20px rgba(255, 217, 61, 0.3));
+}
+
+.banner-subtitle {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  font-weight: var(--font-medium);
+  margin: 0;
+  text-align: center;
+}
+
+.guide-button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: var(--text-inverse);
+  border: none;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-xl);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.guide-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: var(--transition-slow);
+}
+
+.guide-button:hover::before {
+  left: 100%;
+}
+
+.guide-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow-lg);
+}
+
+.button-icon {
+  font-size: var(--text-base);
+}
+
+/* 툴팁 */
+.tooltip {
+  background: var(--dark-bg-secondary);
+  border: 1px solid var(--dark-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-2xl);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.tooltip-image {
+  width: 400px;
+  height: auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 페이지 콘텐츠 */
+.page-content {
+  flex: 1;
+  padding: var(--space-6);
+  background: linear-gradient(135deg, var(--dark-bg-primary) 0%, var(--dark-bg-secondary) 100%);
+  min-height: calc(100vh - 120px);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 280px;
+  }
+  
+  .banner-content {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-4);
+  }
+  
+  .banner-title {
+    font-size: var(--text-3xl);
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar-container {
+    position: relative;
+    height: auto;
+  }
+  
+  .main-content {
+    margin-left: 0;
+  }
+  
+  .page-header-banner {
+    padding: var(--space-4);
+  }
+  
+  .banner-title {
+    font-size: var(--text-2xl);
+  }
+  
+  .banner-subtitle {
+    font-size: var(--text-base);
+  }
+  
+  .page-content {
+    padding: var(--space-4);
+  }
+  
+  .tooltip-image {
+    width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .banner-content {
+    padding: var(--space-2);
+  }
+  
+  .banner-title {
+    font-size: var(--text-xl);
+  }
+  
+  .guide-button {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-xs);
+  }
+  
+  .tooltip-image {
+    width: 250px;
+  }
+}
