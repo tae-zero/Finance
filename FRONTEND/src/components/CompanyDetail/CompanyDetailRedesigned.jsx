@@ -282,13 +282,6 @@ function CompanyDetailRedesigned() {
     .sort();
   const sortedMetrics = Object.keys(indicatorMap).sort();
 
-  // 평균 계산 함수
-  const calcAverage = (arr) => {
-    const valid = arr.filter(v => typeof v === 'number' && !isNaN(v));
-    if (valid.length === 0) return null;
-    return parseFloat((valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(2));
-  };
-
   if (loading) {
     return (
       <div className="company-loading">
