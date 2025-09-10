@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 import { API_ENDPOINTS } from '../../config/api';
 import CompareChart from '../../CompareChart';
 import SalesTable from '../../SalesTable';
@@ -8,6 +19,8 @@ import CompanySummary from '../../CompanySummary';
 import PieChart from '../../PieChart';
 import ShareholderChart from '../../ShareholderChart';
 import './CompanyDetailRedesigned.css';
+
+ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
 
 function CompanyDetailRedesigned() {
   const { name } = useParams();
@@ -110,29 +123,43 @@ function CompanyDetailRedesigned() {
         setLoading(true);
         console.log('🔍 CompanyDetailRedesigned - 기업명:', name);
         
-        // 병렬로 모든 데이터 가져오기
+        // 먼저 기업 정보를 가져와서 종목코드를 얻기
+        const companyRes = await axios.get(`${API_ENDPOINTS.COMPANY_DETAIL}/${encodeURIComponent(name)}`);
+        setCompanyData(companyRes.data);
+        
+        const code = String(companyRes.data.종목코드).padStart(6, '0');
+        const ticker = code + '.KS';
+        console.log('🔍 종목코드:', code, '티커:', ticker);
+
+        // 기업 정보를 얻은 후 나머지 데이터들을 병렬로 가져오기
         const [
-          companyRes,
           priceRes,
           newsRes,
           reportRes,
           investorRes,
           metricsRes
         ] = await Promise.all([
-          axios.get(`${API_ENDPOINTS.COMPANY_DETAIL}/${encodeURIComponent(name)}`),
-          axios.get(`${API_ENDPOINTS.PRICE_DATA}/005930.KS`), // 임시로 삼성전자 코드 사용
-          axios.get(`${API_ENDPOINTS.NEWS}?keyword=${encodeURIComponent(name)}`),
-          axios.get(`${API_ENDPOINTS.REPORT}?code=A005930`), // 임시로 삼성전자 코드 사용
-          axios.get(`${API_ENDPOINTS.INVESTOR_DATA}?ticker=005930`), // 임시로 삼성전자 코드 사용
+          axios.get(`${API_ENDPOINTS.PRICE_DATA}/${ticker}`),
+          axios.get(`${API_ENDPOINTS.NEWS}?keyword=${encodeURIComponent(companyRes.data.기업명)}`),
+          axios.get(`${API_ENDPOINTS.REPORT}?code=A${code}`),
+          axios.get(`${API_ENDPOINTS.INVESTOR_DATA}?ticker=${code}`),
           fetch('/기업별_재무지표.json').then(res => res.json())
         ]);
 
-        setCompanyData(companyRes.data);
         setPriceData(priceRes.data);
         setNewsData(newsRes.data);
         setReportData(reportRes.data);
         setInvestorData(investorRes.data);
-        setMetricsData(metricsRes);
+        // 기업별 재무지표 데이터 찾기
+        if (metricsRes && companyRes.data?.기업명) {
+          const companyMetrics = metricsRes.find(item => item.기업명 === companyRes.data.기업명);
+          if (companyMetrics) {
+            setMetricsData(companyMetrics);
+            console.log('✅ 기업 지표 로드 성공:', companyRes.data.기업명);
+          } else {
+            console.warn('⚠️ 기업 지표 데이터 없음:', companyRes.data.기업명);
+          }
+        }
 
         // 업종 평균 데이터 로드
         if (companyRes.data?.업종명) {
@@ -141,6 +168,7 @@ function CompanyDetailRedesigned() {
             const industryData = await industryRes.json();
             if (industryData[companyRes.data.업종명]) {
               setIndustryMetrics(industryData[companyRes.data.업종명]);
+              console.log('✅ 업종 평균 로드 성공:', companyRes.data.업종명);
             }
           } catch (err) {
             console.error('📛 업종 평균 로딩 오류:', err);
@@ -234,10 +262,15 @@ function CompanyDetailRedesigned() {
           <div className="overview-tab">
             {/* 기업 요약 */}
             {companyData && (
-              <CompanySummary 
-                summary={companyData.짧은요약} 
-                outline={companyData.개요} 
-              />
+              <>
+                {console.log('기업 데이터 확인:', companyData)}
+                {console.log('짧은요약:', companyData.짧은요약)}
+                {console.log('개요:', companyData.개요)}
+                <CompanySummary 
+                  summary={companyData.짧은요약} 
+                  outline={companyData.개요} 
+                />
+              </>
             )}
             
             {/* 주요 지표 카드 */}
@@ -250,15 +283,21 @@ function CompanyDetailRedesigned() {
                 <div className="metric-content">
                   <div className="metric-item">
                     <span className="metric-label">PER</span>
-                    <span className="metric-value">12.5</span>
+                    <span className="metric-value">
+                      {metricsData?.PER?.['2024'] ? metricsData.PER['2024'].toFixed(2) : '--'}
+                    </span>
                   </div>
                   <div className="metric-item">
                     <span className="metric-label">PBR</span>
-                    <span className="metric-value">1.2</span>
+                    <span className="metric-value">
+                      {metricsData?.PBR?.['2024'] ? metricsData.PBR['2024'].toFixed(2) : '--'}
+                    </span>
                   </div>
                   <div className="metric-item">
                     <span className="metric-label">ROE</span>
-                    <span className="metric-value">15.3%</span>
+                    <span className="metric-value">
+                      {metricsData?.ROE?.['2024'] ? `${metricsData.ROE['2024'].toFixed(2)}%` : '--'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -271,15 +310,27 @@ function CompanyDetailRedesigned() {
                 <div className="metric-content">
                   <div className="metric-item">
                     <span className="metric-label">시가총액</span>
-                    <span className="metric-value">450조원</span>
+                    <span className="metric-value">
+                      {metricsData?.시가총액?.['2024'] 
+                        ? `${(metricsData.시가총액['2024'] / 100000000).toFixed(0)}억원` 
+                        : '--'}
+                    </span>
                   </div>
                   <div className="metric-item">
                     <span className="metric-label">거래량</span>
-                    <span className="metric-value">1,234만주</span>
+                    <span className="metric-value">
+                      {priceData && priceData.length > 0 
+                        ? `${(priceData[priceData.length - 1]?.Volume || 0).toLocaleString()}주` 
+                        : '--'}
+                    </span>
                   </div>
                   <div className="metric-item">
-                    <span className="metric-label">52주 최고</span>
-                    <span className="metric-value">85,000원</span>
+                    <span className="metric-label">현재가</span>
+                    <span className="metric-value">
+                      {priceData && priceData.length > 0 
+                        ? `${priceData[priceData.length - 1]?.Close?.toLocaleString()}원` 
+                        : '--'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -295,8 +346,124 @@ function CompanyDetailRedesigned() {
                 <div className="chart-container">
                   <CompareChart 
                     metrics={metricsData}
-                    industryMetrics={null}
+                    industryMetrics={industryMetrics?.metrics}
                   />
+                </div>
+              </div>
+            )}
+
+            {/* 주가 차트 */}
+            {priceData && priceData.length > 0 && (
+              <div className="chart-section">
+                <h3 className="section-title">
+                  <span className="title-icon">📈</span>
+                  {companyData?.기업명} 최근 3년 주가
+                </h3>
+                <div className="chart-container">
+                  <Line
+                    data={{
+                      labels: priceData.map(item => item.Date),
+                      datasets: [{
+                        label: `${companyData?.기업명} 종가 (원)`,
+                        data: priceData.map(item => item.Close),
+                        borderColor: '#00D1B2',
+                        backgroundColor: 'rgba(0, 209, 178, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        tension: 0.4,
+                        fill: true,
+                      }]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: false
+                        },
+                        tooltip: {
+                          backgroundColor: 'rgba(26, 29, 46, 0.9)',
+                          titleColor: '#F7FAFC',
+                          bodyColor: '#A0AEC0',
+                          borderColor: '#00D1B2',
+                          borderWidth: 1,
+                          callbacks: {
+                            title: context => `날짜: ${context[0].label}`,
+                            label: context => `종가: ${context.parsed.y.toLocaleString()}원`,
+                          },
+                        },
+                      },
+                      scales: {
+                        x: {
+                          grid: {
+                            color: 'rgba(45, 55, 72, 0.3)',
+                            drawBorder: false
+                          },
+                          ticks: {
+                            color: '#A0AEC0',
+                            font: { size: 12 }
+                          }
+                        },
+                        y: {
+                          grid: {
+                            color: 'rgba(45, 55, 72, 0.3)',
+                            drawBorder: false
+                          },
+                          ticks: {
+                            color: '#A0AEC0',
+                            font: { size: 12 },
+                            callback: function(value) {
+                              return value.toLocaleString();
+                            }
+                          }
+                        }
+                      },
+                      interaction: {
+                        intersect: false,
+                        mode: 'index'
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* 투자자별 매수현황 */}
+            {investorData && investorData.length > 0 && (
+              <div className="chart-section">
+                <h3 className="section-title">
+                  <span className="title-icon">🏦</span>
+                  최근 10일 기준 투자자별 순매수 추이
+                  <span className="section-subtitle">(단위: 억 원)</span>
+                </h3>
+                <div className="investor-table-container">
+                  <table className="investor-table">
+                    <thead>
+                      <tr>
+                        <th>날짜</th>
+                        <th>기관</th>
+                        <th>개인</th>
+                        <th>외국인</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {investorData.map((item, idx) => (
+                        <tr key={idx}>
+                          <td>{item.date?.slice(0, 10) || '--'}</td>
+                          <td className="right">
+                            {item.기관합계 ? (item.기관합계 / 100000000).toFixed(1) : '--'}억원
+                          </td>
+                          <td className="right">
+                            {item.개인 ? (item.개인 / 100000000).toFixed(1) : '--'}억원
+                          </td>
+                          <td className="right">
+                            {item.외국인합계 ? (item.외국인합계 / 100000000).toFixed(1) : '--'}억원
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}
@@ -372,7 +539,7 @@ function CompanyDetailRedesigned() {
                   <h4 className="chart-title">📈 재무 지표 비교</h4>
                   <CompareChart 
                     metrics={metricsData} 
-                    industryMetrics={industryMetrics}
+                    industryMetrics={industryMetrics?.metrics}
                   />
                 </div>
               )}

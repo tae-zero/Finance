@@ -64,7 +64,10 @@ function DashboardRedesigned() {
                 backgroundColor: 'rgba(0, 209, 178, 0.1)',
                 borderWidth: 2,
                 pointRadius: 0,
-                pointHoverRadius: 6,
+                pointHoverRadius: 0,
+                pointBorderWidth: 0,
+                pointBackgroundColor: 'transparent',
+                pointBorderColor: 'transparent',
                 tension: 0.4,
                 fill: true,
               }
