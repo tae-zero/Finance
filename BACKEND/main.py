@@ -998,13 +998,13 @@ def get_company_metrics(name: str):
         # 재무지표 데이터 구조화
         result = {}
         
-        # PER, PBR, ROE 데이터 추출 (0 값도 포함)
-        for metric in ["PER", "PBR", "ROE"]:
+        # PER, PBR, ROE, ROA, DPS, EPS, BPS 데이터 추출 (0 값 제외)
+        for metric in ["PER", "PBR", "ROE", "ROA", "DPS", "EPS", "BPS"]:
             result[metric] = {}
             for year in years:
                 key = f"{year}/12_{metric}"
                 value = 지표.get(key)
-                if value is not None:  # 0 값도 포함
+                if value is not None and value != 0:  # 0 값 제외
                     result[metric][year] = float(value)
         
         # 시가총액 데이터 추출
@@ -1015,11 +1015,10 @@ def get_company_metrics(name: str):
             if value is not None and value != 0:
                 result["시가총액"][year] = float(value)
         
-        # 모든 재무지표 데이터 추출 (0 값도 포함)
+        # 모든 재무지표 데이터 추출 (0 값 제외)
         financial_metrics = [
             "매출액", "당기순이익", "영업이익", "부채비율", "배당수익률", 
-            "매출원가", "판매비와관리비", "자산총계", "부채총계", "자본총계",
-            "영업활동현금흐름", "투자활동현금흐름", "재무활동현금흐름"
+            "매출원가", "판매비와관리비", "자산총계", "부채총계", "자본총계"
         ]
         
         for metric in financial_metrics:
@@ -1027,23 +1026,28 @@ def get_company_metrics(name: str):
             for year in years:
                 key = f"{year}/12_{metric}"
                 value = 지표.get(key)
-                if value is not None:  # 0 값도 포함
+                if value is not None and value != 0:  # 0 값 제외
                     result[metric][year] = float(value)
         
-        # 지배주주지분, 지배주주순이익 데이터 추출 (0 값도 포함)
+        # 지배주주지분, 지배주주순이익, 총계 데이터 추출 (0 값 제외)
         result["지배주주지분"] = {}
         result["지배주주순이익"] = {}
+        result["총계"] = {}
         for year in years:
             equity_key = f"{year}/12_지배주주지분"
             income_key = f"{year}/12_지배주주순이익"
+            total_key = f"{year}/12_총계"
             
             equity_value = 지표.get(equity_key)
             income_value = 지표.get(income_key)
+            total_value = 지표.get(total_key)
             
-            if equity_value is not None:  # 0 값도 포함
+            if equity_value is not None and equity_value != 0:  # 0 값 제외
                 result["지배주주지분"][year] = float(equity_value)
-            if income_value is not None:  # 0 값도 포함
+            if income_value is not None and income_value != 0:  # 0 값 제외
                 result["지배주주순이익"][year] = float(income_value)
+            if total_value is not None and total_value != 0:  # 0 값 제외
+                result["총계"][year] = float(total_value)
         
         print(f"✅ {decoded_name} 재무지표 로드 성공")
         return JSONResponse(content=result)
