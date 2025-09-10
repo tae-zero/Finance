@@ -998,13 +998,13 @@ def get_company_metrics(name: str):
         # 재무지표 데이터 구조화
         result = {}
         
-        # PER, PBR, ROE 데이터 추출
+        # PER, PBR, ROE 데이터 추출 (0 값도 포함)
         for metric in ["PER", "PBR", "ROE"]:
             result[metric] = {}
             for year in years:
                 key = f"{year}/12_{metric}"
                 value = 지표.get(key)
-                if value is not None and value != 0:
+                if value is not None:  # 0 값도 포함
                     result[metric][year] = float(value)
         
         # 시가총액 데이터 추출
@@ -1015,7 +1015,7 @@ def get_company_metrics(name: str):
             if value is not None and value != 0:
                 result["시가총액"][year] = float(value)
         
-        # 모든 재무지표 데이터 추출
+        # 모든 재무지표 데이터 추출 (0 값도 포함)
         financial_metrics = [
             "매출액", "당기순이익", "영업이익", "부채비율", "배당수익률", 
             "매출원가", "판매비와관리비", "자산총계", "부채총계", "자본총계",
@@ -1027,10 +1027,10 @@ def get_company_metrics(name: str):
             for year in years:
                 key = f"{year}/12_{metric}"
                 value = 지표.get(key)
-                if value is not None and value != 0:
+                if value is not None:  # 0 값도 포함
                     result[metric][year] = float(value)
         
-        # 지배주주지분, 지배주주순이익 데이터 추출
+        # 지배주주지분, 지배주주순이익 데이터 추출 (0 값도 포함)
         result["지배주주지분"] = {}
         result["지배주주순이익"] = {}
         for year in years:
@@ -1040,9 +1040,9 @@ def get_company_metrics(name: str):
             equity_value = 지표.get(equity_key)
             income_value = 지표.get(income_key)
             
-            if equity_value is not None and equity_value != 0:
+            if equity_value is not None:  # 0 값도 포함
                 result["지배주주지분"][year] = float(equity_value)
-            if income_value is not None and income_value != 0:
+            if income_value is not None:  # 0 값도 포함
                 result["지배주주순이익"][year] = float(income_value)
         
         print(f"✅ {decoded_name} 재무지표 로드 성공")
