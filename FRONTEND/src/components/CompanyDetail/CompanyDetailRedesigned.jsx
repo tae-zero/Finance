@@ -649,6 +649,7 @@ function CompanyDetailRedesigned() {
             </h3>
             <div className="financial-content">
               {/* 업종 평균 비교 분석 */}
+              {console.log('🔍 조건 확인:', { companyData: !!companyData, industryMetrics: !!industryMetrics, metricsData: !!metricsData })}
               {companyData && industryMetrics && metricsData ? (
                 <div className="comparison-analysis">
                   <h4 className="analysis-title">📊 업종 평균 대비 분석</h4>
