@@ -497,7 +497,20 @@ def get_report_summary(code: str = Query(..., description="종목 코드 (예: A
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         
-        data = response.json()
+        # UTF-8 BOM 문제 해결
+        try:
+            data = response.json()
+        except requests.exceptions.JSONDecodeError as e:
+            if "UTF-8 BOM" in str(e):
+                print("⚠️ UTF-8 BOM 감지, 수동으로 처리")
+                # BOM 제거 후 JSON 파싱
+                text = response.text
+                if text.startswith('\ufeff'):
+                    text = text[1:]  # BOM 제거
+                data = json.loads(text)
+            else:
+                raise e
+        
         print(f"✅ JSON API 응답 성공: {len(data.get('comp', []))}개 리포트")
         
         # JSON 데이터를 우리 형식으로 변환
