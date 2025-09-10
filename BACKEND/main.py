@@ -445,9 +445,14 @@ def get_report_summary(code: str = Query(..., description="종목 코드 (예: A
             # 테이블이 없으면 다른 방법으로 데이터 추출
             return get_fallback_report_data(code)
         
-        # 테이블 행 파싱
-        rows = table.find_all('tr')
-        print(f"🔍 발견된 행 수: {len(rows)}")
+        # tbody에서 실제 데이터 행 찾기
+        tbody = table.find('tbody', id='bodycontent4')
+        if tbody:
+            rows = tbody.find_all('tr')
+            print(f"✅ tbody#bodycontent4에서 {len(rows)}개 행 발견")
+        else:
+            rows = table.find_all('tr')
+            print(f"🔍 테이블에서 {len(rows)}개 행 발견")
         
         # 테이블이 비어있으면 다른 방법으로 데이터 추출 시도
         if len(rows) == 0:
@@ -516,49 +521,66 @@ def get_report_summary(code: str = Query(..., description="종목 코드 (예: A
         
         for i, row in enumerate(rows[:10]):  # 최대 10개
             try:
-                cells = row.find_all(['td', 'th'])
-                if len(cells) < 2:  # 최소 2개 컬럼으로 완화
+                cells = row.find_all('td')
+                if len(cells) < 6:  # 6개 컬럼이 필요
+                    print(f"⚠️ 행 {i+1}: 컬럼 수 부족 ({len(cells)}개)")
                     continue
                 
-                # 각 셀에서 텍스트 추출
-                cell_texts = []
-                for cell in cells:
-                    text = cell.get_text(strip=True)
-                    cell_texts.append(text)
+                # 1번째 td: 날짜 추출
+                date_cell = cells[0]
+                date_spans = date_cell.find_all('span', class_=['yy1', 'yy2'])
+                if date_spans and len(date_spans) >= 2:
+                    year = date_spans[0].get_text(strip=True) + date_spans[1].get_text(strip=True)
+                    date_text = date_cell.get_text(strip=True).replace(year, '').strip()
+                    full_date = f"20{year}/{date_text}"
+                else:
+                    full_date = date_cell.get_text(strip=True)
                 
-                if len(cell_texts) >= 2:
-                    # 기본 구조: 날짜, 제목, 의견, 목표가, 종가, 증권사
-                    date = cell_texts[0] if len(cell_texts) > 0 else ""
-                    title = cell_texts[1] if len(cell_texts) > 1 else ""
-                    opinion = cell_texts[2] if len(cell_texts) > 2 else ""
-                    target_price = cell_texts[3] if len(cell_texts) > 3 else ""
-                    closing_price = cell_texts[4] if len(cell_texts) > 4 else ""
-                    analyst = cell_texts[5] if len(cell_texts) > 5 else ""
-                    
-                    # 제목에서 추가 정보 추출
-                    title_element = row.find('span', class_='txt2')
-                    if title_element:
-                        title = title_element.get_text(strip=True)
-                    
-                    # 요약 정보 추출
-                    summary_parts = row.find_all('dd')
-                    summary = " / ".join([p.get_text(strip=True) for p in summary_parts if p.get_text(strip=True)])
-                    
-                    # 날짜가 없으면 기본값 사용
-                    if not date or len(date) < 3:
-                        date = f"2024-01-{15+i}"
-                    
-                    if title and len(title) > 3:  # 제목이 있으면 추가
-                        data.append({
-                            "date": date,
-                            "title": title,
-                            "summary": summary or f"투자 의견: {opinion} / 목표주가: {target_price}원",
-                            "opinion": opinion or "분석 중",
-                            "target_price": target_price or "분석 중",
-                            "closing_price": closing_price or "분석 중",
-                            "analyst": analyst or f"증권사{i+1}"
-                        })
-                        print(f"✅ 리포트 {i+1} 파싱 성공: {title[:30]}...")
+                # 2번째 td: 종목명과 리포트 제목
+                title_cell = cells[1]
+                title_link = title_cell.find('a')
+                if title_link:
+                    company_name = title_link.get_text(strip=True).split('A')[0].strip()
+                    title_text = title_cell.find('span', class_='txt2')
+                    if title_text:
+                        title = title_text.get_text(strip=True)
+                    else:
+                        title = f"{company_name} 리포트"
+                else:
+                    title = title_cell.get_text(strip=True)
+                
+                # 3번째 td: 투자의견
+                opinion_cell = cells[2]
+                opinion = opinion_cell.get_text(strip=True)
+                
+                # 4번째 td: 목표주가
+                target_price_cell = cells[3]
+                target_price = target_price_cell.get_text(strip=True)
+                
+                # 5번째 td: 전일종가
+                closing_price_cell = cells[4]
+                closing_price = closing_price_cell.get_text(strip=True)
+                
+                # 6번째 td: 증권사/작성자
+                analyst_cell = cells[5]
+                analyst = analyst_cell.get_text(strip=True)
+                
+                # 요약 정보 추출 (dd 태그들)
+                summary_parts = title_cell.find_all('dd')
+                summary = " / ".join([p.get_text(strip=True) for p in summary_parts if p.get_text(strip=True)])
+                
+                # 데이터 정리
+                if title and len(title) > 3:  # 제목이 있으면 추가
+                    data.append({
+                        "date": full_date,
+                        "title": title,
+                        "summary": summary or f"투자 의견: {opinion} / 목표주가: {target_price} / 전일종가: {closing_price}",
+                        "opinion": opinion or "분석 중",
+                        "target_price": target_price or "분석 중",
+                        "closing_price": closing_price or "분석 중",
+                        "analyst": analyst or f"증권사{i+1}"
+                    })
+                    print(f"✅ 리포트 {i+1} 파싱 성공: {title[:30]}...")
                 
             except Exception as e:
                 print(f"⚠️ 행 {i+1} 파싱 중 오류: {e}")
