@@ -137,12 +137,18 @@ function CompanyDetail() {
   // 기업 지표 로드 (company 상태가 설정된 후) - 백엔드 API 사용
   useEffect(() => {
     if (company?.기업명) {
+      console.log('🔍 재무지표 API 호출 시작:', company.기업명);
+      console.log('🔍 API URL:', API_ENDPOINTS.COMPANY_METRICS(encodeURIComponent(company.기업명)));
+      
       axios.get(API_ENDPOINTS.COMPANY_METRICS(encodeURIComponent(company.기업명)))
         .then(res => {
+          console.log('✅ 재무지표 API 응답 성공:', res.status);
+          console.log('📊 재무지표 데이터:', res.data);
           setMetrics(res.data);
         })
         .catch(err => {
           console.error('❌ 기업 재무지표 로드 실패:', err);
+          console.error('❌ 오류 상세:', err.response?.data);
           // fallback 데이터
           setMetrics({
             PER: { "2022": 0, "2023": 0, "2024": 0 },
@@ -178,7 +184,14 @@ function calcAverage(arr) {
 
 
 function extractMetricValues(map, metric) {
-  return ["2022", "2023", "2024"].map(year => map[metric]?.[year]);
+  console.log('🔍 extractMetricValues 호출:', { map, metric });
+  const result = ["2022", "2023", "2024"].map(year => {
+    const value = map[metric]?.[year];
+    console.log(`🔍 ${metric} ${year}:`, value);
+    return value;
+  });
+  console.log('🔍 extractMetricValues 결과:', result);
+  return result;
 }
 
 
