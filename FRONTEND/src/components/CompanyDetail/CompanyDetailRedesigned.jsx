@@ -65,7 +65,11 @@ function CompanyDetailRedesigned() {
     '지배주주순이익': '전체 이익 중에서 우리 회사 주주들이 실제로 가져가는 순이익이야.',
     '지배주주지분': '전체 자본 중 우리 회사 주주들이 가진 몫이야. 우리 입장에서 진짜 우리 돈.',
     '비지배주주순이익': '자회사에서 벌었지만, 우리 회사가 아닌 외부 주주 몫으로 빠진 이익이야.',
-    '비지배주주지분': '자회사 지분 중 우리 회사가 아닌 외부 사람들이 갖고 있는 비율이야.'
+    '비지배주주지분': '자회사 지분 중 우리 회사가 아닌 외부 사람들이 갖고 있는 비율이야.',
+    '매출원가': '물건을 만들거나 서비스를 제공하는데 직접 들어간 비용이야. 원자재, 인건비 등이 포함돼.',
+    '판매비와관리비': '물건을 팔고 회사를 운영하는데 들어간 간접비용이야. 광고비, 사무실 임대료 등이 포함돼.',
+    '시가총액': '회사 전체 주식의 시장 가격이야. 주가 × 발행주식수로 계산해. 회사 전체의 가치를 나타내.',
+    '총계': '여러 항목을 합친 총합이야. 상황에 따라 다른 의미를 가질 수 있어.'
   };
 
   // 업종 평균 비교 분석 함수들
@@ -672,50 +676,71 @@ function CompanyDetailRedesigned() {
                   <div style={{ display: 'flex', gap: '50px', alignItems: 'flex-start', fontSize: '30px'}}>
                     {/* 좌측 - 요약 재무지표 표 */}
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
-                        <h3 style={{ margin: 0}}>📑 요약 재무지표</h3>
-                        <span style={{ fontSize: '19px', color: '#666' }}>매출액,당기순이익,영업이익(단위: 억 원)</span>
-                      </div>
-                      <table className="indicator-table">
-                        <thead>
-                          <tr>
-                            <th>지표</th>
-                            <th>2022</th>
-                            <th>2023</th>
-                            <th>2024</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {['PER', 'PBR', 'ROE', 'ROA', 'DPS', 'EPS', 'BPS', '매출액', '영업이익', '당기순이익', '매출원가', '판매비와관리비', '부채비율', '배당수익률', '시가총액', '지배주주지분', '지배주주순이익', '자산총계', '부채총계', '자본총계', '총계'].map(metric => (
-                            <tr key={metric}>
-                              <td>{metric}</td>
+                      <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 shadow-2xl border border-gray-700">
+                        <div className="flex items-center justify-between mb-6">
+                          <h3 className="text-2xl font-bold text-white flex items-center">
+                            <span className="text-3xl mr-3">📊</span>
+                            요약 재무지표
+                          </h3>
+                          <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                            단위: 억원
+                          </div>
+                        </div>
+                        <p className="text-gray-300 text-sm mb-6 bg-gray-700 px-4 py-2 rounded-lg">
+                          매출액, 당기순이익, 영업이익 등 주요 재무지표를 연도별로 비교할 수 있습니다
+                        </p>
+                        <div className="overflow-x-auto rounded-lg border border-gray-600">
+                          <table className="w-full text-sm">
+                            <thead className="bg-gradient-to-r from-gray-700 to-gray-800">
+                              <tr>
+                                <th className="text-left py-4 px-4 text-gray-200 font-semibold border-r border-gray-600">지표</th>
+                                <th className="text-center py-4 px-4 text-gray-200 font-semibold border-r border-gray-600">2022</th>
+                                <th className="text-center py-4 px-4 text-gray-200 font-semibold border-r border-gray-600">2023</th>
+                                <th className="text-center py-4 px-4 text-gray-200 font-semibold">2024</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-600">
+                          {['PER', 'PBR', 'ROE', 'ROA', 'DPS', 'EPS', 'BPS', '매출액', '영업이익', '당기순이익', '매출원가', '판매비와관리비', '부채비율', '배당수익률', '시가총액', '지배주주지분', '지배주주순이익', '자산총계', '부채총계', '자본총계', '총계'].map((metric, index) => (
+                            <tr key={metric} className={`hover:bg-gray-700 transition-colors duration-200 ${index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-900'}`}>
+                              <td className="py-3 px-4 text-gray-200 font-medium border-r border-gray-600 relative group">
+                                <span className="cursor-help">{metric}</span>
+                                {metricDescriptions[metric] && (
+                                  <div className="absolute left-full top-0 ml-2 w-80 p-3 bg-gray-900 text-white text-sm rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50 border border-gray-600">
+                                    <div className="font-semibold text-blue-400 mb-1">{metric}</div>
+                                    <div className="text-gray-300 leading-relaxed">{metricDescriptions[metric]}</div>
+                                    <div className="absolute left-0 top-4 w-0 h-0 border-t-4 border-b-4 border-r-4 border-transparent border-r-gray-900 transform -translate-x-1"></div>
+                                  </div>
+                                )}
+                              </td>
                               {['2022', '2023', '2024'].map(year => (
-                                <td key={year}>
+                                <td key={year} className="py-3 px-4 text-center text-gray-300 border-r border-gray-600">
                                   {metricsData[metric]?.[year] 
                                     ? (() => {
                                         const value = metricsData[metric][year];
                                         if (metric === '매출액' || metric === '영업이익' || metric === '당기순이익' || metric === '매출원가' || metric === '판매비와관리비' || metric === '자산총계' || metric === '부채총계' || metric === '자본총계' || metric === '지배주주지분' || metric === '지배주주순이익' || metric === '총계') {
                                           // 만원 단위를 억원으로 변환 (10,000으로 나누기)
-                                          return (value / 10000).toFixed(1) + '억원';
+                                          return <span className="text-yellow-400 font-medium">{(value / 10000).toFixed(1)}억원</span>;
                                         } else if (metric === '시가총액') {
                                           // 원 단위를 억원으로 변환 (100,000,000으로 나누기)
-                                          return (value / 100000000).toFixed(1) + '억원';
+                                          return <span className="text-purple-400 font-medium">{(value / 100000000).toFixed(1)}억원</span>;
                                         } else if (metric === 'DPS' || metric === 'EPS' || metric === 'BPS') {
                                           // 원 단위 (소수점 없이)
-                                          return value.toFixed(0) + '원';
+                                          return <span className="text-green-400 font-medium">{value.toFixed(0)}원</span>;
                                         } else {
                                           // 비율이나 배수는 그대로 표시
-                                          return value.toFixed(3);
+                                          return <span className="text-blue-400 font-medium">{value.toFixed(3)}</span>;
                                         }
                                       })()
-                                    : '--'
+                                    : <span className="text-gray-500">--</span>
                                   }
                                 </td>
                               ))}
                             </tr>
                           ))}
-                        </tbody>
-                      </table>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
                     </div>
 
                     {/* 우측 - 재무지표 그래프 */}
