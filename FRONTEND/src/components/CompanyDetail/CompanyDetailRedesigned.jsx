@@ -11,6 +11,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from 'chart.js';
 import { API_ENDPOINTS } from '../../config/api';
 import CompareChart from '../../CompareChart';
@@ -20,7 +21,7 @@ import PieChart from '../../PieChart';
 import ShareholderChart from '../../ShareholderChart';
 import './CompanyDetailRedesigned.css';
 
-ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
+ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend, Filler);
 
 function CompanyDetailRedesigned() {
   const { name } = useParams();

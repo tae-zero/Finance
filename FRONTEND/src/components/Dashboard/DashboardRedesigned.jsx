@@ -10,13 +10,14 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from 'chart.js';
 import { API_ENDPOINTS } from '../../config/api';
 import InvestorTable from '../../investorTable';
 import TopRankings from '../../TopRankings';
 import './DashboardRedesigned.css';
 
-ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
+ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend, Filler);
 
 function DashboardRedesigned() {
   const [hotNews, setHotNews] = useState([]);
