@@ -171,21 +171,31 @@ function CompanyDetail() {
   if (!company) return <p>⏳ 기업 정보를 불러오는 중입니다...</p>;
 
   const rawIndicators = company.지표 || {};
+  console.log('🔍 company.지표 데이터:', rawIndicators);
+  console.log('🔍 company.지표 타입:', typeof rawIndicators);
+  console.log('🔍 company.지표 키 개수:', Object.keys(rawIndicators).length);
+  
   const indicatorMap = {};
   const allPeriods = new Set();
 
   for (const [key, value] of Object.entries(rawIndicators)) {
     if (!value || value === 0) continue;
-    const parts = key.split('_');
-    if (parts.length < 2) continue;
-
-    const period = parts[0];
-    const metric = parts.slice(1).join('_');
+    
+    // "2022/12_매출액" 형식에서 언더스코어로 분리
+    const underscoreIndex = key.indexOf('_');
+    if (underscoreIndex === -1) continue;
+    
+    const period = key.substring(0, underscoreIndex);
+    const metric = key.substring(underscoreIndex + 1);
 
     if (!indicatorMap[metric]) indicatorMap[metric] = {};
     indicatorMap[metric][period] = value;
     allPeriods.add(period);
   }
+  
+  console.log('🔍 indicatorMap:', indicatorMap);
+  console.log('🔍 allPeriods:', allPeriods);
+  console.log('🔍 sortedMetrics:', Object.keys(indicatorMap));
 
   const sortedPeriods = Array.from(allPeriods)
   .filter(period => period !== '2025/05')  // 제외
@@ -493,7 +503,7 @@ function generateComparisonText(metricName, companyName, companyVals, industryVa
           </div>
 
           {/* 우측 - 재무지표 그래프 */}
-          {metrics && industryMetrics && jsonIndicators && (
+          {metrics && industryMetrics && (
             <div style={{ flex: 1 }}>
               <h3>📈 업종 평균과 비교한 재무지표 그래프</h3>
               
@@ -508,28 +518,28 @@ function generateComparisonText(metricName, companyName, companyVals, industryVa
               {/* 비교 텍스트 */}
               <div style={{ marginTop: '20px' }}>
                 <p style={{ fontSize: '14px', color: '#333', marginBottom: '10px' }}>
-                  <strong>PER:</strong> {generateComparisonText(
+                  <strong>PER:</strong> {jsonIndicators && jsonIndicators[company.기업명] ? generateComparisonText(
                     'PER',
                     company.기업명,
                     extractMetricValues(jsonIndicators[company.기업명], 'PER'),
                     extractMetricValues(industryMetrics, 'PER')
-                  )}
+                  ) : '데이터를 불러오는 중...'}
                 </p>
                 <p style={{ fontSize: '14px', color: '#333', marginBottom: '10px' }}>
-                  <strong>PBR:</strong> {generateComparisonText(
+                  <strong>PBR:</strong> {jsonIndicators && jsonIndicators[company.기업명] ? generateComparisonText(
                     'PBR',
                     company.기업명,
                     extractMetricValues(jsonIndicators[company.기업명], 'PBR'),
                     extractMetricValues(industryMetrics, 'PBR')
-                  )}
+                  ) : '데이터를 불러오는 중...'}
                 </p>
                 <p style={{ fontSize: '14px', color: '#333', marginBottom: '10px' }}>
-                  <strong>ROE:</strong> {generateComparisonText(
+                  <strong>ROE:</strong> {jsonIndicators && jsonIndicators[company.기업명] ? generateComparisonText(
                     'ROE',
                     company.기업명,
                     extractMetricValues(jsonIndicators[company.기업명], 'ROE'),
                     extractMetricValues(industryMetrics, 'ROE')
-                  )}
+                  ) : '데이터를 불러오는 중...'}
                 </p>
               </div>
             </div>

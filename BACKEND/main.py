@@ -199,6 +199,23 @@ def get_full_company_data(name: str):
             raise HTTPException(status_code=404, detail="기업을 찾을 수 없습니다.")
 
         print(f"✅ 기업 데이터 찾음: {base.get('기업명', 'Unknown')}")
+        
+        # 지표 필드 확인 및 수정
+        if "지표" in base:
+            print(f"✅ 지표 필드 존재: {len(base['지표'])}개 키")
+            print(f"🔍 지표 키들: {list(base['지표'].keys())[:10]}...")  # 처음 10개만
+        elif "지" in base and "표" in base:
+            print(f"🔍 지와 표 필드가 분리되어 있음. 통합 중...")
+            # 지와 표 필드를 합쳐서 지표로 만들기
+            지표_데이터 = {}
+            if isinstance(base.get("지"), dict):
+                지표_데이터.update(base["지"])
+            if isinstance(base.get("표"), dict):
+                지표_데이터.update(base["표"])
+            base["지표"] = 지표_데이터
+            print(f"✅ 지표 필드 통합 완료: {len(지표_데이터)}개 키")
+        else:
+            print(f"❌ 지표 관련 필드 없음. 사용 가능한 키들: {list(base.keys())}")
 
         # 1. 짧은요약 (explain 컬렉션)
         if explain is not None:
