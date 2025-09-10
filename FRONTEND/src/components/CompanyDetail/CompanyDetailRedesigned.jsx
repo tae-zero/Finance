@@ -35,10 +35,22 @@ function CompanyDetailRedesigned() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [openDescriptions, setOpenDescriptions] = useState({});
+  const [selectedMetric, setSelectedMetric] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [showSalesTable, setShowSalesTable] = useState(true);
 
   const toggleDescription = (metric) => {
     setOpenDescriptions(prev => ({...prev, [metric]: !prev[metric]}));
+  };
+
+  const openMetricModal = (metric) => {
+    setSelectedMetric(metric);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedMetric(null);
   };
 
   const metricDescriptions = {
@@ -347,6 +359,33 @@ function CompanyDetailRedesigned() {
 
   return (
     <div className="company-detail-redesigned">
+      {/* 용어 설명 모달 */}
+      {isModalOpen && selectedMetric && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl border border-gray-600">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-blue-400">{selectedMetric}</h3>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-white text-2xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+            <div className="text-gray-300 leading-relaxed">
+              {metricDescriptions[selectedMetric] || '용어 설명이 없습니다.'}
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={closeModal}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* 헤더 섹션 */}
       <div className="company-header">
         <div className="header-content">
@@ -702,15 +741,13 @@ function CompanyDetailRedesigned() {
                             <tbody className="divide-y divide-gray-600">
                           {['PER', 'PBR', 'ROE', 'ROA', 'DPS', 'EPS', 'BPS', '매출액', '영업이익', '당기순이익', '매출원가', '판매비와관리비', '부채비율', '배당수익률', '시가총액', '지배주주지분', '지배주주순이익', '자산총계', '부채총계', '자본총계', '총계'].map((metric, index) => (
                             <tr key={metric} className={`hover:bg-gray-700 transition-colors duration-200 ${index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-900'}`}>
-                              <td className="py-3 px-4 text-gray-200 font-medium border-r border-gray-600 relative group">
-                                <span className="cursor-help">{metric}</span>
-                                {metricDescriptions[metric] && (
-                                  <div className="absolute left-full top-0 ml-2 w-80 p-3 bg-gray-900 text-white text-sm rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50 border border-gray-600">
-                                    <div className="font-semibold text-blue-400 mb-1">{metric}</div>
-                                    <div className="text-gray-300 leading-relaxed">{metricDescriptions[metric]}</div>
-                                    <div className="absolute left-0 top-4 w-0 h-0 border-t-4 border-b-4 border-r-4 border-transparent border-r-gray-900 transform -translate-x-1"></div>
-                                  </div>
-                                )}
+                              <td className="py-3 px-4 text-gray-200 font-medium border-r border-gray-600">
+                                <span 
+                                  className="cursor-pointer hover:text-blue-400 transition-colors duration-200"
+                                  onClick={() => openMetricModal(metric)}
+                                >
+                                  {metric}
+                                </span>
                               </td>
                               {['2022', '2023', '2024'].map(year => (
                                 <td key={year} className="py-3 px-4 text-center text-gray-300 border-r border-gray-600">
