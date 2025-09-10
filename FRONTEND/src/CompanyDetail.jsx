@@ -66,7 +66,12 @@ function CompanyDetail() {
     '지배주주순이익': '전체 이익 중에서 우리 회사 주주들이 실제로 가져가는 순이익이야.',
     '지배주주지분': '전체 자본 중 우리 회사 주주들이 가진 몫이야. 우리 입장에서 진짜 우리 돈.',
     '비지배주주순이익': '자회사에서 벌었지만, 우리 회사가 아닌 외부 주주 몫으로 빠진 이익이야.',
-    '비지배주주지분': '자회사 지분 중 우리 회사가 아닌 외부 사람들이 갖고 있는 비율이야.'}
+    '비지배주주지분': '자회사 지분 중 우리 회사가 아닌 외부 사람들이 갖고 있는 비율이야.',
+    '시가총액': '회사 주식 전체의 시장 가치야. 주가 × 발행주식수로 계산해. 회사가 시장에서 얼마나 인정받는지 보여줘.',
+    '이자수익': '회사가 돈을 빌려주거나 투자해서 받는 이자 수익이야. 금융업이 아닌 회사는 보통 적어.',
+    '순영업수익': '보험회사에서 보험료를 받아서 얻는 수익이야. 일반 회사는 해당 없어.',
+    '보험료수익': '보험회사가 보험료로 받는 수익이야. 일반 회사는 해당 없어.'
+  }
 
   useEffect(() => {
     // 한글 기업명을 URL 인코딩
@@ -136,30 +141,27 @@ function CompanyDetail() {
       .catch(err => console.error('❌ JSON 불러오기 실패:', err));
   }, []);
 
-  // 기업 지표 로드 (company 상태가 설정된 후)
+  // 기업 지표 로드 (company 상태가 설정된 후) - 백엔드 API 사용
   useEffect(() => {
     if (company?.기업명) {
-      fetch('/기업별_재무지표.json')
-        .then(res => res.json())
-        .then(data => {
-          if (data[company.기업명]) {
-            setMetrics(data[company.기업명]);
-            console.log('✅ 기업 지표 로드 성공:', company.기업명);
-          } else {
-            console.warn('⚠️ 기업 지표 데이터 없음:', company.기업명);
-            setMetrics({
-              PER: { "2022": 0, "2023": 0, "2024": 0 },
-              PBR: { "2022": 0, "2023": 0, "2024": 0 },
-              ROE: { "2022": 0, "2023": 0, "2024": 0 }
-            });
-          }
+      console.log('🔍 기업 재무지표 로드 시도:', company.기업명);
+      
+      axios.get(API_ENDPOINTS.COMPANY_METRICS(encodeURIComponent(company.기업명)))
+        .then(res => {
+          console.log('🔍 재무지표 API 응답:', res.data);
+          setMetrics(res.data);
+          console.log('✅ 기업 재무지표 로드 성공:', company.기업명, res.data);
         })
         .catch(err => {
-          console.error('❌ 기업 지표 로드 실패:', err);
+          console.error('❌ 기업 재무지표 로드 실패:', err);
+          // fallback 데이터
           setMetrics({
             PER: { "2022": 0, "2023": 0, "2024": 0 },
             PBR: { "2022": 0, "2023": 0, "2024": 0 },
-            ROE: { "2022": 0, "2023": 0, "2024": 0 }
+            ROE: { "2022": 0, "2023": 0, "2024": 0 },
+            시가총액: { "2024": 0 },
+            지배주주지분: { "2022": 0, "2023": 0, "2024": 0 },
+            지배주주순이익: { "2022": 0, "2023": 0, "2024": 0 }
           });
         });
     }
@@ -410,7 +412,7 @@ function generateComparisonText(metricName, companyName, companyVals, industryVa
                 </tr>
               </thead>
               <tbody>
-                {sortedMetrics.filter(metric => !metric.includes('.1') && metric !== '시가총액').map(metric => (
+                {sortedMetrics.filter(metric => !metric.includes('.1')).map(metric => (
                   <tr key={metric}>
                     {/* <td title={metricDescriptions[metric] || ''}>
                       <span style={{ color: 'blue', cursor: 'help' }}>{metric}</span>
@@ -459,9 +461,28 @@ function generateComparisonText(metricName, companyName, companyVals, industryVa
 
                     {sortedPeriods.map(period => {
                       const value = indicatorMap[metric][period];
+                      let displayValue = '-';
+                      
+                      if (value !== undefined) {
+                        const numValue = Number(value);
+                        if (metric === '시가총액') {
+                          // 시가총액은 1억으로 나누어서 표시
+                          displayValue = (numValue / 100000000).toFixed(0) + '억원';
+                        } else if (metric === '지배주주지분' || metric === '지배주주순이익') {
+                          // 지배주주지분, 지배주주순이익은 이미 억원 단위
+                          displayValue = numValue.toFixed(1) + '억원';
+                        } else if (metric === '매출액' || metric === '당기순이익' || metric === '영업이익') {
+                          // 매출액, 당기순이익, 영업이익은 억원 단위로 표시
+                          displayValue = (numValue / 100000000).toFixed(1) + '억원';
+                        } else {
+                          // 나머지는 그대로 표시
+                          displayValue = numValue.toLocaleString();
+                        }
+                      }
+                      
                       return (
                         <td key={period} className="right">
-                          {value !== undefined ? Number(value).toLocaleString() : '-'}
+                          {displayValue}
                         </td>
                       );
                     })}
