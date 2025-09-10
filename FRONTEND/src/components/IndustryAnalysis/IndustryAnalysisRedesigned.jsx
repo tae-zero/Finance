@@ -454,28 +454,20 @@ function IndustryAnalysisRedesigned() {
               {/* 기업 비교 차트 */}
               {selectedCompanyLeft && selectedCompanyRight && leftMetrics && rightMetrics && (
                 <div className="comparison-chart">
-                  <h4 className="chart-title">📊 기업별 재무지표 비교 차트</h4>
+                  <h4 className="chart-title">📊 기업별 재무지표 비교 차트 (연도별)</h4>
                   <div className="chart-container">
                     <Line
                       data={{
-                        labels: ['PER', 'PBR', 'ROE', 'DPS'],
+                        labels: ['2022', '2023', '2024'],
                         datasets: [
                           {
-                            label: selectedCompanyLeft,
-                            data: metricList.map(metric => {
-                              const value = leftMetrics[metric];
+                            label: `${selectedCompanyLeft} - PER`,
+                            data: years.map(year => {
+                              const value = leftMetrics['PER'];
                               if (typeof value === 'object' && value !== null) {
-                                // 2024년 데이터가 있으면 사용, 없으면 평균 계산
-                                const year2024 = value['2024'];
-                                if (typeof year2024 === 'number') {
-                                  return year2024;
-                                }
-                                // 3년 평균 계산
-                                const years = ['2022', '2023', '2024'];
-                                const values = years.map(year => Number(value[year])).filter(v => !isNaN(v));
-                                return values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+                                return typeof value[year] === 'number' ? value[year] : 0;
                               }
-                              return typeof value === 'number' ? value : 0;
+                              return 0;
                             }),
                             borderColor: '#00D1B2',
                             backgroundColor: 'rgba(0, 209, 178, 0.1)',
@@ -486,21 +478,67 @@ function IndustryAnalysisRedesigned() {
                             fill: false
                           },
                           {
-                            label: selectedCompanyRight,
-                            data: metricList.map(metric => {
-                              const value = rightMetrics[metric];
+                            label: `${selectedCompanyLeft} - PBR`,
+                            data: years.map(year => {
+                              const value = leftMetrics['PBR'];
                               if (typeof value === 'object' && value !== null) {
-                                // 2024년 데이터가 있으면 사용, 없으면 평균 계산
-                                const year2024 = value['2024'];
-                                if (typeof year2024 === 'number') {
-                                  return year2024;
-                                }
-                                // 3년 평균 계산
-                                const years = ['2022', '2023', '2024'];
-                                const values = years.map(year => Number(value[year])).filter(v => !isNaN(v));
-                                return values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+                                return typeof value[year] === 'number' ? value[year] : 0;
                               }
-                              return typeof value === 'number' ? value : 0;
+                              return 0;
+                            }),
+                            borderColor: '#00D1B2',
+                            backgroundColor: 'rgba(0, 209, 178, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            tension: 0.4,
+                            fill: false,
+                            borderDash: [5, 5]
+                          },
+                          {
+                            label: `${selectedCompanyLeft} - ROE`,
+                            data: years.map(year => {
+                              const value = leftMetrics['ROE'];
+                              if (typeof value === 'object' && value !== null) {
+                                return typeof value[year] === 'number' ? value[year] : 0;
+                              }
+                              return 0;
+                            }),
+                            borderColor: '#00D1B2',
+                            backgroundColor: 'rgba(0, 209, 178, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            tension: 0.4,
+                            fill: false,
+                            borderDash: [10, 5]
+                          },
+                          {
+                            label: `${selectedCompanyLeft} - DPS`,
+                            data: years.map(year => {
+                              const value = leftMetrics['DPS'];
+                              if (typeof value === 'object' && value !== null) {
+                                return typeof value[year] === 'number' ? value[year] : 0;
+                              }
+                              return 0;
+                            }),
+                            borderColor: '#00D1B2',
+                            backgroundColor: 'rgba(0, 209, 178, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            tension: 0.4,
+                            fill: false,
+                            borderDash: [15, 5]
+                          },
+                          {
+                            label: `${selectedCompanyRight} - PER`,
+                            data: years.map(year => {
+                              const value = rightMetrics['PER'];
+                              if (typeof value === 'object' && value !== null) {
+                                return typeof value[year] === 'number' ? value[year] : 0;
+                              }
+                              return 0;
                             }),
                             borderColor: '#FF6B6B',
                             backgroundColor: 'rgba(255, 107, 107, 0.1)',
@@ -509,6 +547,60 @@ function IndustryAnalysisRedesigned() {
                             pointHoverRadius: 6,
                             tension: 0.4,
                             fill: false
+                          },
+                          {
+                            label: `${selectedCompanyRight} - PBR`,
+                            data: years.map(year => {
+                              const value = rightMetrics['PBR'];
+                              if (typeof value === 'object' && value !== null) {
+                                return typeof value[year] === 'number' ? value[year] : 0;
+                              }
+                              return 0;
+                            }),
+                            borderColor: '#FF6B6B',
+                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            tension: 0.4,
+                            fill: false,
+                            borderDash: [5, 5]
+                          },
+                          {
+                            label: `${selectedCompanyRight} - ROE`,
+                            data: years.map(year => {
+                              const value = rightMetrics['ROE'];
+                              if (typeof value === 'object' && value !== null) {
+                                return typeof value[year] === 'number' ? value[year] : 0;
+                              }
+                              return 0;
+                            }),
+                            borderColor: '#FF6B6B',
+                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            tension: 0.4,
+                            fill: false,
+                            borderDash: [10, 5]
+                          },
+                          {
+                            label: `${selectedCompanyRight} - DPS`,
+                            data: years.map(year => {
+                              const value = rightMetrics['DPS'];
+                              if (typeof value === 'object' && value !== null) {
+                                return typeof value[year] === 'number' ? value[year] : 0;
+                              }
+                              return 0;
+                            }),
+                            borderColor: '#FF6B6B',
+                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            tension: 0.4,
+                            fill: false,
+                            borderDash: [15, 5]
                           }
                         ]
                       }}
@@ -520,8 +612,12 @@ function IndustryAnalysisRedesigned() {
                             position: 'top',
                             labels: {
                               color: 'var(--text-primary)',
-                              font: { size: 14, weight: 'bold' }
-                            }
+                              font: { size: 12, weight: 'bold' },
+                              boxWidth: 12,
+                              padding: 8,
+                              usePointStyle: true
+                            },
+                            maxHeight: 100
                           },
                           tooltip: {
                             backgroundColor: 'var(--glass-bg)',
@@ -576,20 +672,40 @@ function IndustryAnalysisRedesigned() {
               <div className="comparison-table">
                 <div className="table-header">
                   <div className="header-cell">지표</div>
+                  <div className="header-cell">연도</div>
                   <div className="header-cell">{selectedCompanyLeft || '기업 1'}</div>
                   <div className="header-cell">{selectedCompanyRight || '기업 2'}</div>
                 </div>
                 <div className="table-body">
                   {metricList.map(metric => (
-                    <div key={metric} className="table-row">
-                      <div className="cell-label">{metric}</div>
-                      <div className="cell-value">
-                        {typeof leftMetrics?.[metric] === 'number' ? leftMetrics[metric].toFixed(2) : '--'}
-                      </div>
-                      <div className="cell-value">
-                        {typeof rightMetrics?.[metric] === 'number' ? rightMetrics[metric].toFixed(2) : '--'}
-                      </div>
-                    </div>
+                    <React.Fragment key={metric}>
+                      {years.map(year => (
+                        <div key={`${metric}-${year}`} className="table-row">
+                          <div className="cell-label">
+                            {year === '2022' ? metric : ''}
+                          </div>
+                          <div className="cell-year">{year}</div>
+                          <div className="cell-value">
+                            {(() => {
+                              const value = leftMetrics?.[metric];
+                              if (typeof value === 'object' && value !== null) {
+                                return typeof value[year] === 'number' ? value[year].toFixed(2) : '--';
+                              }
+                              return '--';
+                            })()}
+                          </div>
+                          <div className="cell-value">
+                            {(() => {
+                              const value = rightMetrics?.[metric];
+                              if (typeof value === 'object' && value !== null) {
+                                return typeof value[year] === 'number' ? value[year].toFixed(2) : '--';
+                              }
+                              return '--';
+                            })()}
+                          </div>
+                        </div>
+                      ))}
+                    </React.Fragment>
                   ))}
                 </div>
               </div>

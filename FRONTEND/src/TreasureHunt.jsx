@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import 'rc-slider/assets/index.css';
 import FinancialGraph from './FinancialGraph';
 import { API_ENDPOINTS } from './config/api';
@@ -40,7 +40,14 @@ function TreasureHunt() {
       .catch(err => console.error('❌ 데이터 로딩 오류:', err));
   }, []);
 
-const applyFilters = () => {
+  // 필터 변경 시 자동으로 적용
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
+
+const applyFilters = useCallback(() => {
+  if (!data || data.length === 0) return;
+  
   const filteredData = data.filter(item => {
     const perAvg = parseFloat(getThreeYearAvg(item.PER));
     const pbrAvg = parseFloat(getThreeYearAvg(item.PBR));
@@ -63,7 +70,7 @@ const applyFilters = () => {
   });
 
   setFiltered(filteredData);
-};
+}, [data, industryFilter, pbrMin, pbrMax, perMin, perMax, roeMin, roeMax]);
 
 
 
@@ -179,15 +186,6 @@ const renderAverageMarker = (metricKey, label, min, max) => {
             ))}
           </select>
 
-          <button
-            onClick={applyFilters}
-            style={{
-              padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none',
-              borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px',
-              width: '100%', marginBottom: '70px', marginTop: '10px'
-            }}>
-            ✅ 조건 적용
-          </button>
 
           {/* 슬라이더들 */}
           <div style={{ marginBottom: '40px', fontSize: '16px' }}>
@@ -332,11 +330,47 @@ const renderAverageMarker = (metricKey, label, min, max) => {
   </div>
 
 
-<div style={{ display: 'flex', gap: '10px', marginBottom: '20px'}}>
-  <button onClick={() => handleSort('시가총액')}>시가총액 정렬 (2024)</button>
-  <button onClick={() => handleSort('PBR')}>PBR 정렬 (3년 평균)</button>
-  <button onClick={() => handleSort('PER')}>PER 정렬 (3년 평균)</button>
-  <button onClick={() => handleSort('ROE')}>ROE 정렬 (3년 평균)</button>
+<div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap'}}>
+  <button 
+    onClick={() => handleSort('시가총액')}
+    style={{
+      padding: '8px 16px', backgroundColor: '#00D1B2', color: 'white', border: 'none',
+      borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px',
+      transition: 'all 0.3s ease'
+    }}
+  >
+    시가총액 정렬 (2024)
+  </button>
+  <button 
+    onClick={() => handleSort('PBR')}
+    style={{
+      padding: '8px 16px', backgroundColor: '#00D1B2', color: 'white', border: 'none',
+      borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px',
+      transition: 'all 0.3s ease'
+    }}
+  >
+    PBR 정렬 (3년 평균)
+  </button>
+  <button 
+    onClick={() => handleSort('PER')}
+    style={{
+      padding: '8px 16px', backgroundColor: '#00D1B2', color: 'white', border: 'none',
+      borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px',
+      transition: 'all 0.3s ease'
+    }}
+  >
+    PER 정렬 (3년 평균)
+  </button>
+  <button 
+    onClick={() => handleSort('ROE')}
+    style={{
+      padding: '8px 16px', backgroundColor: '#00D1B2', color: 'white', border: 'none',
+      borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px',
+      transition: 'all 0.3s ease'
+    }}
+  >
+    ROE 정렬 (3년 평균)
+  </button>
 </div>
 
       <table border="1" width="100%" cellPadding="8">

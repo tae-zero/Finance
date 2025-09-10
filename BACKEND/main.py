@@ -943,37 +943,76 @@ def get_industry_analysis(name: str):
         raise HTTPException(status_code=500, detail=f"서버 오류: {str(e)}")
 
 
-# 메인페이지 기업 재무지표 JSON - 프론트엔드에서 직접 로드하도록 변경
+# 기업 재무지표 MongoDB에서 직접 조회
 @app.get("/company_metrics/{name}")
 def get_company_metrics(name: str):
     try:
         # URL 디코딩 처리
         import urllib.parse
         decoded_name = urllib.parse.unquote(name)
-        print(f"🔍 기업 지표 요청: {decoded_name}")
+        print(f"🔍 기업 재무지표 요청: {decoded_name}")
         
-        # 프론트엔드에서 직접 로드하도록 안내 메시지 반환
-        print(f"ℹ️ 기업 지표는 프론트엔드에서 직접 로드됩니다: /기업별_재무지표.json")
+        if collection is None:
+            print("❌ MongoDB collection이 None입니다")
+            return JSONResponse(content={"error": "데이터베이스 연결 실패"}, status_code=503)
         
-        # 기본 응답 반환 (프론트엔드에서 실제 데이터 로드)
-        return JSONResponse(content={
-            "message": "기업 지표는 프론트엔드에서 직접 로드됩니다",
-            "기업명": decoded_name,
-            "data_source": "/기업별_재무지표.json"
-        })
+        # MongoDB에서 기업 데이터 조회
+        doc = collection.find_one({"기업명": decoded_name}, {"_id": 0, "지표": 1})
+        
+        if not doc:
+            # 다른 방법으로 검색 시도
+            doc = collection.find_one({"기업명": {"$regex": decoded_name, "$options": "i"}}, {"_id": 0, "지표": 1})
+        
+        if not doc or "지표" not in doc:
+            print(f"❌ {decoded_name} 재무지표 데이터 없음")
+            return JSONResponse(content={"error": "재무지표 데이터를 찾을 수 없습니다"}, status_code=404)
+        
+        지표 = doc["지표"]
+        years = ["2022", "2023", "2024"]
+        
+        # 재무지표 데이터 구조화
+        result = {}
+        
+        # PER, PBR, ROE 데이터 추출
+        for metric in ["PER", "PBR", "ROE"]:
+            result[metric] = {}
+            for year in years:
+                key = f"{year}/12_{metric}"
+                value = 지표.get(key)
+                if value is not None and value != 0:
+                    result[metric][year] = float(value)
+        
+        # 시가총액 데이터 추출
+        result["시가총액"] = {}
+        for year in years:
+            key = f"{year}/12_시가총액"
+            value = 지표.get(key)
+            if value is not None and value != 0:
+                result["시가총액"][year] = float(value)
+        
+        # 지배주주지분, 지배주주순이익 데이터 추출
+        result["지배주주지분"] = {}
+        result["지배주주순이익"] = {}
+        for year in years:
+            equity_key = f"{year}/12_지배주주지분"
+            income_key = f"{year}/12_지배주주순이익"
+            
+            equity_value = 지표.get(equity_key)
+            income_value = 지표.get(income_key)
+            
+            if equity_value is not None and equity_value != 0:
+                result["지배주주지분"][year] = float(equity_value)
+            if income_value is not None and income_value != 0:
+                result["지배주주순이익"][year] = float(income_value)
+        
+        print(f"✅ {decoded_name} 재무지표 로드 성공")
+        return JSONResponse(content=result)
             
     except Exception as e:
-        print(f"❌ 기업 지표 오류: {e}")
-        # fallback 데이터 반환
-        return JSONResponse(content={
-            "기업명": name,
-            "매출액": "오류 발생",
-            "영업이익": "오류 발생",
-            "순이익": "오류 발생",
-            "자산총계": "오류 발생",
-            "부채총계": "오류 발생",
-            "자본총계": "오류 발생"
-        })
+        print(f"❌ 기업 재무지표 오류: {e}")
+        import traceback
+        print(f"❌ 상세 오류: {traceback.format_exc()}")
+        return JSONResponse(content={"error": f"재무지표 조회 실패: {str(e)}"}, status_code=500)
 
 
 

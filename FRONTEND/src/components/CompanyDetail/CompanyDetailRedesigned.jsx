@@ -207,7 +207,7 @@ function CompanyDetailRedesigned() {
     }
   }, [companyData]);
 
-  // 재무지표 데이터 로드
+  // 재무지표 데이터 로드 (MongoDB에서)
   useEffect(() => {
     if (!companyData) {
       console.log('🔍 companyData가 아직 로드되지 않음, 대기 중...');
@@ -217,48 +217,16 @@ function CompanyDetailRedesigned() {
     console.log('🔍 재무지표 로드 시도 - companyData:', companyData);
     if (companyData?.기업명) {
       console.log('🔍 기업명 확인:', companyData.기업명);
-      fetch('/기업별_재무지표.json')
+      
+      axios.get(API_ENDPOINTS.COMPANY_METRICS(encodeURIComponent(companyData.기업명)))
         .then(res => {
-          console.log('🔍 재무지표 JSON 응답 상태:', res.status);
-          return res.json();
-        })
-        .then(data => {
-          console.log('🔍 재무지표 JSON 데이터 타입:', typeof data);
-          console.log('🔍 재무지표 JSON 데이터 샘플:', Array.isArray(data) ? data.slice(0, 2) : Object.keys(data).slice(0, 5));
-          
-          let companyMetrics = null;
-          
-          if (Array.isArray(data)) {
-            companyMetrics = data.find(item => item.기업명 === companyData.기업명);
-            console.log('🔍 배열에서 검색 결과:', companyMetrics ? '찾음' : '없음');
-          } else if (typeof data === 'object' && data !== null) {
-            companyMetrics = data[companyData.기업명];
-            console.log('🔍 객체에서 검색 결과:', companyMetrics ? '찾음' : '없음');
-          }
-          
-          if (companyMetrics) {
-            setMetricsData(companyMetrics);
-            console.log('✅ 기업 지표 로드 성공:', companyData.기업명, companyMetrics);
-          } else {
-            console.warn('⚠️ 기업 지표 데이터 없음:', companyData.기업명);
-            // 임시 하드코딩된 데이터 제공 (테스트용)
-            setMetricsData({
-              PER: { "2022": 15.5, "2023": 18.2, "2024": 16.8 },
-              PBR: { "2022": 1.2, "2023": 1.1, "2024": 1.3 },
-              ROE: { "2022": 8.5, "2023": 9.2, "2024": 10.1 },
-              시가총액: { "2022": 500000000000, "2023": 550000000000, "2024": 600000000000 }
-            });
-            console.log('🔧 임시 데이터 사용:', companyData.기업명);
-          }
+          console.log('🔍 재무지표 API 응답:', res.data);
+          setMetricsData(res.data);
+          console.log('✅ 기업 재무지표 로드 성공:', companyData.기업명, res.data);
         })
         .catch(err => {
-          console.error('❌ 기업 지표 로드 실패:', err);
-          // fallback 데이터 제공
-          setMetricsData({
-            PER: { "2022": 0, "2023": 0, "2024": 0 },
-            PBR: { "2022": 0, "2023": 0, "2024": 0 },
-            ROE: { "2022": 0, "2023": 0, "2024": 0 }
-          });
+          console.error('❌ 기업 재무지표 로드 실패:', err);
+          setMetricsData(null);
         });
     } else {
       console.warn('⚠️ companyData 또는 기업명이 없음:', companyData);
@@ -290,15 +258,7 @@ function CompanyDetailRedesigned() {
           } else {
             console.warn('⚠️ 업종 평균 데이터 없음:', companyData.업종명);
             console.log('🔍 사용 가능한 업종들:', Object.keys(data));
-            // 임시 하드코딩된 업종 평균 데이터 제공 (테스트용)
-            setIndustryMetrics({
-              metrics: {
-                PER: { "2022": 20.5, "2023": 22.1, "2024": 19.8 },
-                PBR: { "2022": 1.5, "2023": 1.4, "2024": 1.6 },
-                ROE: { "2022": 12.5, "2023": 13.2, "2024": 14.1 }
-              }
-            });
-            console.log('🔧 임시 업종 평균 데이터 사용:', companyData.업종명);
+            setIndustryMetrics(null);
           }
         })
         .catch(err => {
@@ -438,24 +398,37 @@ function CompanyDetailRedesigned() {
                   <h3>주요 지표</h3>
                 </div>
                 <div className="metric-content">
-                  <div className="metric-item">
-                    <span className="metric-label">PER</span>
-                    <span className="metric-value">
-                      {metricsData?.PER?.['2024'] ? metricsData.PER['2024'].toFixed(2) : '--'}
-                    </span>
-                  </div>
-                  <div className="metric-item">
-                    <span className="metric-label">PBR</span>
-                    <span className="metric-value">
-                      {metricsData?.PBR?.['2024'] ? metricsData.PBR['2024'].toFixed(2) : '--'}
-                    </span>
-                  </div>
-                  <div className="metric-item">
-                    <span className="metric-label">ROE</span>
-                    <span className="metric-value">
-                      {metricsData?.ROE?.['2024'] ? `${metricsData.ROE['2024'].toFixed(2)}%` : '--'}
-                    </span>
-                  </div>
+                  {metricsData ? (
+                    <>
+                      <div className="metric-item">
+                        <span className="metric-label">PER</span>
+                        <span className="metric-value">
+                          {metricsData.PER?.['2024'] ? metricsData.PER['2024'].toFixed(2) : '--'}
+                        </span>
+                      </div>
+                      <div className="metric-item">
+                        <span className="metric-label">PBR</span>
+                        <span className="metric-value">
+                          {metricsData.PBR?.['2024'] ? metricsData.PBR['2024'].toFixed(2) : '--'}
+                        </span>
+                      </div>
+                      <div className="metric-item">
+                        <span className="metric-label">ROE</span>
+                        <span className="metric-value">
+                          {metricsData.ROE?.['2024'] ? `${metricsData.ROE['2024'].toFixed(2)}%` : '--'}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ 
+                      textAlign: 'center', 
+                      color: 'var(--text-secondary)', 
+                      padding: '20px',
+                      fontSize: '16px'
+                    }}>
+                      재무지표 데이터를 불러오는 중...
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -494,32 +467,21 @@ function CompanyDetailRedesigned() {
             </div>
 
             {/* 차트 섹션 */}
-            <div className="chart-section">
-              <h3 className="section-title">
-                <span className="title-icon">📈</span>
-                재무 지표 비교
-              </h3>
-              <div className="chart-container">
-                {metricsData ? (
+            {metricsData && (
+              <div className="chart-section">
+                <h3 className="section-title">
+                  <span className="title-icon">📈</span>
+                  재무 지표 비교
+                </h3>
+                <div className="chart-container">
                   <CompareChart 
                     metrics={metricsData}
                     industryMetrics={industryMetrics?.metrics}
                     companyName={companyData?.기업명}
                   />
-                ) : (
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    height: '300px',
-                    color: 'var(--text-secondary)',
-                    fontSize: '16px'
-                  }}>
-                    재무 지표 데이터를 불러오는 중...
-                  </div>
-                )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* 주가 차트 */}
             {priceData && (
@@ -671,11 +633,11 @@ function CompanyDetailRedesigned() {
             </h3>
             <div className="financial-content">
               {/* 업종 평균 비교 분석 */}
-              <div className="comparison-analysis">
-                <h4 className="analysis-title">📊 업종 평균 대비 분석</h4>
-                <div className="analysis-content">
-                  {companyData && industryMetrics && metricsData ? (
-                    ['PER', 'PBR', 'ROE'].map(metric => {
+              {companyData && industryMetrics && metricsData ? (
+                <div className="comparison-analysis">
+                  <h4 className="analysis-title">📊 업종 평균 대비 분석</h4>
+                  <div className="analysis-content">
+                    {['PER', 'PBR', 'ROE'].map(metric => {
                       const companyVals = extractMetricValues(metricsData, metric);
                       const industryVals = extractMetricValues(industryMetrics?.metrics, metric);
                       return (
@@ -685,8 +647,13 @@ function CompanyDetailRedesigned() {
                           </div>
                         </div>
                       );
-                    })
-                  ) : (
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="comparison-analysis">
+                  <h4 className="analysis-title">📊 업종 평균 대비 분석</h4>
+                  <div className="analysis-content">
                     <div style={{ 
                       display: 'flex', 
                       alignItems: 'center', 
@@ -697,9 +664,9 @@ function CompanyDetailRedesigned() {
                     }}>
                       업종 평균 데이터를 불러오는 중...
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* 재무지표 설명 시스템 */}
               <div className="metrics-explanation">
@@ -727,7 +694,7 @@ function CompanyDetailRedesigned() {
               </div>
 
               {/* 차트 섹션 */}
-              {metricsData && (
+              {metricsData && industryMetrics && (
                 <div className="chart-section">
                   <h4 className="chart-title">📈 재무 지표 비교</h4>
                   <CompareChart 
