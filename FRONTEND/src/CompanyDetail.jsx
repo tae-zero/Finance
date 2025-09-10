@@ -104,18 +104,7 @@ function CompanyDetail() {
           .then(res => setInvestors(res.data))
           .catch(err => console.error("📛 투자자 매매 데이터 오류:", err));
 
-        // 기업 재무지표 로드
-        console.log(`🔍 재무지표 API 호출: ${API_ENDPOINTS.COMPANY_METRICS(encodedName)}`);
-        axios.get(API_ENDPOINTS.COMPANY_METRICS(encodedName))
-          .then(metricsRes => {
-            console.log('📊 재무지표 응답 상태:', metricsRes.status);
-            console.log('📊 재무지표 데이터 받음:', metricsRes.data);
-            setMetrics(metricsRes.data);
-          })
-          .catch(err => {
-            console.error('📛 재무지표 데이터 오류:', err);
-            setMetrics({});
-          });
+        // 기업 재무지표는 별도 useEffect에서 로드
       })
       .catch(err => {
         console.error('기업 정보 요청 실패:', err);
@@ -170,30 +159,14 @@ function CompanyDetail() {
   if (error) return <p>❌ 기업 정보를 불러올 수 없습니다.</p>;
   if (!company) return <p>⏳ 기업 정보를 불러오는 중입니다...</p>;
 
-  // 백엔드 API에서 받은 metrics 데이터 사용
+  // 백엔드 API에서 받은 metrics 데이터 사용 (이미 구조화됨)
   const rawIndicators = metrics || {};
   console.log('🔍 metrics 데이터:', rawIndicators);
-  console.log('🔍 metrics 타입:', typeof rawIndicators);
-  console.log('🔍 metrics 키 개수:', Object.keys(rawIndicators).length);
   
-  const indicatorMap = {};
-  const allPeriods = new Set();
-
   // metrics 데이터는 이미 {PER: {2022: 6.86, 2023: 36.84, 2024: 10.75}} 형태
-  for (const [metric, yearData] of Object.entries(rawIndicators)) {
-    if (!yearData || typeof yearData !== 'object') continue;
-    
-    indicatorMap[metric] = yearData;
-    
-    // 연도들을 allPeriods에 추가
-    for (const year of Object.keys(yearData)) {
-      allPeriods.add(year);
-    }
-  }
-
-  const sortedPeriods = Array.from(allPeriods)
-  .filter(period => period !== '2025/05')  // 제외
-  .sort();
+  const indicatorMap = rawIndicators;
+  const allPeriods = new Set(['2022', '2023', '2024']);
+  const sortedPeriods = ['2022', '2023', '2024'];
   const sortedMetrics = Object.keys(indicatorMap).sort();
   const code = String(company.종목코드).padStart(6, '0');
 
