@@ -451,6 +451,106 @@ function IndustryAnalysisRedesigned() {
           
           {(leftMetrics || rightMetrics) && (
             <div className="metrics-comparison">
+              {/* 기업 비교 차트 */}
+              {selectedCompanyLeft && selectedCompanyRight && leftMetrics && rightMetrics && (
+                <div className="comparison-chart">
+                  <h4 className="chart-title">📊 기업별 재무지표 비교 차트</h4>
+                  <div className="chart-container">
+                    <Line
+                      data={{
+                        labels: ['PER', 'PBR', 'ROE', 'DPS'],
+                        datasets: [
+                          {
+                            label: selectedCompanyLeft,
+                            data: metricList.map(metric => {
+                              const value = leftMetrics[metric];
+                              return typeof value === 'number' ? value : 0;
+                            }),
+                            borderColor: '#00D1B2',
+                            backgroundColor: 'rgba(0, 209, 178, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            tension: 0.4,
+                            fill: false
+                          },
+                          {
+                            label: selectedCompanyRight,
+                            data: metricList.map(metric => {
+                              const value = rightMetrics[metric];
+                              return typeof value === 'number' ? value : 0;
+                            }),
+                            borderColor: '#FF6B6B',
+                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            tension: 0.4,
+                            fill: false
+                          }
+                        ]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'top',
+                            labels: {
+                              color: 'var(--text-primary)',
+                              font: { size: 14, weight: 'bold' }
+                            }
+                          },
+                          tooltip: {
+                            backgroundColor: 'var(--glass-bg)',
+                            titleColor: 'var(--text-primary)',
+                            bodyColor: 'var(--text-primary)',
+                            borderColor: 'var(--glass-border)',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: true,
+                            callbacks: {
+                              title: context => `지표: ${context[0].label}`,
+                              label: context => `${context.dataset.label}: ${typeof context.parsed.y === 'number' ? context.parsed.y.toFixed(2) : '--'}`,
+                            },
+                          }
+                        },
+                        scales: {
+                          x: {
+                            ticks: {
+                              color: 'var(--text-secondary)',
+                              font: { size: 12 }
+                            },
+                            grid: {
+                              color: 'var(--glass-border)',
+                              drawBorder: false
+                            }
+                          },
+                          y: {
+                            ticks: {
+                              color: 'var(--text-secondary)',
+                              font: { size: 12 },
+                              callback: value => typeof value === 'number' ? value.toFixed(2) : value
+                            },
+                            grid: {
+                              color: 'var(--glass-border)',
+                              drawBorder: false
+                            },
+                            beginAtZero: true
+                          }
+                        },
+                        interaction: {
+                          mode: 'nearest',
+                          axis: 'x',
+                          intersect: false
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 기업 비교 테이블 */}
               <div className="comparison-table">
                 <div className="table-header">
                   <div className="header-cell">지표</div>

@@ -446,3 +446,26 @@
     border-bottom: none;
   }
 }
+
+/* 기업 비교 차트 */
+.comparison-chart {
+  margin-bottom: 32px;
+}
+
+.chart-title {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comparison-chart .chart-container {
+  height: 400px;
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 16px;
+}

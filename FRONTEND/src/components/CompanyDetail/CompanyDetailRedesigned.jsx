@@ -75,6 +75,7 @@ function CompanyDetailRedesigned() {
   };
 
   const extractMetricValues = (map, metric) => {
+    if (!map || typeof map !== 'object') return [null, null, null];
     return ["2022", "2023", "2024"].map(year => map[metric]?.[year]);
   };
 
@@ -152,6 +153,7 @@ function CompanyDetailRedesigned() {
         setNewsData(newsRes.data);
         setReportData(reportRes.data);
         setInvestorData(investorRes.data);
+        console.log('🔍 투자자 데이터 로드:', investorRes.data);
         // 기업별 재무지표 데이터 찾기
         if (metricsRes && companyRes.data?.기업명) {
           let companyMetrics = null;
@@ -365,34 +367,36 @@ function CompanyDetailRedesigned() {
                   <CompareChart 
                     metrics={metricsData}
                     industryMetrics={industryMetrics?.metrics}
+                    companyName={companyData?.기업명}
                   />
                 </div>
               </div>
             )}
 
             {/* 주가 차트 */}
-            {priceData && priceData.length > 0 && (
+            {priceData && (
               <div className="chart-section">
                 <h3 className="section-title">
                   <span className="title-icon">📈</span>
                   {companyData?.기업명} 최근 3년 주가
                 </h3>
                 <div className="chart-container">
-                  <Line
-                    data={{
-                      labels: Array.isArray(priceData) ? priceData.map(item => item.Date) : [],
-                      datasets: [{
-                        label: `${companyData?.기업명} 종가 (원)`,
-                        data: Array.isArray(priceData) ? priceData.map(item => item.Close) : [],
-                        borderColor: '#00D1B2',
-                        backgroundColor: 'rgba(0, 209, 178, 0.1)',
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        pointHoverRadius: 0,
-                        tension: 0.4,
-                        fill: true,
-                      }]
-                    }}
+                  {Array.isArray(priceData) && priceData.length > 0 ? (
+                    <Line
+                      data={{
+                        labels: priceData.map(item => item.Date),
+                        datasets: [{
+                          label: `${companyData?.기업명} 종가 (원)`,
+                          data: priceData.map(item => item.Close),
+                          borderColor: '#00D1B2',
+                          backgroundColor: 'rgba(0, 209, 178, 0.1)',
+                          borderWidth: 2,
+                          pointRadius: 0,
+                          pointHoverRadius: 0,
+                          tension: 0.4,
+                          fill: true,
+                        }]
+                      }}
                     options={{
                       responsive: true,
                       maintainAspectRatio: false,
@@ -442,13 +446,19 @@ function CompanyDetailRedesigned() {
                         mode: 'index'
                       }
                     }}
-                  />
+                    />
+                  ) : (
+                    <div className="no-data">
+                      <span className="no-data-icon">📈</span>
+                      <p>주가 데이터를 불러오는 중...</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
             {/* 투자자별 매수현황 */}
-            {investorData && investorData.length > 0 && (
+            {investorData && (
               <div className="chart-section">
                 <h3 className="section-title">
                   <span className="title-icon">🏦</span>
@@ -466,7 +476,7 @@ function CompanyDetailRedesigned() {
                       </tr>
                     </thead>
                     <tbody>
-                      {Array.isArray(investorData) ? investorData.map((item, idx) => (
+                      {Array.isArray(investorData) && investorData.length > 0 ? investorData.map((item, idx) => (
                         <tr key={idx}>
                           <td>{item.date?.slice(0, 10) || '--'}</td>
                           <td className="right">
@@ -482,7 +492,9 @@ function CompanyDetailRedesigned() {
                       )) : (
                         <tr>
                           <td colSpan="4" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-                            투자자 데이터를 불러오는 중...
+                            {Array.isArray(investorData) && investorData.length === 0 
+                              ? '투자자 데이터가 없습니다.' 
+                              : '투자자 데이터를 불러오는 중...'}
                           </td>
                         </tr>
                       )}
@@ -519,7 +531,7 @@ function CompanyDetailRedesigned() {
                   <div className="analysis-content">
                     {['PER', 'PBR', 'ROE'].map(metric => {
                       const companyVals = extractMetricValues(metricsData, metric);
-                      const industryVals = extractMetricValues(industryMetrics.metrics, metric);
+                      const industryVals = extractMetricValues(industryMetrics?.metrics, metric);
                       return (
                         <div key={metric} className="metric-comparison">
                           <div className="comparison-text">
