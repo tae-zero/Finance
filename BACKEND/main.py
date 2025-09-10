@@ -1015,6 +1015,15 @@ def get_company_metrics(name: str):
             if value is not None and value != 0:
                 result["시가총액"][year] = float(value)
         
+        # 매출액, 당기순이익, 영업이익 데이터 추출
+        for metric in ["매출액", "당기순이익", "영업이익"]:
+            result[metric] = {}
+            for year in years:
+                key = f"{year}/12_{metric}"
+                value = 지표.get(key)
+                if value is not None and value != 0:
+                    result[metric][year] = float(value)
+        
         # 지배주주지분, 지배주주순이익 데이터 추출
         result["지배주주지분"] = {}
         result["지배주주순이익"] = {}
