@@ -94,8 +94,7 @@ function CompanyDetail() {
           .then(res => setInvestors(res.data))
           .catch(err => console.error("📛 투자자 매매 데이터 오류:", err));
 
-        axios.get(API_ENDPOINTS.COMPANY_METRICS(encodedName))
-          .then(res => setMetrics(res.data));
+        // 기업 지표는 별도 useEffect에서 로드
       })
       .catch(err => {
         console.error('기업 정보 요청 실패:', err);
@@ -124,6 +123,35 @@ function CompanyDetail() {
       .then(data => setJsonIndicators(data))
       .catch(err => console.error('❌ JSON 불러오기 실패:', err));
   }, []);
+
+  // 기업 지표 로드 (company 상태가 설정된 후)
+  useEffect(() => {
+    if (company?.기업명) {
+      fetch('/기업별_재무지표.json')
+        .then(res => res.json())
+        .then(data => {
+          if (data[company.기업명]) {
+            setMetrics(data[company.기업명]);
+            console.log('✅ 기업 지표 로드 성공:', company.기업명);
+          } else {
+            console.warn('⚠️ 기업 지표 데이터 없음:', company.기업명);
+            setMetrics({
+              PER: { "2022": 0, "2023": 0, "2024": 0 },
+              PBR: { "2022": 0, "2023": 0, "2024": 0 },
+              ROE: { "2022": 0, "2023": 0, "2024": 0 }
+            });
+          }
+        })
+        .catch(err => {
+          console.error('❌ 기업 지표 로드 실패:', err);
+          setMetrics({
+            PER: { "2022": 0, "2023": 0, "2024": 0 },
+            PBR: { "2022": 0, "2023": 0, "2024": 0 },
+            ROE: { "2022": 0, "2023": 0, "2024": 0 }
+          });
+        });
+    }
+  }, [company]);
 
   if (error) return <p>❌ 기업 정보를 불러올 수 없습니다.</p>;
   if (!company) return <p>⏳ 기업 정보를 불러오는 중입니다...</p>;
