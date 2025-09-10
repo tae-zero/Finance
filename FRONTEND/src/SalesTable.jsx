@@ -6,13 +6,37 @@ function SalesTable({ name }) {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
-    // 한글 기업명을 URL 인코딩
-    const encodedName = encodeURIComponent(name);
-    console.log(`🔍 매출 데이터 요청: ${name} → ${encodedName}`);
+    if (!name) return;
     
-    axios.get(API_ENDPOINTS.SALES_DATA(encodedName))
-      .then(res => setRows(res.data))
-      .catch(err => console.error("매출 데이터 오류:", err));
+    console.log(`🔍 매출 데이터 요청: ${name}`);
+    
+    // 매출 데이터 JSON 파일에서 직접 로드
+    fetch('/매출비중_chartjs_데이터.json')
+      .then(res => res.json())
+      .then(data => {
+        // 기업명으로 매출 데이터 찾기
+        const companyData = data.find(item => item.종목명 === name);
+        if (companyData && companyData.data) {
+          // 매출 데이터를 테이블 형태로 변환
+          const tableData = companyData.data.map(item => ({
+            '사업부문': '매출',
+            '매출품목명': item.label || '',
+            '구분': '매출액',
+            '2022_12 매출액': item.value || 0,
+            '2023_12 매출액': item.value || 0,
+            '2024_12 매출액': item.value || 0
+          }));
+          setRows(tableData);
+          console.log(`✅ ${name} 매출 데이터 로드 성공:`, tableData);
+        } else {
+          console.warn(`⚠️ ${name} 매출 데이터 없음`);
+          setRows([]);
+        }
+      })
+      .catch(err => {
+        console.error("매출 데이터 오류:", err);
+        setRows([]);
+      });
   }, [name]);
 
   if (rows.length === 0) return <p>📉 매출 데이터를 불러오는 중입니다...</p>;

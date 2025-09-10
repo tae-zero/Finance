@@ -1234,5 +1234,60 @@ def get_investor_data(ticker: str = Query(..., description="종목코드")):
         return []
 
 
+# 매출 데이터 API
+@app.get("/sales/{name}")
+def get_sales_data(name: str):
+    try:
+        import urllib.parse
+        decoded_name = urllib.parse.unquote(name)
+        print(f"🔍 매출 데이터 요청: {decoded_name}")
+        
+        # 매출 데이터 JSON 파일에서 데이터 로드
+        import json
+        import os
+        
+        # 현재 스크립트의 디렉토리 기준으로 파일 경로 설정
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        sales_file_path = os.path.join(current_dir, "매출비중_chartjs_데이터.json")
+        
+        if not os.path.exists(sales_file_path):
+            print(f"❌ 매출 데이터 파일 없음: {sales_file_path}")
+            return []
+        
+        with open(sales_file_path, 'r', encoding='utf-8') as f:
+            sales_data = json.load(f)
+        
+        # 기업명으로 매출 데이터 찾기
+        company_sales = None
+        for item in sales_data:
+            if item.get('종목명') == decoded_name:
+                company_sales = item
+                break
+        
+        if not company_sales:
+            print(f"❌ {decoded_name} 매출 데이터 없음")
+            return []
+        
+        # 매출 데이터를 테이블 형태로 변환
+        result = []
+        if 'data' in company_sales and isinstance(company_sales['data'], list):
+            for data_item in company_sales['data']:
+                result.append({
+                    '사업부문': '매출',
+                    '매출품목명': data_item.get('label', ''),
+                    '구분': '매출액',
+                    '2022_12 매출액': data_item.get('value', 0),
+                    '2023_12 매출액': data_item.get('value', 0),
+                    '2024_12 매출액': data_item.get('value', 0)
+                })
+        
+        print(f"✅ {decoded_name} 매출 데이터 로드 성공: {len(result)}개")
+        return result
+        
+    except Exception as e:
+        print(f"❌ {name} 매출 데이터 오류: {e}")
+        return []
+
+
 # uvicorn main:app --reload
 

@@ -118,91 +118,176 @@ function CompanyDetailRedesigned() {
     );
   };
 
+  // 기업 기본 정보 로드
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        console.log('🔍 CompanyDetailRedesigned - 기업명:', name);
-        console.log('🔍 API_BASE_URL:', import.meta.env.VITE_API_URL);
-        console.log('🔍 COMPANY_DETAIL URL:', API_ENDPOINTS.COMPANY_DETAIL(encodeURIComponent(name)));
-        
-        // 먼저 기업 정보를 가져와서 종목코드를 얻기
-        const companyRes = await axios.get(API_ENDPOINTS.COMPANY_DETAIL(encodeURIComponent(name)));
-        setCompanyData(companyRes.data);
-        
-        const code = String(companyRes.data.종목코드).padStart(6, '0');
-        const ticker = code + '.KS';
-        console.log('🔍 종목코드:', code, '티커:', ticker);
+    axios.get(API_ENDPOINTS.COMPANY_DETAIL(encodeURIComponent(name)))
+      .then(res => {
+        setCompanyData(res.data);
+        console.log('✅ 기업 정보 로드 성공:', res.data.기업명);
+      })
+      .catch(err => {
+        console.error('❌ 기업 정보 로드 실패:', err);
+        setLoading(false);
+      });
+  }, [name]);
 
-        // 기업 정보를 얻은 후 나머지 데이터들을 병렬로 가져오기
-        const [
-          priceRes,
-          newsRes,
-          reportRes,
-          investorRes,
-          metricsRes
-        ] = await Promise.all([
-          axios.get(`${API_ENDPOINTS.PRICE_DATA}/${ticker}`),
-          axios.get(`${API_ENDPOINTS.NEWS}?keyword=${encodeURIComponent(companyRes.data.기업명)}`),
-          axios.get(`${API_ENDPOINTS.REPORT}?code=A${code}`),
-          axios.get(`${API_ENDPOINTS.INVESTORS}?ticker=${code}`),
-          fetch('/기업별_재무지표.json').then(res => res.json())
-        ]);
+  // 주가 데이터 로드
+  useEffect(() => {
+    if (companyData?.종목코드) {
+      const code = String(companyData.종목코드).padStart(6, '0');
+      const ticker = code + '.KS';
+      
+      axios.get(API_ENDPOINTS.PRICE_DATA(ticker))
+        .then(res => {
+          setPriceData(res.data);
+          console.log('✅ 주가 데이터 로드 성공:', res.data);
+        })
+        .catch(err => {
+          console.error('❌ 주가 데이터 로드 실패:', err);
+        });
+    }
+  }, [companyData]);
 
-        setPriceData(priceRes.data);
-        setNewsData(newsRes.data);
-        setReportData(reportRes.data);
-        setInvestorData(investorRes.data);
-        console.log('🔍 투자자 데이터 로드:', investorRes.data);
-        // 기업별 재무지표 데이터 찾기
-        if (metricsRes && companyRes.data?.기업명) {
+  // 뉴스 데이터 로드
+  useEffect(() => {
+    if (companyData?.기업명) {
+      axios.get(`${API_ENDPOINTS.NEWS}?keyword=${encodeURIComponent(companyData.기업명)}`)
+        .then(res => {
+          setNewsData(res.data);
+          console.log('✅ 뉴스 데이터 로드 성공:', res.data);
+        })
+        .catch(err => {
+          console.error('❌ 뉴스 데이터 로드 실패:', err);
+        });
+    }
+  }, [companyData]);
+
+  // 리포트 데이터 로드
+  useEffect(() => {
+    if (companyData?.종목코드) {
+      const code = String(companyData.종목코드).padStart(6, '0');
+      
+      axios.get(`${API_ENDPOINTS.REPORT}?code=A${code}`)
+        .then(res => {
+          setReportData(res.data);
+          console.log('✅ 리포트 데이터 로드 성공:', res.data);
+        })
+        .catch(err => {
+          console.error('❌ 리포트 데이터 로드 실패:', err);
+          setReportData([]);
+        });
+    }
+  }, [companyData]);
+
+  // 투자자 데이터 로드
+  useEffect(() => {
+    if (companyData?.종목코드) {
+      const code = String(companyData.종목코드).padStart(6, '0');
+      
+      axios.get(`${API_ENDPOINTS.INVESTORS}?ticker=${code}`)
+        .then(res => {
+          setInvestorData(res.data);
+          console.log('✅ 투자자 데이터 로드 성공:', res.data);
+        })
+        .catch(err => {
+          console.error('❌ 투자자 데이터 로드 실패:', err);
+          setInvestorData([]);
+        });
+    }
+  }, [companyData]);
+
+  // 재무지표 데이터 로드
+  useEffect(() => {
+    if (companyData?.기업명) {
+      fetch('/기업별_재무지표.json')
+        .then(res => res.json())
+        .then(data => {
           let companyMetrics = null;
           
-          if (Array.isArray(metricsRes)) {
-            // 배열인 경우
-            companyMetrics = metricsRes.find(item => item.기업명 === companyRes.data.기업명);
-          } else if (typeof metricsRes === 'object' && metricsRes !== null) {
-            // 객체인 경우 - 기업명으로 직접 찾기
-            companyMetrics = metricsRes[companyRes.data.기업명];
+          if (Array.isArray(data)) {
+            companyMetrics = data.find(item => item.기업명 === companyData.기업명);
+          } else if (typeof data === 'object' && data !== null) {
+            companyMetrics = data[companyData.기업명];
           }
           
           if (companyMetrics) {
             setMetricsData(companyMetrics);
-            console.log('✅ 기업 지표 로드 성공:', companyRes.data.기업명);
+            console.log('✅ 기업 지표 로드 성공:', companyData.기업명);
           } else {
-            console.warn('⚠️ 기업 지표 데이터 없음:', companyRes.data.기업명);
+            console.warn('⚠️ 기업 지표 데이터 없음:', companyData.기업명);
+            // fallback 데이터 제공
+            setMetricsData({
+              PER: { "2022": 0, "2023": 0, "2024": 0 },
+              PBR: { "2022": 0, "2023": 0, "2024": 0 },
+              ROE: { "2022": 0, "2023": 0, "2024": 0 }
+            });
           }
-        }
-
-        // 업종 평균 데이터 로드
-        if (companyRes.data?.업종명) {
-          try {
-            const industryRes = await fetch('/industry_metrics.json');
-            const industryData = await industryRes.json();
-            if (industryData[companyRes.data.업종명]) {
-              setIndustryMetrics(industryData[companyRes.data.업종명]);
-              console.log('✅ 업종 평균 로드 성공:', companyRes.data.업종명);
-            }
-          } catch (err) {
-            console.error('📛 업종 평균 로딩 오류:', err);
-          }
-        }
-      } catch (error) {
-        console.error('데이터 로딩 오류:', error);
-        console.error('에러 상세:', {
-          message: error.message,
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-          url: error.config?.url
+        })
+        .catch(err => {
+          console.error('❌ 기업 지표 로드 실패:', err);
+          // fallback 데이터 제공
+          setMetricsData({
+            PER: { "2022": 0, "2023": 0, "2024": 0 },
+            PBR: { "2022": 0, "2023": 0, "2024": 0 },
+            ROE: { "2022": 0, "2023": 0, "2024": 0 }
+          });
         });
-      } finally {
-        setLoading(false);
-      }
-    };
+    }
+  }, [companyData]);
 
-    fetchData();
-  }, [name]);
+  // 업종 평균 데이터 로드
+  useEffect(() => {
+    if (companyData?.업종명) {
+      fetch('/industry_metrics.json')
+        .then(res => res.json())
+        .then(data => {
+          if (data[companyData.업종명]) {
+            setIndustryMetrics(data[companyData.업종명]);
+            console.log('✅ 업종 평균 로드 성공:', companyData.업종명);
+          }
+        })
+        .catch(err => {
+          console.error('📛 업종 평균 로딩 오류:', err);
+        });
+    }
+  }, [companyData]);
+
+  // 로딩 상태 관리
+  useEffect(() => {
+    if (companyData) {
+      setLoading(false);
+    }
+  }, [companyData]);
+
+  // 기존 코드의 지표 처리 로직
+  const rawIndicators = companyData?.지표 || {};
+  const indicatorMap = {};
+  const allPeriods = new Set();
+
+  for (const [key, value] of Object.entries(rawIndicators)) {
+    if (!value || value === 0) continue;
+    const parts = key.split('_');
+    if (parts.length < 2) continue;
+
+    const period = parts[0];
+    const metric = parts.slice(1).join('_');
+
+    if (!indicatorMap[metric]) indicatorMap[metric] = {};
+    indicatorMap[metric][period] = value;
+    allPeriods.add(period);
+  }
+
+  const sortedPeriods = Array.from(allPeriods)
+    .filter(period => period !== '2025/05')  // 제외
+    .sort();
+  const sortedMetrics = Object.keys(indicatorMap).sort();
+
+  // 평균 계산 함수
+  const calcAverage = (arr) => {
+    const valid = arr.filter(v => typeof v === 'number' && !isNaN(v));
+    if (valid.length === 0) return null;
+    return parseFloat((valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(2));
+  };
 
   if (loading) {
     return (
