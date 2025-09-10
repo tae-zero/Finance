@@ -666,15 +666,54 @@ function CompanyDetailRedesigned() {
                 </div>
               </div>
 
-              {/* 차트 섹션 */}
+              {/* 재무지표 테이블과 차트 */}
               {metricsData && industryMetrics ? (
-                <div className="chart-section">
-                  <h4 className="chart-title">📈 재무 지표 비교</h4>
-                  <CompareChart 
-                    metrics={metricsData} 
-                    industryMetrics={industryMetrics}
-                    companyName={companyData?.기업명}
-                  />
+                <div className="financial-metrics-section">
+                  <div style={{ display: 'flex', gap: '50px', alignItems: 'flex-start', fontSize: '30px'}}>
+                    {/* 좌측 - 요약 재무지표 표 */}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
+                        <h3 style={{ margin: 0}}>📑 요약 재무지표</h3>
+                        <span style={{ fontSize: '19px', color: '#666' }}>매출액,당기순이익,영업이익(단위: 억 원)</span>
+                      </div>
+                      <table className="indicator-table">
+                        <thead>
+                          <tr>
+                            <th>지표</th>
+                            <th>2022</th>
+                            <th>2023</th>
+                            <th>2024</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {['매출액', '당기순이익', '영업이익'].map(metric => (
+                            <tr key={metric}>
+                              <td>{metric}</td>
+                              {['2022', '2023', '2024'].map(year => (
+                                <td key={year}>
+                                  {metricsData[metric]?.[year] 
+                                    ? (metricsData[metric][year] / 100000000).toFixed(1) + '억원'
+                                    : '--'
+                                  }
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* 우측 - 재무지표 그래프 */}
+                    <div style={{ flex: 1 }}>
+                      <h3>📈 업종 평균과 비교한 재무지표 그래프</h3>
+                      <CompareChart
+                        companyName={companyData?.기업명}
+                        metrics={metricsData}
+                        industryMetrics={industryMetrics}
+                        industryName={companyData?.업종명}
+                      />
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="chart-section">
@@ -705,35 +744,40 @@ function CompanyDetailRedesigned() {
                       <thead>
                         <tr>
                           <th>날짜</th>
-                          <th>외국인</th>
                           <th>기관</th>
                           <th>개인</th>
-                          <th>기타법인</th>
+                          <th>외국인</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {investorData.slice(0, 10).map((item, index) => (
-                          <tr key={index}>
-                            <td>{item.Date}</td>
-                            <td className={item.Foreign > 0 ? 'positive' : 'negative'}>
-                              {item.Foreign?.toLocaleString() || '--'}
+                        {Array.isArray(investorData) && investorData.length > 0 ? investorData.map((item, idx) => (
+                          <tr key={idx}>
+                            <td>{item.date?.slice(0, 10) || '--'}</td>
+                            <td className="right">
+                              {item.기관합계 ? (item.기관합계 / 100000000).toFixed(1) : '--'}억원
                             </td>
-                            <td className={item.Institution > 0 ? 'positive' : 'negative'}>
-                              {item.Institution?.toLocaleString() || '--'}
+                            <td className="right">
+                              {item.개인 ? (item.개인 / 100000000).toFixed(1) : '--'}억원
                             </td>
-                            <td className={item.Individual > 0 ? 'positive' : 'negative'}>
-                              {item.Individual?.toLocaleString() || '--'}
-                            </td>
-                            <td className={item.OtherCorp > 0 ? 'positive' : 'negative'}>
-                              {item.OtherCorp?.toLocaleString() || '--'}
+                            <td className="right">
+                              {item.외국인합계 ? (item.외국인합계 / 100000000).toFixed(1) : '--'}억원
                             </td>
                           </tr>
-                        ))}
+                        )) : (
+                          <tr>
+                            <td colSpan="4" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
+                              {Array.isArray(investorData) && investorData.length === 0 
+                                ? '투자자 데이터가 없습니다.' 
+                                : '투자자 데이터를 불러오는 중...'}
+                            </td>
+                          </tr>
+                        )}
                       </tbody>
                     </table>
                   </div>
                 </div>
               )}
+
             </div>
           </div>
         )}
