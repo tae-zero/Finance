@@ -426,19 +426,32 @@ const renderAverageMarker = (metricKey, label, min, max) => {
       <td style={{ backgroundColor: '#f9f9f9' }}>{getThreeYearAvg(item.ROE)}</td>
 
       <td>
-        {item.지배주주지분?.['2024'] 
-          ? (item.지배주주지분['2024'] / 100000000).toFixed(1) + '억원'
-          : '-'}
+        {(() => {
+          const value = item.지배주주지분?.['2024'];
+          console.log('🔍 지배주주지분 원본값:', value, '기업명:', item.기업명);
+          return value && value !== 0 
+            ? value.toFixed(1) + '억원'
+            : '-';
+        })()}
       </td>
       <td>
-        {item.지배주주순이익?.['2024'] 
-          ? (item.지배주주순이익['2024'] / 100000000).toFixed(1) + '억원'
-          : '-'}
+        {(() => {
+          const value = item.지배주주순이익?.['2024'];
+          console.log('🔍 지배주주순이익 원본값:', value, '기업명:', item.기업명);
+          return value && value !== 0 
+            ? value.toFixed(1) + '억원'
+            : '-';
+        })()}
       </td>
       <td>
-  {item.시가총액?.['2024']
-    ? (item.시가총액['2024'] / 100000000).toFixed(1) : '-'}
-</td>
+        {(() => {
+          const value = item.시가총액?.['2024'];
+          console.log('🔍 시가총액 원본값:', value, '기업명:', item.기업명);
+          return value && value !== 0 
+            ? (value / 100000000).toFixed(1) + '억원'
+            : '-';
+        })()}
+      </td>
     </tr>
   ))}
       </tbody>

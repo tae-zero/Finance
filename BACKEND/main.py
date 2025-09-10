@@ -1224,8 +1224,40 @@ def get_treasure_data():
                 pbr[year] = 지표.get(f"{year}/12_PBR")
                 roe[year] = 지표.get(f"{year}/12_ROE")
                 mktcap[year] = 지표.get(f"{year}/12_시가총액")
-                equity[year] = 지표.get(f"{year}/12_지배주주지분")
-                owner_income[year] = 지표.get(f"{year}/12_지배주주순이익")
+                
+                # 지배주주지분 필드명 확인
+                equity_key = f"{year}/12_지배주주지분"
+                income_key = f"{year}/12_지배주주순이익"
+                
+                equity_value = 지표.get(equity_key)
+                income_value = 지표.get(income_key)
+                
+                print(f"🔍 {기업명} {year}년 지배주주지분 키: {equity_key}, 값: {equity_value}")
+                print(f"🔍 {기업명} {year}년 지배주주순이익 키: {income_key}, 값: {income_value}")
+                
+                # 실제 필드명이 다른 경우를 대비한 대안 검색
+                if equity_value is None:
+                    # 다른 가능한 필드명들 시도
+                    alt_keys = [f"{year}/12_지배주주", f"{year}/12_지배주주지분율", f"{year}/12_주주지분"]
+                    for alt_key in alt_keys:
+                        alt_value = 지표.get(alt_key)
+                        if alt_value is not None:
+                            print(f"🔍 {기업명} {year}년 대안 키 발견: {alt_key} = {alt_value}")
+                            equity_value = alt_value
+                            break
+                
+                if income_value is None:
+                    # 다른 가능한 필드명들 시도
+                    alt_keys = [f"{year}/12_지배주주순이익률", f"{year}/12_순이익", f"{year}/12_당기순이익"]
+                    for alt_key in alt_keys:
+                        alt_value = 지표.get(alt_key)
+                        if alt_value is not None:
+                            print(f"🔍 {기업명} {year}년 대안 키 발견: {alt_key} = {alt_value}")
+                            income_value = alt_value
+                            break
+                
+                equity[year] = equity_value
+                owner_income[year] = income_value
 
             result.append({
                 "기업명": 기업명,
