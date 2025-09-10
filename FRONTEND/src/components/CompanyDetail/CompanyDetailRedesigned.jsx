@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { API_ENDPOINTS } from '../../config/api';
-import CompareChart from '../CompareChart';
+import CompareChart from '../../CompareChart';
 import './CompanyDetailRedesigned.css';
 
 function CompanyDetailRedesigned() {

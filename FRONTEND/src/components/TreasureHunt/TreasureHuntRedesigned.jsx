@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import FinancialGraph from '../FinancialGraph';
+import FinancialGraph from '../../FinancialGraph';
 import { API_ENDPOINTS } from '../../config/api';
 import './TreasureHuntRedesigned.css';
 
