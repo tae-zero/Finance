@@ -432,58 +432,45 @@ function generateComparisonText(metricName, companyName, companyVals, industryVa
           </div>
 
           {/* 우측 - 재무지표 그래프 */}
-          {/* 우측 - 재무지표 그래프 */}
           {metrics && industryMetrics && jsonIndicators && (
             <div style={{ flex: 1 }}>
               <h3>📈 업종 평균과 비교한 재무지표 그래프</h3>
-
-              {/* PER */}
+              
+              {/* 통합 차트 컴포넌트 */}
               <CompareChart
                 companyName={company.기업명}
-                metrics={{ PER: metrics.PER }}
-                industryMetrics={{ PER: industryMetrics.PER }}
+                metrics={metrics}
+                industryMetrics={industryMetrics}
                 industryName={company.업종명}
               />
-              <p style={{ fontSize: '14px', color: '#333', marginTop: '8px' }}>
-                {generateComparisonText(
-                  'PER',
-                  company.기업명,
-                  extractMetricValues(jsonIndicators[company.기업명], 'PER'),
-                  extractMetricValues(industryMetrics, 'PER')
-                )}
-              </p>
-
-              {/* PBR */}
-              <CompareChart
-                companyName={company.기업명}
-                metrics={{ PBR: metrics.PBR }}
-                industryMetrics={{ PBR: industryMetrics.PBR }}
-                industryName={company.업종명}
-              />
-              <p style={{ fontSize: '14px', color: '#333', marginTop: '8px' }}>
-                {generateComparisonText(
-                  'PBR',
-                  company.기업명,
-                  extractMetricValues(jsonIndicators[company.기업명], 'PBR'),
-                  extractMetricValues(industryMetrics, 'PBR')
-                )}
-              </p>
-
-              {/* ROE */}
-              <CompareChart
-                companyName={company.기업명}
-                metrics={{ ROE: metrics.ROE }}
-                industryMetrics={{ ROE: industryMetrics.ROE }}
-                industryName={company.업종명}
-              />
-              <p style={{ fontSize: '14px', color: '#333', marginTop: '8px' }}>
-                {generateComparisonText(
-                  'ROE',
-                  company.기업명,
-                  extractMetricValues(jsonIndicators[company.기업명], 'ROE'),
-                  extractMetricValues(industryMetrics, 'ROE')
-                )}
-              </p>
+              
+              {/* 비교 텍스트 */}
+              <div style={{ marginTop: '20px' }}>
+                <p style={{ fontSize: '14px', color: '#333', marginBottom: '10px' }}>
+                  <strong>PER:</strong> {generateComparisonText(
+                    'PER',
+                    company.기업명,
+                    extractMetricValues(jsonIndicators[company.기업명], 'PER'),
+                    extractMetricValues(industryMetrics, 'PER')
+                  )}
+                </p>
+                <p style={{ fontSize: '14px', color: '#333', marginBottom: '10px' }}>
+                  <strong>PBR:</strong> {generateComparisonText(
+                    'PBR',
+                    company.기업명,
+                    extractMetricValues(jsonIndicators[company.기업명], 'PBR'),
+                    extractMetricValues(industryMetrics, 'PBR')
+                  )}
+                </p>
+                <p style={{ fontSize: '14px', color: '#333', marginBottom: '10px' }}>
+                  <strong>ROE:</strong> {generateComparisonText(
+                    'ROE',
+                    company.기업명,
+                    extractMetricValues(jsonIndicators[company.기업명], 'ROE'),
+                    extractMetricValues(industryMetrics, 'ROE')
+                  )}
+                </p>
+              </div>
             </div>
           )}
         </div>
