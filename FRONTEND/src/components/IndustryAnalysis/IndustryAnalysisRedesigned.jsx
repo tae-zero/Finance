@@ -80,13 +80,18 @@ function IndustryAnalysisRedesigned() {
       fetch("/기업별_재무지표.json")
         .then(res => res.json())
         .then(data => {
+          let companyData = null;
+          
           if (Array.isArray(data)) {
-            const companyData = data.find(item => item.기업명 === selectedCompanyLeft);
-            if (companyData) {
-              setLeftMetrics(companyData);
-            }
+            companyData = data.find(item => item.기업명 === selectedCompanyLeft);
+          } else if (typeof data === 'object' && data !== null) {
+            companyData = data[selectedCompanyLeft];
+          }
+          
+          if (companyData) {
+            setLeftMetrics(companyData);
           } else {
-            console.error("기업별_재무지표.json 데이터가 배열이 아닙니다:", data);
+            console.warn("왼쪽 기업 데이터 없음:", selectedCompanyLeft);
           }
         })
         .catch(err => console.error("왼쪽 기업 데이터 로딩 오류:", err));
@@ -98,13 +103,18 @@ function IndustryAnalysisRedesigned() {
       fetch("/기업별_재무지표.json")
         .then(res => res.json())
         .then(data => {
+          let companyData = null;
+          
           if (Array.isArray(data)) {
-            const companyData = data.find(item => item.기업명 === selectedCompanyRight);
-            if (companyData) {
-              setRightMetrics(companyData);
-            }
+            companyData = data.find(item => item.기업명 === selectedCompanyRight);
+          } else if (typeof data === 'object' && data !== null) {
+            companyData = data[selectedCompanyRight];
+          }
+          
+          if (companyData) {
+            setRightMetrics(companyData);
           } else {
-            console.error("기업별_재무지표.json 데이터가 배열이 아닙니다:", data);
+            console.warn("오른쪽 기업 데이터 없음:", selectedCompanyRight);
           }
         })
         .catch(err => console.error("오른쪽 기업 데이터 로딩 오류:", err));
@@ -117,8 +127,9 @@ function IndustryAnalysisRedesigned() {
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
-            const industryData = data.find(item => item.산업명 === industry);
+            const industryData = data.find(item => item.industry === industry);
             setAnalysis(industryData);
+            console.log('🔍 산업 데이터 검색:', industry, industryData ? '찾음' : '없음');
           } else {
             console.error("산업별설명.json 데이터가 배열이 아닙니다:", data);
             setAnalysis(null);
@@ -271,7 +282,7 @@ function IndustryAnalysisRedesigned() {
           {expandedSections.overview && (
             <div className="accordion-content">
               <div className="content-text">
-                {analysis?.산업개요 || '해당 산업에 대한 상세한 개요 정보가 없습니다.'}
+                {analysis?.analysis?.요약 || '해당 산업에 대한 상세한 개요 정보가 없습니다.'}
               </div>
             </div>
           )}
@@ -296,35 +307,25 @@ function IndustryAnalysisRedesigned() {
               <div className="metrics-table">
                 <div className="table-header">
                   <div className="header-cell">지표명</div>
+                  <div className="header-cell">산업 평균</div>
                   <div className="header-cell">해석</div>
                 </div>
                 <div className="table-body">
-                  <div className="table-row">
-                    <div className="cell-label">PER (주가수익비율)</div>
-                    <div className="cell-content">
-                      기업의 주가가 1주당 순이익의 몇 배인지를 나타내는 지표입니다. 
-                      낮을수록 저평가, 높을수록 고평가를 의미합니다.
-                    </div>
-                  </div>
-                  <div className="table-row">
-                    <div className="cell-label">PBR (주가순자산비율)</div>
-                    <div className="cell-content">
-                      주가가 1주당 순자산의 몇 배인지를 나타내는 지표입니다. 
-                      1보다 낮으면 순자산보다 저평가된 상태입니다.
-                    </div>
-                  </div>
-                  <div className="table-row">
-                    <div className="cell-label">ROE (자기자본이익률)</div>
-                    <div className="cell-content">
-                      기업이 자기자본을 얼마나 효율적으로 활용하여 이익을 창출했는지를 보여주는 지표입니다.
-                    </div>
-                  </div>
-                  <div className="table-row">
-                    <div className="cell-label">DPS (주당배당금)</div>
-                    <div className="cell-content">
-                      주주 1주당 지급되는 배당금의 금액을 나타내는 지표입니다.
-                    </div>
-                  </div>
+                  {analysis?.analysis?.["주요 재무 지표 해석"] ? 
+                    Object.entries(analysis.analysis["주요 재무 지표 해석"]).map(([metric, data]) => (
+                      <div key={metric} className="table-row">
+                        <div className="cell-label">{metric}</div>
+                        <div className="cell-average">{data["산업 평균"]}</div>
+                        <div className="cell-content">{data["해석"]}</div>
+                      </div>
+                    )) : (
+                      <div className="table-row">
+                        <div className="cell-content" style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                          해당 산업의 재무 지표 해석 정보가 없습니다.
+                        </div>
+                      </div>
+                    )
+                  }
                 </div>
               </div>
             </div>

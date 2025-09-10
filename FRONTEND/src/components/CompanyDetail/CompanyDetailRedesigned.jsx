@@ -153,16 +153,23 @@ function CompanyDetailRedesigned() {
         setReportData(reportRes.data);
         setInvestorData(investorRes.data);
         // 기업별 재무지표 데이터 찾기
-        if (metricsRes && Array.isArray(metricsRes) && companyRes.data?.기업명) {
-          const companyMetrics = metricsRes.find(item => item.기업명 === companyRes.data.기업명);
+        if (metricsRes && companyRes.data?.기업명) {
+          let companyMetrics = null;
+          
+          if (Array.isArray(metricsRes)) {
+            // 배열인 경우
+            companyMetrics = metricsRes.find(item => item.기업명 === companyRes.data.기업명);
+          } else if (typeof metricsRes === 'object' && metricsRes !== null) {
+            // 객체인 경우 - 기업명으로 직접 찾기
+            companyMetrics = metricsRes[companyRes.data.기업명];
+          }
+          
           if (companyMetrics) {
             setMetricsData(companyMetrics);
             console.log('✅ 기업 지표 로드 성공:', companyRes.data.기업명);
           } else {
             console.warn('⚠️ 기업 지표 데이터 없음:', companyRes.data.기업명);
           }
-        } else if (metricsRes && !Array.isArray(metricsRes)) {
-          console.error('⚠️ 기업별_재무지표.json 데이터가 배열이 아닙니다:', metricsRes);
         }
 
         // 업종 평균 데이터 로드
