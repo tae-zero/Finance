@@ -429,6 +429,8 @@ function CompanyDetailRedesigned() {
             )}
             
             {/* 주요 지표 카드 */}
+            {console.log('🔍 렌더링 시 metricsData:', metricsData)}
+            {console.log('🔍 렌더링 시 industryMetrics:', industryMetrics)}
             <div className="metrics-grid">
               <div className="metric-card">
                 <div className="metric-header">
@@ -492,21 +494,32 @@ function CompanyDetailRedesigned() {
             </div>
 
             {/* 차트 섹션 */}
-            {metricsData && (
-              <div className="chart-section">
-                <h3 className="section-title">
-                  <span className="title-icon">📈</span>
-                  재무 지표 비교
-                </h3>
-                <div className="chart-container">
+            <div className="chart-section">
+              <h3 className="section-title">
+                <span className="title-icon">📈</span>
+                재무 지표 비교
+              </h3>
+              <div className="chart-container">
+                {metricsData ? (
                   <CompareChart 
                     metrics={metricsData}
                     industryMetrics={industryMetrics?.metrics}
                     companyName={companyData?.기업명}
                   />
-                </div>
+                ) : (
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    height: '300px',
+                    color: 'var(--text-secondary)',
+                    fontSize: '16px'
+                  }}>
+                    재무 지표 데이터를 불러오는 중...
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
             {/* 주가 차트 */}
             {priceData && (
@@ -658,11 +671,11 @@ function CompanyDetailRedesigned() {
             </h3>
             <div className="financial-content">
               {/* 업종 평균 비교 분석 */}
-              {companyData && industryMetrics && metricsData && (
-                <div className="comparison-analysis">
-                  <h4 className="analysis-title">📊 업종 평균 대비 분석</h4>
-                  <div className="analysis-content">
-                    {['PER', 'PBR', 'ROE'].map(metric => {
+              <div className="comparison-analysis">
+                <h4 className="analysis-title">📊 업종 평균 대비 분석</h4>
+                <div className="analysis-content">
+                  {companyData && industryMetrics && metricsData ? (
+                    ['PER', 'PBR', 'ROE'].map(metric => {
                       const companyVals = extractMetricValues(metricsData, metric);
                       const industryVals = extractMetricValues(industryMetrics?.metrics, metric);
                       return (
@@ -672,10 +685,21 @@ function CompanyDetailRedesigned() {
                           </div>
                         </div>
                       );
-                    })}
-                  </div>
+                    })
+                  ) : (
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      height: '200px',
+                      color: 'var(--text-secondary)',
+                      fontSize: '16px'
+                    }}>
+                      업종 평균 데이터를 불러오는 중...
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
 
               {/* 재무지표 설명 시스템 */}
               <div className="metrics-explanation">
