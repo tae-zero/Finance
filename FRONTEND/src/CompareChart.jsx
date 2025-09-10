@@ -88,7 +88,7 @@ const CompareChart = ({ metrics, industryMetrics, companyName }) => {
                   dataKey={companyName}
                   stroke="#3b82f6"
                   strokeWidth={3}
-                  dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                  dot={false}
                   activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
                   name={companyName}
                 />
@@ -97,7 +97,7 @@ const CompareChart = ({ metrics, industryMetrics, companyName }) => {
                   dataKey="코스피 기준 업종 평균"
                   stroke="#f59e0b"
                   strokeWidth={3}
-                  dot={{ fill: '#f59e0b', strokeWidth: 2, r: 4 }}
+                  dot={false}
                   activeDot={{ r: 6, stroke: '#f59e0b', strokeWidth: 2 }}
                   name="코스피 기준 업종 평균"
                 />

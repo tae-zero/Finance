@@ -106,6 +106,9 @@ function DashboardRedesigned() {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
+      datalabels: { 
+        display: false
+      },
       legend: {
         display: false
       },

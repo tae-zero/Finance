@@ -170,27 +170,25 @@ function CompanyDetail() {
   if (error) return <p>❌ 기업 정보를 불러올 수 없습니다.</p>;
   if (!company) return <p>⏳ 기업 정보를 불러오는 중입니다...</p>;
 
-  const rawIndicators = company.지표 || {};
-  console.log('🔍 company.지표 데이터:', rawIndicators);
-  console.log('🔍 company.지표 타입:', typeof rawIndicators);
-  console.log('🔍 company.지표 키 개수:', Object.keys(rawIndicators).length);
+  // 백엔드 API에서 받은 metrics 데이터 사용
+  const rawIndicators = metrics || {};
+  console.log('🔍 metrics 데이터:', rawIndicators);
+  console.log('🔍 metrics 타입:', typeof rawIndicators);
+  console.log('🔍 metrics 키 개수:', Object.keys(rawIndicators).length);
   
   const indicatorMap = {};
   const allPeriods = new Set();
 
-  for (const [key, value] of Object.entries(rawIndicators)) {
-    if (!value || value === 0) continue;
+  // metrics 데이터는 이미 {PER: {2022: 6.86, 2023: 36.84, 2024: 10.75}} 형태
+  for (const [metric, yearData] of Object.entries(rawIndicators)) {
+    if (!yearData || typeof yearData !== 'object') continue;
     
-    // "2022/12_매출액" 형식에서 언더스코어로 분리
-    const underscoreIndex = key.indexOf('_');
-    if (underscoreIndex === -1) continue;
+    indicatorMap[metric] = yearData;
     
-    const period = key.substring(0, underscoreIndex);
-    const metric = key.substring(underscoreIndex + 1);
-
-    if (!indicatorMap[metric]) indicatorMap[metric] = {};
-    indicatorMap[metric][period] = value;
-    allPeriods.add(period);
+    // 연도들을 allPeriods에 추가
+    for (const year of Object.keys(yearData)) {
+      allPeriods.add(year);
+    }
   }
   
   console.log('🔍 indicatorMap:', indicatorMap);
