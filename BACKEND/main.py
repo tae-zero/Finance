@@ -901,44 +901,7 @@ def get_sales_by_name(name: str):
     filtered = grouped.loc[name].reset_index()
     return filtered.to_dict(orient="records")
 
-# 기업상세피이지 해당기업 기관, 외국인, 기관 매수,매도량
-@app.get("/investors/")
-def get_investor_summary(ticker: str = Query(..., description="종목 코드 (예: 005930)")):
-    try:
-        # 기간 설정: 오늘 ~ 3개월 전
-        end = datetime.today()
-        start = end - timedelta(days=10)
-
-        # 날짜 포맷
-        start_str = start.strftime("%Y%m%d")
-        end_str = end.strftime("%Y%m%d")
-
-        # 데이터 조회
-        df = get_market_trading_volume_by_date(start_str, end_str, ticker)
-
-        if df.empty:
-            return {"error": "조회된 데이터가 없습니다."}
-
-        # 날짜 인덱스를 컬럼으로
-        df.reset_index(inplace=True)
-        df.rename(columns={"날짜": "date"}, inplace=True)
-
-        # 기타법인 컬럼 제거 (있을 경우)
-        remove_cols = ["기타법인"]
-        for col in remove_cols:
-            if col in df.columns:
-                df.drop(columns=[col], inplace=True)
-
-        # 숫자형 변환
-        for col in df.columns:
-            if col != "date":
-                df[col] = df[col].astype(int)
-
-        # JSON 변환
-        return df.to_dict(orient="records")
-
-    except Exception as e:
-        return {"error": str(e)}
+# 기업상세피이지 해당기업 기관, 외국인, 기관 매수,매도량 - 제거됨 (중복 엔드포인트)
 
 
 # 메인페이지 산업별 재무지표 분석 정보 조회
