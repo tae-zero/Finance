@@ -77,7 +77,7 @@ function PieChart({ companyName }) {
           },
 
       datalabels: {
-        color: '#000',
+        color: 'var(--text-primary)',
         font: {
           weight: 'bold',
           size: 12,

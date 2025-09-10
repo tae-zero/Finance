@@ -82,7 +82,7 @@ export default function FinancialGraph({ filteredData = [], industryMetrics = nu
         borderRadius: '6px',
         backgroundColor: 'white',
         fontSize: '14px',
-        color: '#000000' }}
+        color: 'var(--text-primary)' }}
     />
   </div>
 
@@ -100,7 +100,7 @@ export default function FinancialGraph({ filteredData = [], industryMetrics = nu
         borderRadius: '6px',
         backgroundColor: 'white',
         fontSize: '14px',
-        color: '#000000' }}
+        color: 'var(--text-primary)' }}
     />
   </div>
 
@@ -118,7 +118,7 @@ export default function FinancialGraph({ filteredData = [], industryMetrics = nu
         borderRadius: '6px',
         backgroundColor: 'white',
         fontSize: '14px',
-        color: '#000000' }}
+        color: 'var(--text-primary)' }}
     />
   </div>
 

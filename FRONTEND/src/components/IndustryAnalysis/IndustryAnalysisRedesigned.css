@@ -398,15 +398,15 @@
   background: var(--glass-background);
   border: 1px solid var(--glass-border);
   border-radius: 8px;
-  color: #000000;
+  color: var(--text-primary);
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .company-select option {
-  color: #000000;
-  background: #ffffff;
+  color: var(--text-primary);
+  background: var(--dark-bg-secondary);
 }
 
 .company-select:hover {

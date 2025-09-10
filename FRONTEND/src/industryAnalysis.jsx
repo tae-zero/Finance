@@ -203,7 +203,7 @@ function IndustryAnalysis() {
                   anchor: 'end',
                   align: 'top',
                   formatter: value => value,
-                  color: '#000',
+                  color: 'var(--text-primary)',
                   font: { weight: 'bold' },
                 }
               },
@@ -272,7 +272,7 @@ function IndustryAnalysis() {
                 datalabels: {
                   anchor: 'end',
                   align: 'top',
-                  color: '#000',
+                  color: 'var(--text-primary)',
                   font: { weight: 'bold' },
                   formatter: value => value,
                 }

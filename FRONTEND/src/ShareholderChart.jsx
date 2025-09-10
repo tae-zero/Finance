@@ -86,7 +86,7 @@ function ShareholderChart({ code, companyName }) {
               datalabels: {
                 anchor: 'end',
                 align: 'top',
-                color: '#000',
+                color: 'var(--text-primary)',
                 font: {
                   size: 11,
                   weight: 'bold'
@@ -107,7 +107,7 @@ function ShareholderChart({ code, companyName }) {
               datalabels: {
                 anchor: 'end',
                 align: 'top',
-                color: '#000',
+                color: 'var(--text-primary)',
                 font: {
                   size: 11,
                   weight: 'bold'

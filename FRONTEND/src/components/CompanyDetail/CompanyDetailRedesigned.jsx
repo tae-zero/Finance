@@ -221,6 +221,10 @@ function CompanyDetailRedesigned() {
       axios.get(API_ENDPOINTS.COMPANY_METRICS(encodeURIComponent(companyData.기업명)))
         .then(res => {
           console.log('🔍 재무지표 API 응답:', res.data);
+          console.log('🔍 PER 데이터 구조:', res.data.PER);
+          console.log('🔍 2024년 PER 값:', res.data.PER?.['2024']);
+          console.log('🔍 2024년 PBR 값:', res.data.PBR?.['2024']);
+          console.log('🔍 2024년 ROE 값:', res.data.ROE?.['2024']);
           setMetricsData(res.data);
           console.log('✅ 기업 재무지표 로드 성공:', companyData.기업명, res.data);
         })
@@ -403,19 +407,31 @@ function CompanyDetailRedesigned() {
                       <div className="metric-item">
                         <span className="metric-label">PER</span>
                         <span className="metric-value">
-                          {metricsData.PER?.['2024'] ? metricsData.PER['2024'].toFixed(2) : '--'}
+                          {(() => {
+                            const per2024 = metricsData.PER?.['2024'];
+                            console.log('🔍 렌더링 시 PER 2024:', per2024);
+                            return per2024 ? per2024.toFixed(2) : '--';
+                          })()}
                         </span>
                       </div>
                       <div className="metric-item">
                         <span className="metric-label">PBR</span>
                         <span className="metric-value">
-                          {metricsData.PBR?.['2024'] ? metricsData.PBR['2024'].toFixed(2) : '--'}
+                          {(() => {
+                            const pbr2024 = metricsData.PBR?.['2024'];
+                            console.log('🔍 렌더링 시 PBR 2024:', pbr2024);
+                            return pbr2024 ? pbr2024.toFixed(2) : '--';
+                          })()}
                         </span>
                       </div>
                       <div className="metric-item">
                         <span className="metric-label">ROE</span>
                         <span className="metric-value">
-                          {metricsData.ROE?.['2024'] ? `${metricsData.ROE['2024'].toFixed(2)}%` : '--'}
+                          {(() => {
+                            const roe2024 = metricsData.ROE?.['2024'];
+                            console.log('🔍 렌더링 시 ROE 2024:', roe2024);
+                            return roe2024 ? `${roe2024.toFixed(2)}%` : '--';
+                          })()}
                         </span>
                       </div>
                     </>

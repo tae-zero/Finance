@@ -179,7 +179,7 @@ const renderAverageMarker = (metricKey, label, min, max) => {
             onChange={(e) => setIndustryFilter(e.target.value)}
             style={{
               width: '100%', padding: '7px', border: '1px solid #a5a5a5', borderRadius: '6px',
-              backgroundColor: 'white', fontSize: '14px', color: '#000000', marginTop: '30px', height: '40px'
+              backgroundColor: 'var(--dark-bg-secondary)', fontSize: '14px', color: 'var(--text-primary)', marginTop: '30px', height: '40px', border: '1px solid var(--dark-border)'
             }}>
             {industries.map((industry, idx) => (
               <option key={idx} value={industry}>{industry}</option>

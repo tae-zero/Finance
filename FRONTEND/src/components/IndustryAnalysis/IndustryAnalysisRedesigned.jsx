@@ -77,47 +77,31 @@ function IndustryAnalysisRedesigned() {
 
   useEffect(() => {
     if (selectedCompanyLeft) {
-      fetch("/기업별_재무지표.json")
+      fetch(`http://localhost:8000/company_metrics/${encodeURIComponent(selectedCompanyLeft)}`)
         .then(res => res.json())
         .then(data => {
-          let companyData = null;
-          
-          if (Array.isArray(data)) {
-            companyData = data.find(item => item.기업명 === selectedCompanyLeft);
-          } else if (typeof data === 'object' && data !== null) {
-            companyData = data[selectedCompanyLeft];
-          }
-          
-          if (companyData) {
-            setLeftMetrics(companyData);
-          } else {
-            console.warn("왼쪽 기업 데이터 없음:", selectedCompanyLeft);
-          }
+          console.log('🔍 산업분석 왼쪽 기업 재무지표:', data);
+          setLeftMetrics(data);
         })
-        .catch(err => console.error("왼쪽 기업 데이터 로딩 오류:", err));
+        .catch(err => {
+          console.error("왼쪽 기업 데이터 로딩 오류:", err);
+          setLeftMetrics(null);
+        });
     }
   }, [selectedCompanyLeft]);
 
   useEffect(() => {
     if (selectedCompanyRight) {
-      fetch("/기업별_재무지표.json")
+      fetch(`http://localhost:8000/company_metrics/${encodeURIComponent(selectedCompanyRight)}`)
         .then(res => res.json())
         .then(data => {
-          let companyData = null;
-          
-          if (Array.isArray(data)) {
-            companyData = data.find(item => item.기업명 === selectedCompanyRight);
-          } else if (typeof data === 'object' && data !== null) {
-            companyData = data[selectedCompanyRight];
-          }
-          
-          if (companyData) {
-            setRightMetrics(companyData);
-          } else {
-            console.warn("오른쪽 기업 데이터 없음:", selectedCompanyRight);
-          }
+          console.log('🔍 산업분석 오른쪽 기업 재무지표:', data);
+          setRightMetrics(data);
         })
-        .catch(err => console.error("오른쪽 기업 데이터 로딩 오류:", err));
+        .catch(err => {
+          console.error("오른쪽 기업 데이터 로딩 오류:", err);
+          setRightMetrics(null);
+        });
     }
   }, [selectedCompanyRight]);
 
