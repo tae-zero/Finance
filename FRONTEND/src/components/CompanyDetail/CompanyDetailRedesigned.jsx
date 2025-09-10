@@ -3,6 +3,10 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { API_ENDPOINTS } from '../../config/api';
 import CompareChart from '../../CompareChart';
+import SalesTable from '../../SalesTable';
+import CompanySummary from '../../CompanySummary';
+import PieChart from '../../PieChart';
+import ShareholderChart from '../../ShareholderChart';
 import './CompanyDetailRedesigned.css';
 
 function CompanyDetailRedesigned() {
@@ -76,6 +80,8 @@ function CompanyDetailRedesigned() {
   const tabs = [
     { id: 'overview', label: '개요', icon: '📊' },
     { id: 'financial', label: '재무', icon: '💰' },
+    { id: 'sales', label: '매출', icon: '📈' },
+    { id: 'shareholders', label: '주주', icon: '👥' },
     { id: 'news', label: '뉴스', icon: '📰' },
     { id: 'reports', label: '리포트', icon: '📋' }
   ];
@@ -198,7 +204,36 @@ function CompanyDetailRedesigned() {
               재무 정보
             </h3>
             <div className="financial-content">
-              <p>재무 정보가 여기에 표시됩니다.</p>
+              {metricsData && (
+                <CompareChart 
+                  metrics={metricsData} 
+                  industryMetrics={metricsData.industryMetrics}
+                />
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'sales' && (
+          <div className="sales-tab">
+            <h3 className="section-title">
+              <span className="title-icon">📊</span>
+              매출 분석
+            </h3>
+            <div className="sales-content">
+              <SalesTable />
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'shareholders' && (
+          <div className="shareholders-tab">
+            <h3 className="section-title">
+              <span className="title-icon">👥</span>
+              주주 현황
+            </h3>
+            <div className="shareholders-content">
+              <ShareholderChart />
             </div>
           </div>
         )}

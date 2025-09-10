@@ -12,6 +12,8 @@ import {
   Legend,
 } from 'chart.js';
 import { API_ENDPOINTS } from '../../config/api';
+import InvestorTable from '../../investorTable';
+import TopRankings from '../../TopRankings';
 import './DashboardRedesigned.css';
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
@@ -273,6 +275,24 @@ function DashboardRedesigned() {
             </div>
           </button>
         </div>
+      </div>
+
+      {/* 투자자 현황 섹션 */}
+      <div className="dashboard-card">
+        <div className="card-header">
+          <span className="card-icon">👥</span>
+          <h2 className="card-title">투자자 현황</h2>
+        </div>
+        <InvestorTable />
+      </div>
+
+      {/* 주요 랭킹 섹션 */}
+      <div className="dashboard-card">
+        <div className="card-header">
+          <span className="card-icon">🏆</span>
+          <h2 className="card-title">주요 랭킹</h2>
+        </div>
+        <TopRankings />
       </div>
     </div>
   );
