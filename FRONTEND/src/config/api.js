@@ -1,5 +1,5 @@
 // API 설정 파일
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:7000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://financedashboard-production-50f3.up.railway.app';
 
 export const API_ENDPOINTS = {
   // 메인 페이지
