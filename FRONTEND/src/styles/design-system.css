@@ -882,3 +882,201 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* KOSPI Tooltip Easter Egg */
+.kospi-title {
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.kospi-title:hover {
+  color: var(--accent-color);
+}
+
+.kospi-tooltip {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+}
+
+.tooltip-image {
+  width: 300px;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* KOSPI Explanation */
+.kospi-explanation {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.explanation-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.explanation-text .highlight {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.explanation-text .accent {
+  color: var(--accent-color);
+}
+
+/* Company Detail Additional Styles */
+.comparison-analysis {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.analysis-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.analysis-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.metric-comparison {
+  padding: 12px;
+  background: rgba(0, 209, 178, 0.1);
+  border-radius: 8px;
+  border-left: 4px solid var(--accent-color);
+}
+
+.comparison-text {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.metrics-explanation {
+  margin-bottom: 24px;
+}
+
+.explanation-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.explanation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+.explanation-item {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.explanation-button {
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.explanation-button:hover {
+  background: rgba(0, 209, 178, 0.1);
+}
+
+.metric-name {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.toggle-icon {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.explanation-content {
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+  border-top: 1px solid var(--glass-border);
+}
+
+.chart-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Sales Tab Styles */
+.sales-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.toggle-sales-button {
+  padding: 8px 16px;
+  background: var(--accent-color);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-sales-button:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.sales-chart {
+  margin-top: 20px;
+  padding: 20px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}

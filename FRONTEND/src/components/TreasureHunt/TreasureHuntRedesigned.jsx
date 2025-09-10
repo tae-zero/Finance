@@ -58,10 +58,12 @@ function TreasureHuntRedesigned() {
     fetchData();
   }, []);
 
-  const getThreeYearAvg = (data) => {
-    if (!data) return 0;
-    const values = Object.values(data).filter(v => typeof v === 'number' && !isNaN(v));
-    return values.length > 0 ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2) : 0;
+  const getThreeYearAvg = (obj) => {
+    const years = ['2022', '2023', '2024'];
+    const values = years.map(year => obj?.[year]).filter(v => typeof v === 'number');
+    if (!values.length) return '-';
+    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+    return avg.toFixed(2);
   };
 
   const applyFilters = () => {
@@ -70,13 +72,17 @@ function TreasureHuntRedesigned() {
       const pbrAvg = parseFloat(getThreeYearAvg(item.PBR));
       const roeAvg = parseFloat(getThreeYearAvg(item.ROE));
 
-      const isValid = perAvg > 0 && pbrAvg > 0 && roeAvg > 0;
-      const industryMatch = industryFilter === '전체' || item.업종명 === industryFilter;
-      const perMatch = perAvg >= perMin && perAvg <= perMax;
-      const pbrMatch = pbrAvg >= pbrMin && pbrAvg <= pbrMax;
-      const roeMatch = roeAvg >= roeMin && roeAvg <= roeMax;
+      // 하나라도 평균값이 NaN이거나 0이면 제외
+      const isValid = ![perAvg, pbrAvg, roeAvg].some(val => isNaN(val) || val === 0);
+      const matchIndustry = industryFilter === '전체' || item.업종명 === industryFilter;
 
-      return isValid && industryMatch && perMatch && pbrMatch && roeMatch;
+      return (
+        matchIndustry &&
+        isValid &&
+        perAvg >= perMin && perAvg <= perMax &&
+        pbrAvg >= pbrMin && pbrAvg <= pbrMax &&
+        roeAvg >= roeMin && roeAvg <= roeMax
+      );
     });
 
     setFiltered(filteredData);
@@ -97,6 +103,12 @@ function TreasureHuntRedesigned() {
     const sorted = [...filtered].sort((a, b) => {
       const aVal = parseFloat(getThreeYearAvg(a[field]));
       const bVal = parseFloat(getThreeYearAvg(b[field]));
+      
+      // NaN 처리
+      if (isNaN(aVal) && isNaN(bVal)) return 0;
+      if (isNaN(aVal)) return 1;
+      if (isNaN(bVal)) return -1;
+      
       return newOrder === 'asc' ? aVal - bVal : bVal - aVal;
     });
 
@@ -331,7 +343,9 @@ function TreasureHuntRedesigned() {
                     <div className="metric-trend">3년 평균</div>
                   </td>
                   <td className="metric-cell">
-                    <div className="metric-value">{getThreeYearAvg(item.ROE)}%</div>
+                    <div className="metric-value">
+                      {getThreeYearAvg(item.ROE) !== '-' ? `${getThreeYearAvg(item.ROE)}%` : '-'}
+                    </div>
                     <div className="metric-trend">3년 평균</div>
                   </td>
                   <td className="company-cell">

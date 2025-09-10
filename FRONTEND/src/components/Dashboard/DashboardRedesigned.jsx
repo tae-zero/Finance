@@ -24,6 +24,8 @@ function DashboardRedesigned() {
   const [chartData, setChartData] = useState(null);
   const [kospiData, setKospiData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,6 +80,15 @@ function DashboardRedesigned() {
 
     fetchData();
   }, []);
+
+  const handleMouseEnter = (e) => {
+    setTooltipPosition({ x: e.clientX, y: e.clientY });
+    setShowTooltip(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowTooltip(false);
+  };
 
   const chartOptions = {
     responsive: true,
@@ -166,9 +177,14 @@ function DashboardRedesigned() {
       {/* KOSPI 시세 카드 - 가장 중요한 정보 */}
       <div className="kospi-card">
         <div className="card-header">
-          <h2 className="card-title">
+          <h2 
+            className="card-title kospi-title"
+            onMouseEnter={handleMouseEnter}
+            onMouseMove={(e) => setTooltipPosition({ x: e.clientX, y: e.clientY })}
+            onMouseLeave={handleMouseLeave}
+          >
             <span className="card-icon">📈</span>
-            KOSPI 시세
+            KOSPI 최근 1년 시세 차트
           </h2>
           <div className="card-badge">실시간</div>
         </div>
@@ -195,7 +211,30 @@ function DashboardRedesigned() {
             </div>
           )}
         </div>
+
+        {/* KOSPI 설명 텍스트 */}
+        <div className="kospi-explanation">
+          <p className="explanation-text">
+            <span className="highlight">KOSPI 지수</span>는 <strong>(현재 상장기업 총 시가총액 ÷ 기준 시가총액) × 100</strong> 으로 계산한거야!<br />
+            예를 들어 KOSPI가 2,600이라는 건 기준 시점인 <strong className="accent">1980년 1월 4일 대비 26배 성장</strong>했다는 의미야!
+          </p>
+        </div>
       </div>
+
+      {/* KOSPI 툴팁 이스터에그 */}
+      {showTooltip && (
+        <div
+          className="kospi-tooltip"
+          style={{
+            position: 'fixed',
+            top: tooltipPosition.y + 20,
+            left: tooltipPosition.x + 20,
+            zIndex: 1000
+          }}
+        >
+          <img src="/코스피위아래.jpg" alt="EASTEREGG" className="tooltip-image" />
+        </div>
+      )}
 
       {/* 뉴스 섹션 */}
       <div className="news-section">

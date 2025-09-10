@@ -17,13 +17,98 @@ function CompanyDetailRedesigned() {
   const [reportData, setReportData] = useState([]);
   const [investorData, setInvestorData] = useState([]);
   const [metricsData, setMetricsData] = useState(null);
+  const [industryMetrics, setIndustryMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  const [openDescriptions, setOpenDescriptions] = useState({});
+  const [showSalesTable, setShowSalesTable] = useState(false);
+
+  const toggleDescription = (metric) => {
+    setOpenDescriptions(prev => ({...prev, [metric]: !prev[metric]}));
+  };
+
+  const metricDescriptions = {
+    'PER': '주가가 그 회사의 이익에 비해 비싼지 싼지를 보는 숫자야. 숫자가 낮으면 "이 회사 주식이 싸네?"라고 생각할 수 있어.',
+    'PBR': '회사가 가진 재산에 비해 주식이 얼마나 비싼지를 알려줘. 숫자가 높으면 "자산은 별론데 주가는 높네"일 수도 있어.',
+    'ROE': '내가 투자한 돈으로 회사가 얼마나 똑똑하게 돈을 벌었는지 보여줘. 높을수록 "잘 굴리고 있네!"라는 뜻이야.',
+    'ROA': '회사가 가진 모든 자산(돈, 건물 등)을 얼마나 잘 써서 이익을 냈는지 보여줘. 효율이 좋은 회사일수록 높아.',
+    'DPS': '주식 1주를 가진 사람이 1년 동안 받는 배당금이야. 이 숫자가 높으면 "이 주식은 배당이 쏠쏠하네"라고 볼 수 있어.',
+    'EPS': '회사가 1년에 벌어들인 이익을 주식 1주당 얼마씩 나눠 가질 수 있는지 보여줘. 많이 벌면 좋겠지!',
+    'BPS': '회사가 망하고 나서 자산을 팔았을 때 주식 1주당 받을 수 있는 돈이야. 일종의 바닥 가격 같은 거야.',
+    '부채비율': '회사 자본에 비해 빚이 얼마나 많은지 보여줘. 숫자가 너무 높으면 위험하다는 뜻이야.',
+    '배당수익률': '이 주식을 샀을 때 1년 동안 배당으로 얼마를 벌 수 있는지 비율로 알려줘. 높으면 현금 수익이 괜찮은 거야.',
+    '영업이익률': '매출에서 실제 이익이 얼마나 남았는지를 비율로 보여줘. 높을수록 본업에서 돈 잘 버는 회사야.',
+    '당기순이익': '회사가 1년 동안 진짜로 벌어들인 순이익이야. 세금 등 다 빼고 남은 돈이야.',
+    '매출액': '회사가 물건이나 서비스를 팔아서 벌어들인 총 매출이야. 아직 비용은 안 뺀 금액이야.',
+    '영업이익': '본업으로 벌어들인 이익이야. 매출에서 인건비, 임대료 같은 비용을 뺀 금액이야.',
+    '유보율': '이익 중에서 회사 안에 남겨둔 돈의 비율이야. 회사가 돈을 얼마나 모아뒀는지 보여줘.',
+    '자본금': '회사를 만들 때 주주들이 처음 넣은 돈이야. 회사의 기본 씨앗 같은 존재지.',
+    '자본총계': '회사가 가진 순자산이야. 자산에서 빚을 뺀 진짜 자기 돈이야.',
+    '자산총계': '회사가 가지고 있는 돈, 건물, 재고 등 모든 재산의 총합이야.',
+    '부채총계': '회사가 지금까지 빌린 돈이야. 갚아야 할 빚 전부를 말해.',
+    '발행주식수': '회사에서 시장에 내놓은 주식 수야. EPS나 DPS 같은 걸 계산할 때 쓰여.',
+    '지배주주': '우리 회사가 지배하고 있는 주주 몫이야. 다소 복잡한 지표지만 대주주 입장에서의 수익률일 수 있어.',
+    '지배주주순이익': '전체 이익 중에서 우리 회사 주주들이 실제로 가져가는 순이익이야.',
+    '지배주주지분': '전체 자본 중 우리 회사 주주들이 가진 몫이야. 우리 입장에서 진짜 우리 돈.',
+    '비지배주주순이익': '자회사에서 벌었지만, 우리 회사가 아닌 외부 주주 몫으로 빠진 이익이야.',
+    '비지배주주지분': '자회사 지분 중 우리 회사가 아닌 외부 사람들이 갖고 있는 비율이야.'
+  };
+
+  // 업종 평균 비교 분석 함수들
+  const calcAverage = (values) => {
+    if (!values || !Array.isArray(values)) return null;
+    const validValues = values.filter(v => typeof v === 'number' && !isNaN(v));
+    return validValues.length > 0 ? validValues.reduce((a, b) => a + b, 0) / validValues.length : null;
+  };
+
+  const extractMetricValues = (map, metric) => {
+    return ["2022", "2023", "2024"].map(year => map[metric]?.[year]);
+  };
+
+  const generateComparisonText = (metricName, companyName, companyVals, industryVals) => {
+    const companyAvg = calcAverage(companyVals);
+    const industryAvg = calcAverage(industryVals);
+
+    if (companyAvg === null || industryAvg === null) {
+      return (
+        <span>
+          <strong style={{ color: '#00D1B2', fontSize: '16px' }}>{companyName}</strong>
+          의 <strong style={{ color: '#F7FAFC' }}>{metricName}</strong> 데이터가 부족하여{' '}
+          <span style={{ color: '#FF6B6B', fontWeight: 'bold' }}>비교할 수 없습니다.</span>
+        </span>
+      );
+    }
+
+    const diff = Math.abs(companyAvg - industryAvg);
+    const comparison = companyAvg > industryAvg ? '상향' : '하향';
+
+    // 지표별 격차 기준 설정
+    let threshold = 5; // 기본값
+    if (metricName === 'PBR') threshold = 0.5;
+    if (metricName === 'ROE') threshold = 7;
+
+    const gap = diff < threshold ? '근소한 차이를 보이고 있어.' : '큰 격차를 보이고 있어.';
+
+    return (
+      <span style={{fontSize: '20px'}}>
+        <strong style={{ color: '#00D1B2'}}>{companyName}</strong>
+        는 3개년 <strong style={{ color: '#F7FAFC' }}>{metricName}</strong> 평균이
+        <strong style={{ color: '#FFD93D' }}> {companyAvg.toFixed(2)}</strong>로,
+        코스피 기준 업종 평균
+        <strong style={{ color: '#6BCF7F' }}> {industryAvg.toFixed(2)}</strong>보다
+        <span style={{ color: comparison === '상향' ? '#FF6B6B' : '#4DABF7', fontWeight: 'bold' }}>
+          {' '}{comparison}
+        </span>
+        하며 {gap}
+      </span>
+    );
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        console.log('🔍 CompanyDetailRedesigned - 기업명:', name);
         
         // 병렬로 모든 데이터 가져오기
         const [
@@ -48,6 +133,19 @@ function CompanyDetailRedesigned() {
         setReportData(reportRes.data);
         setInvestorData(investorRes.data);
         setMetricsData(metricsRes);
+
+        // 업종 평균 데이터 로드
+        if (companyRes.data?.업종명) {
+          try {
+            const industryRes = await fetch('/industry_metrics.json');
+            const industryData = await industryRes.json();
+            if (industryData[companyRes.data.업종명]) {
+              setIndustryMetrics(industryData[companyRes.data.업종명]);
+            }
+          } catch (err) {
+            console.error('📛 업종 평균 로딩 오류:', err);
+          }
+        }
       } catch (error) {
         console.error('데이터 로딩 오류:', error);
       } finally {
@@ -134,6 +232,14 @@ function CompanyDetailRedesigned() {
       <div className="tab-content">
         {activeTab === 'overview' && (
           <div className="overview-tab">
+            {/* 기업 요약 */}
+            {companyData && (
+              <CompanySummary 
+                summary={companyData.짧은요약} 
+                outline={companyData.개요} 
+              />
+            )}
+            
             {/* 주요 지표 카드 */}
             <div className="metrics-grid">
               <div className="metric-card">
@@ -194,6 +300,17 @@ function CompanyDetailRedesigned() {
                 </div>
               </div>
             )}
+
+            {/* 매출 비중 차트 */}
+            {companyData && (
+              <div className="chart-section">
+                <h3 className="section-title">
+                  <span className="title-icon">🥧</span>
+                  매출 비중 분석
+                </h3>
+                <PieChart companyName={companyData.기업명} />
+              </div>
+            )}
           </div>
         )}
 
@@ -204,11 +321,60 @@ function CompanyDetailRedesigned() {
               재무 정보
             </h3>
             <div className="financial-content">
+              {/* 업종 평균 비교 분석 */}
+              {companyData && industryMetrics && metricsData && (
+                <div className="comparison-analysis">
+                  <h4 className="analysis-title">📊 업종 평균 대비 분석</h4>
+                  <div className="analysis-content">
+                    {['PER', 'PBR', 'ROE'].map(metric => {
+                      const companyVals = extractMetricValues(metricsData, metric);
+                      const industryVals = extractMetricValues(industryMetrics.metrics, metric);
+                      return (
+                        <div key={metric} className="metric-comparison">
+                          <div className="comparison-text">
+                            {generateComparisonText(metric, companyData.기업명, companyVals, industryVals)}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 재무지표 설명 시스템 */}
+              <div className="metrics-explanation">
+                <h4 className="explanation-title">📚 재무지표 설명</h4>
+                <div className="explanation-grid">
+                  {Object.entries(metricDescriptions).slice(0, 6).map(([metric, description]) => (
+                    <div key={metric} className="explanation-item">
+                      <button 
+                        className="explanation-button"
+                        onClick={() => toggleDescription(metric)}
+                      >
+                        <span className="metric-name">{metric}</span>
+                        <span className="toggle-icon">
+                          {openDescriptions[metric] ? '▼' : '▶'}
+                        </span>
+                      </button>
+                      {openDescriptions[metric] && (
+                        <div className="explanation-content">
+                          {description}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 차트 섹션 */}
               {metricsData && (
-                <CompareChart 
-                  metrics={metricsData} 
-                  industryMetrics={metricsData.industryMetrics}
-                />
+                <div className="chart-section">
+                  <h4 className="chart-title">📈 재무 지표 비교</h4>
+                  <CompareChart 
+                    metrics={metricsData} 
+                    industryMetrics={industryMetrics}
+                  />
+                </div>
               )}
             </div>
           </div>
@@ -216,12 +382,26 @@ function CompanyDetailRedesigned() {
 
         {activeTab === 'sales' && (
           <div className="sales-tab">
-            <h3 className="section-title">
-              <span className="title-icon">📊</span>
-              매출 분석
-            </h3>
+            <div className="sales-header">
+              <h3 className="section-title">
+                <span className="title-icon">📊</span>
+                매출 분석
+              </h3>
+              <button 
+                className="toggle-sales-button"
+                onClick={() => setShowSalesTable(!showSalesTable)}
+              >
+                {showSalesTable ? '매출 테이블 숨기기' : '매출 테이블 보기'}
+              </button>
+            </div>
             <div className="sales-content">
-              <SalesTable />
+              {showSalesTable && <SalesTable name={name} />}
+              {companyData && (
+                <div className="sales-chart">
+                  <h4 className="chart-title">📈 매출 비중 분석</h4>
+                  <PieChart companyName={companyData.기업명} />
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -233,7 +413,10 @@ function CompanyDetailRedesigned() {
               주주 현황
             </h3>
             <div className="shareholders-content">
-              <ShareholderChart />
+              <ShareholderChart 
+                code={companyData?.종목코드?.replace('A', '') || '005930'} 
+                companyName={companyData?.기업명 || name} 
+              />
             </div>
           </div>
         )}

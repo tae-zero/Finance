@@ -134,7 +134,22 @@ function IndustryAnalysisRedesigned() {
     );
   }
 
-  const chartData = allData?.[industry]?.chartData?.[selectedMetric] || {};
+  // 차트 데이터 생성
+  const years = ["2022", "2023", "2024"];
+  const chartData = allData?.[industry]?.[selectedMetric] ? {
+    labels: years,
+    datasets: [
+      {
+        label: "코스피 기준 업종 평균",
+        data: years.map(year => allData[industry][selectedMetric][year]),
+        borderColor: "#00D1B2",
+        backgroundColor: "rgba(0, 209, 178, 0.1)",
+        tension: 0.3,
+        pointRadius: 3,
+        borderWidth: 2
+      }
+    ]
+  } : {};
 
   const chartOptions = {
     responsive: true,
@@ -165,7 +180,11 @@ function IndustryAnalysisRedesigned() {
         },
       },
       datalabels: {
-        display: false
+        anchor: 'end',
+        align: 'top',
+        formatter: value => value,
+        color: '#F7FAFC',
+        font: { weight: 'bold' },
       }
     },
     scales: {
@@ -193,6 +212,9 @@ function IndustryAnalysisRedesigned() {
           color: 'var(--glass-border)',
           drawBorder: false
         }
+      },
+      y: {
+        beginAtZero: false
       }
     },
     interaction: {
