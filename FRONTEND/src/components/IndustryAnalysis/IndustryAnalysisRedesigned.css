@@ -382,10 +382,15 @@
   background: var(--glass-background);
   border: 1px solid var(--glass-border);
   border-radius: 8px;
-  color: var(--text-primary);
+  color: #000000;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
+}
+
+.company-select option {
+  color: #000000;
+  background: #ffffff;
 }
 
 .company-select:hover {

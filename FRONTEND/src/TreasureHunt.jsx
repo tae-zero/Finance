@@ -190,28 +190,127 @@ const renderAverageMarker = (metricKey, label, min, max) => {
           </button>
 
           {/* 슬라이더들 */}
-          <div style={{ marginBottom: '40px', fontSize: '20px' }}>
-            <label><strong>PBR 범위 (2024)</strong></label><br />
-            최소 <input type="number" value={pbrMin} onChange={(e) => setPbrMin(Number(e.target.value))} style={{ width: '60px' }} />
-            <input type="range" min={0} max={15} step={0.1} value={pbrMin} onChange={(e) => setPbrMin(Number(e.target.value))} />
-            <input type="range" min={0} max={15} step={0.1} value={pbrMax} onChange={(e) => setPbrMax(Number(e.target.value))} />
-            <input type="number" value={pbrMax} onChange={(e) => setPbrMax(Number(e.target.value))} style={{ width: '60px' }} /> 최대
+          <div style={{ marginBottom: '40px', fontSize: '16px' }}>
+            <label><strong>PBR 범위 (3년 평균)</strong></label><br />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+              <span>최소:</span>
+              <input 
+                type="number" 
+                value={pbrMin} 
+                onChange={(e) => setPbrMin(Number(e.target.value))} 
+                style={{ width: '60px', padding: '5px', border: '1px solid #ccc', borderRadius: '4px' }} 
+              />
+              <input 
+                type="range" 
+                min={0} 
+                max={15} 
+                step={0.1} 
+                value={pbrMin} 
+                onChange={(e) => setPbrMin(Number(e.target.value))} 
+                style={{ flex: 1, margin: '0 10px' }}
+              />
+              <input 
+                type="range" 
+                min={0} 
+                max={15} 
+                step={0.1} 
+                value={pbrMax} 
+                onChange={(e) => setPbrMax(Number(e.target.value))} 
+                style={{ flex: 1, margin: '0 10px' }}
+              />
+              <input 
+                type="number" 
+                value={pbrMax} 
+                onChange={(e) => setPbrMax(Number(e.target.value))} 
+                style={{ width: '60px', padding: '5px', border: '1px solid #ccc', borderRadius: '4px' }} 
+              />
+              <span>최대</span>
+            </div>
+            <div style={{ textAlign: 'center', marginTop: '5px', color: '#666' }}>
+              현재 범위: {pbrMin.toFixed(1)} ~ {pbrMax.toFixed(1)}
+            </div>
           </div>
 
-          <div style={{ marginBottom: '40px', fontSize: '20px' }}>
-            <label><strong>PER 범위 (2024)</strong></label><br />
-            최소 <input type="number" value={perMin} onChange={(e) => setPerMin(Number(e.target.value))} style={{ width: '60px' }} />
-            <input type="range" min={0} max={100} step={0.1} value={perMin} onChange={(e) => setPerMin(Number(e.target.value))} />
-            <input type="range" min={0} max={100} step={0.1} value={perMax} onChange={(e) => setPerMax(Number(e.target.value))} />
-            <input type="number" value={perMax} onChange={(e) => setPerMax(Number(e.target.value))} style={{ width: '60px' }} /> 최대
+          <div style={{ marginBottom: '40px', fontSize: '16px' }}>
+            <label><strong>PER 범위 (3년 평균)</strong></label><br />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+              <span>최소:</span>
+              <input 
+                type="number" 
+                value={perMin} 
+                onChange={(e) => setPerMin(Number(e.target.value))} 
+                style={{ width: '60px', padding: '5px', border: '1px solid #ccc', borderRadius: '4px' }} 
+              />
+              <input 
+                type="range" 
+                min={0} 
+                max={100} 
+                step={0.1} 
+                value={perMin} 
+                onChange={(e) => setPerMin(Number(e.target.value))} 
+                style={{ flex: 1, margin: '0 10px' }}
+              />
+              <input 
+                type="range" 
+                min={0} 
+                max={100} 
+                step={0.1} 
+                value={perMax} 
+                onChange={(e) => setPerMax(Number(e.target.value))} 
+                style={{ flex: 1, margin: '0 10px' }}
+              />
+              <input 
+                type="number" 
+                value={perMax} 
+                onChange={(e) => setPerMax(Number(e.target.value))} 
+                style={{ width: '60px', padding: '5px', border: '1px solid #ccc', borderRadius: '4px' }} 
+              />
+              <span>최대</span>
+            </div>
+            <div style={{ textAlign: 'center', marginTop: '5px', color: '#666' }}>
+              현재 범위: {perMin.toFixed(1)} ~ {perMax.toFixed(1)}
+            </div>
           </div>
 
-          <div style={{ marginBottom: '40px', fontSize: '20px' }}>
-            <label><strong>ROE 범위 (2024)</strong></label><br />
-            최소 <input type="number" value={roeMin} onChange={(e) => setRoeMin(Number(e.target.value))} style={{ width: '60px' }} />
-            <input type="range" min={-50} max={80} step={0.1} value={roeMin} onChange={(e) => setRoeMin(Number(e.target.value))} />
-            <input type="range" min={-50} max={80} step={0.1} value={roeMax} onChange={(e) => setRoeMax(Number(e.target.value))} />
-            <input type="number" value={roeMax} onChange={(e) => setRoeMax(Number(e.target.value))} style={{ width: '60px' }} /> 최대
+          <div style={{ marginBottom: '40px', fontSize: '16px' }}>
+            <label><strong>ROE 범위 (3년 평균)</strong></label><br />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+              <span>최소:</span>
+              <input 
+                type="number" 
+                value={roeMin} 
+                onChange={(e) => setRoeMin(Number(e.target.value))} 
+                style={{ width: '60px', padding: '5px', border: '1px solid #ccc', borderRadius: '4px' }} 
+              />
+              <input 
+                type="range" 
+                min={-50} 
+                max={80} 
+                step={0.1} 
+                value={roeMin} 
+                onChange={(e) => setRoeMin(Number(e.target.value))} 
+                style={{ flex: 1, margin: '0 10px' }}
+              />
+              <input 
+                type="range" 
+                min={-50} 
+                max={80} 
+                step={0.1} 
+                value={roeMax} 
+                onChange={(e) => setRoeMax(Number(e.target.value))} 
+                style={{ flex: 1, margin: '0 10px' }}
+              />
+              <input 
+                type="number" 
+                value={roeMax} 
+                onChange={(e) => setRoeMax(Number(e.target.value))} 
+                style={{ width: '60px', padding: '5px', border: '1px solid #ccc', borderRadius: '4px' }} 
+              />
+              <span>최대</span>
+            </div>
+            <div style={{ textAlign: 'center', marginTop: '5px', color: '#666' }}>
+              현재 범위: {roeMin.toFixed(1)}% ~ {roeMax.toFixed(1)}%
+            </div>
           </div>
         </div>
 
@@ -224,7 +323,11 @@ const renderAverageMarker = (metricKey, label, min, max) => {
           padding: '20px',
           backgroundColor: '#fafafa'
         }}>
-          <FinancialGraph />
+          <FinancialGraph 
+            filteredData={filtered}
+            industryMetrics={industryMetrics}
+            industryFilter={industryFilter}
+          />
     </div>
   </div>
 

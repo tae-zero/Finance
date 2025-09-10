@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function FinancialGraph() {
+export default function FinancialGraph({ filteredData = [], industryMetrics = null, industryFilter = '전체' }) {
   const [price, setPrice] = useState('');
   const [netIncome, setNetIncome] = useState('');
   const [equity, setEquity] = useState('');
@@ -9,9 +9,46 @@ export default function FinancialGraph() {
   const per = price && netIncome ? (price / netIncome).toFixed(2) : '-';
   const roe = netIncome && equity ? ((netIncome / equity) * 100).toFixed(2) + '%' : '-';
 
+  // 필터링된 데이터에서 평균값 계산
+  const getAverageValue = (data, metric) => {
+    if (!data || data.length === 0) return 0;
+    const values = data.map(item => {
+      const metricData = item[metric];
+      if (!metricData) return 0;
+      const years = ['2022', '2023', '2024'];
+      const validValues = years.map(year => Number(metricData[year])).filter(v => !isNaN(v) && v > 0);
+      return validValues.length > 0 ? validValues.reduce((a, b) => a + b, 0) / validValues.length : 0;
+    }).filter(v => v > 0);
+    return values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+  };
+
+  const avgPBR = getAverageValue(filteredData, 'PBR');
+  const avgPER = getAverageValue(filteredData, 'PER');
+  const avgROE = getAverageValue(filteredData, 'ROE');
+
   return (
     <div style={{ textAlign: 'center', fontFamily: 'Arial', width: 'auto', height: 'auto' }}>
       <h2>📊 주요 재무 지표 한 눈에 알아보기!</h2>
+      
+      {/* 필터링된 데이터 요약 */}
+      {filteredData.length > 0 && (
+        <div style={{ 
+          marginBottom: '20px', 
+          padding: '15px', 
+          backgroundColor: '#e8f5e8', 
+          borderRadius: '8px',
+          border: '1px solid #4CAF50'
+        }}>
+          <h3 style={{ margin: '0 0 10px 0', color: '#2e7d32' }}>
+            🔍 필터링 결과: {filteredData.length}개 기업
+          </h3>
+          <div style={{ display: 'flex', justifyContent: 'space-around', fontSize: '14px' }}>
+            <div>평균 PBR: <strong>{avgPBR.toFixed(2)}</strong></div>
+            <div>평균 PER: <strong>{avgPER.toFixed(2)}</strong></div>
+            <div>평균 ROE: <strong>{avgROE.toFixed(2)}%</strong></div>
+          </div>
+        </div>
+      )}
 
       <div style={{
         borderRadius: '10px',

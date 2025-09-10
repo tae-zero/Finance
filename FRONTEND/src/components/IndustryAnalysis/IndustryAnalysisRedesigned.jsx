@@ -464,6 +464,17 @@ function IndustryAnalysisRedesigned() {
                             label: selectedCompanyLeft,
                             data: metricList.map(metric => {
                               const value = leftMetrics[metric];
+                              if (typeof value === 'object' && value !== null) {
+                                // 2024년 데이터가 있으면 사용, 없으면 평균 계산
+                                const year2024 = value['2024'];
+                                if (typeof year2024 === 'number') {
+                                  return year2024;
+                                }
+                                // 3년 평균 계산
+                                const years = ['2022', '2023', '2024'];
+                                const values = years.map(year => Number(value[year])).filter(v => !isNaN(v));
+                                return values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+                              }
                               return typeof value === 'number' ? value : 0;
                             }),
                             borderColor: '#00D1B2',
@@ -478,6 +489,17 @@ function IndustryAnalysisRedesigned() {
                             label: selectedCompanyRight,
                             data: metricList.map(metric => {
                               const value = rightMetrics[metric];
+                              if (typeof value === 'object' && value !== null) {
+                                // 2024년 데이터가 있으면 사용, 없으면 평균 계산
+                                const year2024 = value['2024'];
+                                if (typeof year2024 === 'number') {
+                                  return year2024;
+                                }
+                                // 3년 평균 계산
+                                const years = ['2022', '2023', '2024'];
+                                const values = years.map(year => Number(value[year])).filter(v => !isNaN(v));
+                                return values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+                              }
                               return typeof value === 'number' ? value : 0;
                             }),
                             borderColor: '#FF6B6B',
