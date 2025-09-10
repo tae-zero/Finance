@@ -76,8 +76,18 @@ function CompanyDetailRedesigned() {
   };
 
   const extractMetricValues = (map, metric) => {
-    if (!map || typeof map !== 'object') return [null, null, null];
-    return ["2022", "2023", "2024"].map(year => map[metric]?.[year]);
+    console.log('🔍 extractMetricValues 호출:', { map, metric, mapType: typeof map });
+    if (!map || typeof map !== 'object') {
+      console.log('❌ extractMetricValues: map이 유효하지 않음');
+      return [null, null, null];
+    }
+    const result = ["2022", "2023", "2024"].map(year => {
+      const value = map[metric]?.[year];
+      console.log(`🔍 ${metric} ${year}:`, value);
+      return value;
+    });
+    console.log('🔍 extractMetricValues 결과:', result);
+    return result;
   };
 
   const generateComparisonText = (metricName, companyName, companyVals, industryVals) => {
@@ -649,7 +659,13 @@ function CompanyDetailRedesigned() {
             </h3>
             <div className="financial-content">
               {/* 업종 평균 비교 분석 */}
-              {console.log('🔍 조건 확인:', { companyData: !!companyData, industryMetrics: !!industryMetrics, metricsData: !!metricsData })}
+              {console.log('🔍 조건 확인:', { 
+                companyData: !!companyData, 
+                industryMetrics: !!industryMetrics, 
+                metricsData: !!metricsData,
+                metricsDataType: typeof metricsData,
+                metricsDataValue: metricsData
+              })}
               {companyData && industryMetrics && metricsData ? (
                 <div className="comparison-analysis">
                   <h4 className="analysis-title">📊 업종 평균 대비 분석</h4>
