@@ -105,8 +105,11 @@ function CompanyDetail() {
           .catch(err => console.error("📛 투자자 매매 데이터 오류:", err));
 
         // 기업 재무지표 로드
+        console.log(`🔍 재무지표 API 호출: ${API_ENDPOINTS.COMPANY_METRICS(encodedName)}`);
         axios.get(API_ENDPOINTS.COMPANY_METRICS(encodedName))
           .then(metricsRes => {
+            console.log('📊 재무지표 응답 상태:', metricsRes.status);
+            console.log('📊 재무지표 데이터 받음:', metricsRes.data);
             setMetrics(metricsRes.data);
           })
           .catch(err => {
@@ -169,6 +172,9 @@ function CompanyDetail() {
 
   // 백엔드 API에서 받은 metrics 데이터 사용
   const rawIndicators = metrics || {};
+  console.log('🔍 metrics 데이터:', rawIndicators);
+  console.log('🔍 metrics 타입:', typeof rawIndicators);
+  console.log('🔍 metrics 키 개수:', Object.keys(rawIndicators).length);
   
   const indicatorMap = {};
   const allPeriods = new Set();
