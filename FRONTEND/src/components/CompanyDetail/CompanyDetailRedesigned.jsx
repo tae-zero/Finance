@@ -686,13 +686,16 @@ function CompanyDetailRedesigned() {
                           </tr>
                         </thead>
                         <tbody>
-                          {['매출액', '당기순이익', '영업이익'].map(metric => (
+                          {['PER', 'PBR', 'ROE', 'ROA', 'DPS', 'EPS', 'BPS', '매출액', '영업이익', '당기순이익', '부채비율', '배당수익률', '시가총액', '지배주주지분', '지배주주순이익', '매출원가', '판매비와관리비', '자산총계', '부채총계', '자본총계', '영업활동현금흐름', '투자활동현금흐름', '재무활동현금흐름'].map(metric => (
                             <tr key={metric}>
                               <td>{metric}</td>
                               {['2022', '2023', '2024'].map(year => (
                                 <td key={year}>
                                   {metricsData[metric]?.[year] 
-                                    ? (metricsData[metric][year] / 100000000).toFixed(1) + '억원'
+                                    ? (metric === '매출액' || metric === '영업이익' || metric === '당기순이익' || metric === '매출원가' || metric === '판매비와관리비' || metric === '자산총계' || metric === '부채총계' || metric === '자본총계' || metric === '영업활동현금흐름' || metric === '투자활동현금흐름' || metric === '재무활동현금흐름' || metric === '시가총액' || metric === '지배주주지분' || metric === '지배주주순이익'
+                                      ? (metricsData[metric][year] / 100000000).toFixed(1) + '억원'
+                                      : metricsData[metric][year].toFixed(3)
+                                    )
                                     : '--'
                                   }
                                 </td>

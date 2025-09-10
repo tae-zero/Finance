@@ -1015,8 +1015,14 @@ def get_company_metrics(name: str):
             if value is not None and value != 0:
                 result["시가총액"][year] = float(value)
         
-        # 매출액, 당기순이익, 영업이익 데이터 추출
-        for metric in ["매출액", "당기순이익", "영업이익"]:
+        # 모든 재무지표 데이터 추출
+        financial_metrics = [
+            "매출액", "당기순이익", "영업이익", "부채비율", "배당수익률", 
+            "매출원가", "판매비와관리비", "자산총계", "부채총계", "자본총계",
+            "영업활동현금흐름", "투자활동현금흐름", "재무활동현금흐름"
+        ]
+        
+        for metric in financial_metrics:
             result[metric] = {}
             for year in years:
                 key = f"{year}/12_{metric}"
