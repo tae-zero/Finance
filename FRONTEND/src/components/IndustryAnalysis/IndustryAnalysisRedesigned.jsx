@@ -165,7 +165,10 @@ function IndustryAnalysisRedesigned() {
     datasets: [
       {
         label: "코스피 기준 업종 평균",
-        data: years.map(year => allData[industry][selectedMetric][year]),
+        data: years.map(year => {
+          const value = allData[industry][selectedMetric][year];
+          return typeof value === 'number' ? value : 0;
+        }),
         borderColor: "#00D1B2",
         backgroundColor: "rgba(0, 209, 178, 0.1)",
         tension: 0.3,
@@ -230,7 +233,7 @@ function IndustryAnalysisRedesigned() {
           font: {
             size: 12
           },
-          callback: value => value.toLocaleString()
+          callback: value => typeof value === 'number' ? value.toLocaleString() : value
         },
         grid: {
           color: 'var(--glass-border)',
@@ -360,9 +363,9 @@ function IndustryAnalysisRedesigned() {
                     Object.entries(industryMetrics).map(([key, value]) => (
                       <div key={key} className="table-row">
                         <div className="cell-label">{key}</div>
-                        <div className="cell-value">{value?.평균?.toFixed(2) || '--'}</div>
-                        <div className="cell-value">{value?.최고?.toFixed(2) || '--'}</div>
-                        <div className="cell-value">{value?.최저?.toFixed(2) || '--'}</div>
+                        <div className="cell-value">{typeof value?.평균 === 'number' ? value.평균.toFixed(2) : '--'}</div>
+                        <div className="cell-value">{typeof value?.최고 === 'number' ? value.최고.toFixed(2) : '--'}</div>
+                        <div className="cell-value">{typeof value?.최저 === 'number' ? value.최저.toFixed(2) : '--'}</div>
                       </div>
                     )) : (
                       <div className="table-row">
@@ -459,10 +462,10 @@ function IndustryAnalysisRedesigned() {
                     <div key={metric} className="table-row">
                       <div className="cell-label">{metric}</div>
                       <div className="cell-value">
-                        {leftMetrics?.[metric]?.toFixed(2) || '--'}
+                        {typeof leftMetrics?.[metric] === 'number' ? leftMetrics[metric].toFixed(2) : '--'}
                       </div>
                       <div className="cell-value">
-                        {rightMetrics?.[metric]?.toFixed(2) || '--'}
+                        {typeof rightMetrics?.[metric] === 'number' ? rightMetrics[metric].toFixed(2) : '--'}
                       </div>
                     </div>
                   ))}

@@ -35,7 +35,9 @@ const CompareChart = ({ metrics, industryMetrics, companyName }) => {
         const industryValues = Object.values(industryMetric || {});
 
         // 데이터가 충분하지 않으면 건너뛰기
-        if (years.length === 0 || companyValues.length === 0 || industryValues.length === 0) {
+        if (!Array.isArray(years) || years.length === 0 || 
+            !Array.isArray(companyValues) || companyValues.length === 0 || 
+            !Array.isArray(industryValues) || industryValues.length === 0) {
           console.log(`⚠️ ${key} 데이터 부족:`, { years, companyValues, industryValues });
           return null;
         }

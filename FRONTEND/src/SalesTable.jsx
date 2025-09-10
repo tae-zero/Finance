@@ -25,12 +25,12 @@ function SalesTable({ name }) {
     '비중': '전체 매출에서 이 부문이 차지하는 비율이야.'
   };
 
-  const grouped = rows.reduce((acc, row) => {
+  const grouped = Array.isArray(rows) ? rows.reduce((acc, row) => {
     const key = `${row['사업부문']} | ${row['매출품목명']}`;
     if (!acc[key]) acc[key] = [];
     acc[key].push(row);
     return acc;
-  }, {});
+  }, {}) : {};
 
   const renderValue = val => {
     if (typeof val === 'string' && val.includes('%')) return val;
@@ -64,14 +64,18 @@ function SalesTable({ name }) {
               </tr>
             </thead>
             <tbody>
-              {items.map((item, i) => (
+              {Array.isArray(items) ? items.map((item, i) => (
                 <tr key={i} style={borderStyle}>
                   <td style={borderStyle} title={tooltipMap[item['구분']] || ''}>{item['구분']}</td>
                   <td style={borderStyle}>{renderValue(item['2022_12 매출액'])}</td>
                   <td style={borderStyle}>{renderValue(item['2023_12 매출액'])}</td>
                   <td style={borderStyle}>{renderValue(item['2024_12 매출액'])}</td>
                 </tr>
-              ))}
+              )) : (
+                <tr>
+                  <td colSpan="4" style={borderStyle}>데이터가 없습니다.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

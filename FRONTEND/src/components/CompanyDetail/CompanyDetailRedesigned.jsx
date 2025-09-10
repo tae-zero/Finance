@@ -380,10 +380,10 @@ function CompanyDetailRedesigned() {
                 <div className="chart-container">
                   <Line
                     data={{
-                      labels: priceData.map(item => item.Date),
+                      labels: Array.isArray(priceData) ? priceData.map(item => item.Date) : [],
                       datasets: [{
                         label: `${companyData?.기업명} 종가 (원)`,
-                        data: priceData.map(item => item.Close),
+                        data: Array.isArray(priceData) ? priceData.map(item => item.Close) : [],
                         borderColor: '#00D1B2',
                         backgroundColor: 'rgba(0, 209, 178, 0.1)',
                         borderWidth: 2,
