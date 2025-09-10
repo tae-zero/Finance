@@ -124,7 +124,7 @@ function CompanyDetailRedesigned() {
         console.log('🔍 CompanyDetailRedesigned - 기업명:', name);
         
         // 먼저 기업 정보를 가져와서 종목코드를 얻기
-        const companyRes = await axios.get(`${API_ENDPOINTS.COMPANY_DETAIL}/${encodeURIComponent(name)}`);
+        const companyRes = await axios.get(API_ENDPOINTS.COMPANY_DETAIL(encodeURIComponent(name)));
         setCompanyData(companyRes.data);
         
         const code = String(companyRes.data.종목코드).padStart(6, '0');
@@ -151,7 +151,7 @@ function CompanyDetailRedesigned() {
         setReportData(reportRes.data);
         setInvestorData(investorRes.data);
         // 기업별 재무지표 데이터 찾기
-        if (metricsRes && companyRes.data?.기업명) {
+        if (metricsRes && Array.isArray(metricsRes) && companyRes.data?.기업명) {
           const companyMetrics = metricsRes.find(item => item.기업명 === companyRes.data.기업명);
           if (companyMetrics) {
             setMetricsData(companyMetrics);
@@ -159,6 +159,8 @@ function CompanyDetailRedesigned() {
           } else {
             console.warn('⚠️ 기업 지표 데이터 없음:', companyRes.data.기업명);
           }
+        } else if (metricsRes && !Array.isArray(metricsRes)) {
+          console.error('⚠️ 기업별_재무지표.json 데이터가 배열이 아닙니다:', metricsRes);
         }
 
         // 업종 평균 데이터 로드
@@ -448,7 +450,7 @@ function CompanyDetailRedesigned() {
                       </tr>
                     </thead>
                     <tbody>
-                      {investorData.map((item, idx) => (
+                      {Array.isArray(investorData) ? investorData.map((item, idx) => (
                         <tr key={idx}>
                           <td>{item.date?.slice(0, 10) || '--'}</td>
                           <td className="right">
@@ -461,7 +463,13 @@ function CompanyDetailRedesigned() {
                             {item.외국인합계 ? (item.외국인합계 / 100000000).toFixed(1) : '--'}억원
                           </td>
                         </tr>
-                      ))}
+                      )) : (
+                        <tr>
+                          <td colSpan="4" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
+                            투자자 데이터를 불러오는 중...
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -595,7 +603,7 @@ function CompanyDetailRedesigned() {
               관련 뉴스
             </h3>
             <div className="news-list">
-              {newsData.slice(0, 10).map((news, index) => (
+              {Array.isArray(newsData) ? newsData.slice(0, 10).map((news, index) => (
                 <a
                   key={index}
                   href={news.link}
@@ -609,7 +617,11 @@ function CompanyDetailRedesigned() {
                   </div>
                   <div className="news-arrow">→</div>
                 </a>
-              ))}
+              )) : (
+                <div className="news-loading">
+                  <p>뉴스 데이터를 불러오는 중...</p>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -621,7 +633,7 @@ function CompanyDetailRedesigned() {
               증권사 리포트
             </h3>
             <div className="reports-list">
-              {reportData.slice(0, 5).map((report, index) => (
+              {Array.isArray(reportData) ? reportData.slice(0, 5).map((report, index) => (
                 <div key={index} className="report-card">
                   <div className="report-header">
                     <div className="report-date">{report.date}</div>
@@ -636,7 +648,11 @@ function CompanyDetailRedesigned() {
                     <div className="report-analyst">{report.analyst}</div>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="reports-loading">
+                  <p>리포트 데이터를 불러오는 중...</p>
+                </div>
+              )}
             </div>
           </div>
         )}

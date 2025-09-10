@@ -80,9 +80,13 @@ function IndustryAnalysisRedesigned() {
       fetch("/기업별_재무지표.json")
         .then(res => res.json())
         .then(data => {
-          const companyData = data.find(item => item.기업명 === selectedCompanyLeft);
-          if (companyData) {
-            setLeftMetrics(companyData);
+          if (Array.isArray(data)) {
+            const companyData = data.find(item => item.기업명 === selectedCompanyLeft);
+            if (companyData) {
+              setLeftMetrics(companyData);
+            }
+          } else {
+            console.error("기업별_재무지표.json 데이터가 배열이 아닙니다:", data);
           }
         })
         .catch(err => console.error("왼쪽 기업 데이터 로딩 오류:", err));
@@ -94,9 +98,13 @@ function IndustryAnalysisRedesigned() {
       fetch("/기업별_재무지표.json")
         .then(res => res.json())
         .then(data => {
-          const companyData = data.find(item => item.기업명 === selectedCompanyRight);
-          if (companyData) {
-            setRightMetrics(companyData);
+          if (Array.isArray(data)) {
+            const companyData = data.find(item => item.기업명 === selectedCompanyRight);
+            if (companyData) {
+              setRightMetrics(companyData);
+            }
+          } else {
+            console.error("기업별_재무지표.json 데이터가 배열이 아닙니다:", data);
           }
         })
         .catch(err => console.error("오른쪽 기업 데이터 로딩 오류:", err));
@@ -108,8 +116,13 @@ function IndustryAnalysisRedesigned() {
       fetch("/산업별설명.json")
         .then(res => res.json())
         .then(data => {
-          const industryData = data.find(item => item.산업명 === industry);
-          setAnalysis(industryData);
+          if (Array.isArray(data)) {
+            const industryData = data.find(item => item.산업명 === industry);
+            setAnalysis(industryData);
+          } else {
+            console.error("산업별설명.json 데이터가 배열이 아닙니다:", data);
+            setAnalysis(null);
+          }
         })
         .catch(err => console.error("산업 분석 데이터 로딩 오류:", err));
     }

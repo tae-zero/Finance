@@ -113,7 +113,7 @@ function DashboardRedesigned() {
             return `KOSPI (${context[0].label})`;
           },
           label: function(context) {
-            return `종가: ${context.parsed.y.toLocaleString()}원`;
+            return `종가: ${context.parsed.y.toLocaleString()}`;
           }
         }
       }
@@ -196,11 +196,11 @@ function DashboardRedesigned() {
           <div className="kospi-main">
             <div className="kospi-value">
               {kospiData ? kospiData.current.toLocaleString() : '--'}
-              <span className="kospi-unit">원</span>
+              <span className="kospi-unit"></span>
             </div>
             <div className={`kospi-change ${kospiData && kospiData.change >= 0 ? 'positive' : 'negative'}`}>
               {kospiData ? (kospiData.change >= 0 ? '+' : '') : ''}
-              {kospiData ? kospiData.change.toLocaleString() : '--'}원
+              {kospiData ? kospiData.change.toLocaleString() : '--'}
               <span className="change-rate">
                 ({kospiData ? (kospiData.changeRate >= 0 ? '+' : '') : ''}
                 {kospiData ? kospiData.changeRate.toFixed(2) : '--'}%)
