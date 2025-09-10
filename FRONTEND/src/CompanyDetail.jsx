@@ -87,13 +87,18 @@ function CompanyDetail() {
         axios.get(`${API_ENDPOINTS.NEWS}?keyword=${encodeURIComponent(res.data.기업명)}`)
           .then(newsRes => setNews(newsRes.data));
 
+        console.log(`🔍 리포트 API 호출: ${API_ENDPOINTS.REPORT}?code=A${code}`);
         axios.get(`${API_ENDPOINTS.REPORT}?code=A${code}`)
           .then(repRes => {
+            console.log('📄 리포트 응답 상태:', repRes.status);
             console.log('📄 리포트 데이터 받음:', repRes.data);
+            console.log('📄 리포트 데이터 타입:', typeof repRes.data);
+            console.log('📄 리포트 데이터 길이:', Array.isArray(repRes.data) ? repRes.data.length : 'N/A');
             setReport(repRes.data);
           })
           .catch(err => {
             console.error('📛 리포트 데이터 오류:', err);
+            console.error('📛 오류 상세:', err.response?.data);
             setReport([]);
           });
 

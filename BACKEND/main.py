@@ -566,10 +566,13 @@ def get_report_summary(code: str = Query(..., description="종목 코드 (예: A
         
         if data:
             print(f"✅ 리포트 데이터 파싱 성공: {len(data)}개")
+            print(f"📄 반환할 데이터: {data}")
             return data
         else:
             print("⚠️ 파싱된 데이터 없음, fallback 데이터 사용")
-            return get_fallback_report_data(code)
+            fallback_data = get_fallback_report_data(code)
+            print(f"📄 Fallback 데이터: {fallback_data}")
+            return fallback_data
             
     except Exception as e:
         print(f"❌ 리포트 스크래핑 실패: {e}")
