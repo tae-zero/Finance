@@ -28,7 +28,7 @@ function CompanyDetail() {
   const [company, setCompany] = useState(null);
   const [priceData, setPriceData] = useState([]);
   const [news, setNews] = useState([]);
-  const [report, setReport] = useState([]);
+  const [report, setReport] = useState(null);
   const [investors, setInvestors] = useState([]);
   const [error, setError] = useState(false);
   const [showSalesTable, setShowSalesTable] = useState(false);
@@ -88,7 +88,14 @@ function CompanyDetail() {
           .then(newsRes => setNews(newsRes.data));
 
         axios.get(`${API_ENDPOINTS.REPORT}?code=A${code}`)
-          .then(repRes => setReport(repRes.data));
+          .then(repRes => {
+            console.log('📄 리포트 데이터 받음:', repRes.data);
+            setReport(repRes.data);
+          })
+          .catch(err => {
+            console.error('📛 리포트 데이터 오류:', err);
+            setReport([]);
+          });
 
         axios.get(`${API_ENDPOINTS.INVESTORS}?ticker=${code}`)
           .then(res => setInvestors(res.data))
@@ -516,15 +523,23 @@ function generateComparisonText(metricName, companyName, companyVals, industryVa
         </div>
         <div style={{ flex: 1 }}>
           <h3 style={{fontSize: '25px'}}>📄 증권사 리포트</h3>
+          <div style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
+            리포트 상태: {report ? `데이터 ${report.length}개` : '로딩 중...'}
+          </div>
           <ul>
-            {report.length > 0 ? report.map((item, idx) => (
-              <li key={idx} style={{ marginBottom: '12px' }}>
-                <strong style={{fontSize: '18px'}}>[{item.date}]</strong><br />
-                <span style={{ fontSize: '1em' }}>제목: {item.title} — <em>{item.analyst}</em></span><br />
-                <span style={{ fontSize: '1em' }}>요약: {item.summary}</span><br />
-                <span style={{ fontSize: '1em' }}>목표 주가: {item.target_price}</span>
+            {report && report.length > 0 ? report.map((item, idx) => (
+              <li key={idx} style={{ marginBottom: '12px', padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}>
+                <strong style={{fontSize: '18px', color: '#333'}}>[{item.date}]</strong><br />
+                <span style={{ fontSize: '16px', fontWeight: 'bold' }}>제목: {item.title}</span><br />
+                <span style={{ fontSize: '14px', color: '#666' }}>증권사: <em>{item.analyst}</em></span><br />
+                <span style={{ fontSize: '14px' }}>요약: {item.summary}</span><br />
+                <span style={{ fontSize: '14px', color: '#007bff' }}>목표 주가: {item.target_price} | 현재가: {item.closing_price}</span>
               </li>
-            )) : <li>리포트를 불러오는 중입니다...</li>}
+            )) : (
+              <li style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                {report === null ? '리포트를 불러오는 중입니다...' : '리포트 데이터가 없습니다.'}
+              </li>
+            )}
           </ul>
         </div>
       </div>
