@@ -710,13 +710,27 @@ function CompanyDetailRedesigned() {
               </div>
 
               {/* 차트 섹션 */}
-              {metricsData && industryMetrics && (
+              {metricsData && industryMetrics ? (
                 <div className="chart-section">
                   <h4 className="chart-title">📈 재무 지표 비교</h4>
                   <CompareChart 
                     metrics={metricsData} 
-                    industryMetrics={industryMetrics?.metrics}
+                    industryMetrics={industryMetrics?.metrics || industryMetrics}
                   />
+                </div>
+              ) : (
+                <div className="chart-section">
+                  <h4 className="chart-title">📈 재무 지표 비교</h4>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    height: '200px',
+                    color: 'var(--text-secondary)',
+                    fontSize: '16px'
+                  }}>
+                    재무지표 데이터를 불러오는 중...
+                  </div>
                 </div>
               )}
             </div>

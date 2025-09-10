@@ -26,12 +26,16 @@ function TreasureHunt() {
     fetch(API_ENDPOINTS.TREASURE_DATA)
       .then(res => res.json())
       .then(json => {
+        console.log('🔍 보물찾기 원본 데이터 샘플:', json.slice(0, 2));
         const cleaned = json.filter(item => {
           const hasAnyPER = Object.values(item.PER || {}).some(v => typeof v === 'number');
           const hasAnyPBR = Object.values(item.PBR || {}).some(v => typeof v === 'number');
           const hasAnyROE = Object.values(item.ROE || {}).some(v => typeof v === 'number');
           return hasAnyPER && hasAnyPBR && hasAnyROE;
         });
+        console.log('🔍 보물찾기 정제된 데이터 샘플:', cleaned.slice(0, 2));
+        console.log('🔍 지배주주지분 데이터 예시:', cleaned[0]?.지배주주지분);
+        console.log('🔍 지배주주순이익 데이터 예시:', cleaned[0]?.지배주주순이익);
         setData(cleaned);
         setFiltered(cleaned);
         const uniqueIndustries = Array.from(new Set(cleaned.map(item => item.업종명))).sort();
@@ -421,8 +425,16 @@ const renderAverageMarker = (metricKey, label, min, max) => {
       <td>{item.ROE?.['2024'] ?? '-'}</td>
       <td style={{ backgroundColor: '#f9f9f9' }}>{getThreeYearAvg(item.ROE)}</td>
 
-      <td>{item.지배주주지분?.['2024']?.toLocaleString() ?? '-'}</td>
-      <td>{item.지배주주순이익?.['2024']?.toLocaleString() ?? '-'}</td>
+      <td>
+        {item.지배주주지분?.['2024'] 
+          ? (item.지배주주지분['2024'] / 100000000).toFixed(1) + '억원'
+          : '-'}
+      </td>
+      <td>
+        {item.지배주주순이익?.['2024'] 
+          ? (item.지배주주순이익['2024'] / 100000000).toFixed(1) + '억원'
+          : '-'}
+      </td>
       <td>
   {item.시가총액?.['2024']
     ? (item.시가총액['2024'] / 100000000).toFixed(1) : '-'}

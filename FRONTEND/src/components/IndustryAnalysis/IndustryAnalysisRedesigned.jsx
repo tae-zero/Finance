@@ -12,6 +12,7 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import IndustryExplain from '../../IndustryExplain';
+import { API_ENDPOINTS } from '../../config/api';
 import './IndustryAnalysisRedesigned.css';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, ChartDataLabels);
@@ -77,7 +78,7 @@ function IndustryAnalysisRedesigned() {
 
   useEffect(() => {
     if (selectedCompanyLeft) {
-      fetch(`http://localhost:8000/company_metrics/${encodeURIComponent(selectedCompanyLeft)}`)
+      fetch(API_ENDPOINTS.COMPANY_METRICS(encodeURIComponent(selectedCompanyLeft)))
         .then(res => res.json())
         .then(data => {
           console.log('🔍 산업분석 왼쪽 기업 재무지표:', data);
@@ -92,7 +93,7 @@ function IndustryAnalysisRedesigned() {
 
   useEffect(() => {
     if (selectedCompanyRight) {
-      fetch(`http://localhost:8000/company_metrics/${encodeURIComponent(selectedCompanyRight)}`)
+      fetch(API_ENDPOINTS.COMPANY_METRICS(encodeURIComponent(selectedCompanyRight)))
         .then(res => res.json())
         .then(data => {
           console.log('🔍 산업분석 오른쪽 기업 재무지표:', data);
