@@ -502,7 +502,7 @@ function CompanyDetailRedesigned() {
                 <div className="chart-container">
                   <CompareChart 
                     metrics={metricsData}
-                    industryMetrics={industryMetrics?.metrics}
+                    industryMetrics={industryMetrics}
                     companyName={companyData?.기업명}
                   />
                 </div>
