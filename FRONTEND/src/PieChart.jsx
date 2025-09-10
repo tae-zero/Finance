@@ -32,6 +32,11 @@ function PieChart({ companyName }) {
   if (!companyData) return <p>📉 매출 데이터를 불러오는 중입니다...</p>;
 
   const data = companyData.data;
+  
+  if (!Array.isArray(data)) {
+    return <p>📉 매출 데이터 형식이 올바르지 않습니다.</p>;
+  }
+  
   const chartData = {
     labels: data.map(item => item.label),
     datasets: [

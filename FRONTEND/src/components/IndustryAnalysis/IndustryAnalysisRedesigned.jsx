@@ -356,14 +356,22 @@ function IndustryAnalysisRedesigned() {
                   <div className="header-cell">최저값</div>
                 </div>
                 <div className="table-body">
-                  {Object.entries(industryMetrics || {}).map(([key, value]) => (
-                    <div key={key} className="table-row">
-                      <div className="cell-label">{key}</div>
-                      <div className="cell-value">{value?.평균?.toFixed(2) || '--'}</div>
-                      <div className="cell-value">{value?.최고?.toFixed(2) || '--'}</div>
-                      <div className="cell-value">{value?.최저?.toFixed(2) || '--'}</div>
-                    </div>
-                  ))}
+                  {industryMetrics && typeof industryMetrics === 'object' ? 
+                    Object.entries(industryMetrics).map(([key, value]) => (
+                      <div key={key} className="table-row">
+                        <div className="cell-label">{key}</div>
+                        <div className="cell-value">{value?.평균?.toFixed(2) || '--'}</div>
+                        <div className="cell-value">{value?.최고?.toFixed(2) || '--'}</div>
+                        <div className="cell-value">{value?.최저?.toFixed(2) || '--'}</div>
+                      </div>
+                    )) : (
+                      <div className="table-row">
+                        <div className="cell-label" style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                          업종 평균 데이터가 없습니다.
+                        </div>
+                      </div>
+                    )
+                  }
                 </div>
               </div>
             </div>

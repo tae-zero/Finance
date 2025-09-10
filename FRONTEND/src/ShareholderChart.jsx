@@ -42,9 +42,9 @@ function ShareholderChart({ code, companyName }) {
           return;
         }
 
-        const labels = rows.map(row => row.주주구분?.trim() ?? '알 수 없음');
-        const 지분율 = rows.map(row => Number(row.지분율 ?? 0));
-        const 대표주주수 = rows.map(row => Number(row.대표주주수 ?? 0));
+        const labels = Array.isArray(rows) ? rows.map(row => row.주주구분?.trim() ?? '알 수 없음') : [];
+        const 지분율 = Array.isArray(rows) ? rows.map(row => Number(row.지분율 ?? 0)) : [];
+        const 대표주주수 = Array.isArray(rows) ? rows.map(row => Number(row.대표주주수 ?? 0)) : [];
         const max대표자수 = Math.max(...대표주주수);
         const y1Max = Math.max(10, Math.ceil(max대표자수 / 100) * 100);
 
