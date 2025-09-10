@@ -35,7 +35,7 @@ function CompanyDetailRedesigned() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [openDescriptions, setOpenDescriptions] = useState({});
-  const [showSalesTable, setShowSalesTable] = useState(false);
+  const [showSalesTable, setShowSalesTable] = useState(true);
 
   const toggleDescription = (metric) => {
     setOpenDescriptions(prev => ({...prev, [metric]: !prev[metric]}));
@@ -182,6 +182,11 @@ function CompanyDetailRedesigned() {
 
   // 투자자 데이터 로드
   useEffect(() => {
+    if (!companyData) {
+      console.log('🔍 companyData가 아직 로드되지 않음, 대기 중...');
+      return;
+    }
+    
     console.log('🔍 투자자 데이터 로드 시도 - companyData:', companyData);
     if (companyData?.종목코드) {
       const code = String(companyData.종목코드).padStart(6, '0');
@@ -204,6 +209,11 @@ function CompanyDetailRedesigned() {
 
   // 재무지표 데이터 로드
   useEffect(() => {
+    if (!companyData) {
+      console.log('🔍 companyData가 아직 로드되지 않음, 대기 중...');
+      return;
+    }
+    
     console.log('🔍 재무지표 로드 시도 - companyData:', companyData);
     if (companyData?.기업명) {
       console.log('🔍 기업명 확인:', companyData.기업명);
@@ -257,6 +267,11 @@ function CompanyDetailRedesigned() {
 
   // 업종 평균 데이터 로드
   useEffect(() => {
+    if (!companyData) {
+      console.log('🔍 companyData가 아직 로드되지 않음, 대기 중...');
+      return;
+    }
+    
     console.log('🔍 업종 평균 로드 시도 - companyData:', companyData);
     if (companyData?.업종명) {
       console.log('🔍 업종명 확인:', companyData.업종명);
