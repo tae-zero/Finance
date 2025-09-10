@@ -478,188 +478,69 @@ def extract_data_from_text(soup, code: str):
 @app.get("/report/")
 def get_report_summary(code: str = Query(..., description="종목 코드 (예: A005930)")):
     try:
-        # requests + BeautifulSoup으로 개선된 스크래핑
-        url = f"https://comp.fnguide.com/SVO2/ASP/SVD_Consensus.asp?pGB=1&gicode={code}&MenuYn=Y&ReportGB=&NewMenuID=108"
+        # fnguide.com JSON API 직접 호출
+        url = f"https://comp.fnguide.com/SVO2/json/data/01_06/04_{code}.json"
+        
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Language': 'ko-KR,ko;q=0.9,en;q=0.8',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'none',
-            'Cache-Control': 'max-age=0'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Accept-Encoding': 'gzip, deflate, br, zstd',
+            'Referer': f'https://comp.fnguide.com/SVO2/ASP/SVD_Consensus.asp?pGB=1&gicode={code}',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
         }
         
-        response = requests.get(url, headers=headers, timeout=20)
+        print(f"🔍 리포트 API 호출: {url}")
+        
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
-        soup = BeautifulSoup(response.content, 'html.parser')
         
-        print(f"🔍 리포트 페이지 로드 완료: {url}")
+        data = response.json()
+        print(f"✅ JSON API 응답 성공: {len(data.get('comp', []))}개 리포트")
         
-        # 여러 선택자로 테이블 찾기
-        data = []
-        table_selectors = [
-            'table.us_table_ty1',
-            '#bodycontent4 table',
-            'table[class*="us_table"]',
-            'table[class*="table"]',
-            'table'
-        ]
-        
-        table = None
-        for selector in table_selectors:
-            table = soup.select_one(selector)
-            if table:
-                print(f"✅ 테이블 발견: {selector}")
-                # 테이블 구조 디버깅
-                print(f"🔍 테이블 HTML 구조:")
-                print(f"   - thead: {len(table.find_all('thead'))}개")
-                print(f"   - tbody: {len(table.find_all('tbody'))}개")
-                print(f"   - tr: {len(table.find_all('tr'))}개")
-                print(f"   - td: {len(table.find_all('td'))}개")
-                
-                # tbody ID 확인
-                tbody_elements = table.find_all('tbody')
-                for i, tbody in enumerate(tbody_elements):
-                    print(f"   - tbody[{i}] id: {tbody.get('id', 'None')}")
-                break
-        
-        if not table:
-            print("⚠️ 테이블을 찾을 수 없음, 다른 방법 시도")
-            # 테이블이 없으면 다른 방법으로 데이터 추출
-            return get_fallback_report_data(code)
-        
-        # tbody에서 실제 데이터 행 찾기 (여러 ID 시도)
-        tbody_ids = ['bodycontent4', 'bodycontent1', 'bodycontent2', 'bodycontent3']
-        tbody = None
-        rows = []
-        
-        for tbody_id in tbody_ids:
-            tbody = table.find('tbody', id=tbody_id)
-            if tbody:
-                rows = tbody.find_all('tr')
-                print(f"✅ tbody#{tbody_id}에서 {len(rows)}개 행 발견")
-                break
-        
-        if not tbody or len(rows) == 0:
-            # tbody가 없으면 테이블에서 직접 찾기
-            rows = table.find_all('tr')
-            print(f"🔍 테이블에서 {len(rows)}개 행 발견")
-            
-            # thead 제거 (헤더 행 제외)
-            rows = [row for row in rows if not row.find('th')]
-            print(f"🔍 헤더 제외 후 {len(rows)}개 데이터 행 발견")
-            
-            # JavaScript로 동적 로드되는 경우를 대비해 페이지 전체에서 데이터 찾기
-            if len(rows) == 0:
-                print("🔍 JavaScript 동적 로드 데이터 찾기 시도...")
-                # 페이지 전체에서 기업 관련 데이터 찾기
-                all_text = soup.get_text()
-                print(f"🔍 페이지 텍스트에서 기업명 검색: {all_text[:200]}...")
-                
-                # 기업명 확인
-                company_keywords = ['현대모비스', '삼성전자', 'SK하이닉스', 'NAVER', '카카오']
-                found_company = None
-                for keyword in company_keywords:
-                    if keyword in all_text:
-                        found_company = keyword
-                        print(f"✅ 페이지에서 {keyword} 발견")
-                        break
-                
-                if found_company:
-                    print(f"✅ 페이지에 {found_company} 데이터 발견, 텍스트 기반 추출 시도")
-                    return extract_data_from_text(soup, code)
-                else:
-                    print("⚠️ 페이지에서 기업명을 찾을 수 없음, 코드 기반으로 시도")
-                    return extract_data_from_text(soup, code)
-        
-        # 테이블이 비어있으면 extract_data_from_text 함수 호출
-        if len(rows) == 0:
-            print("⚠️ 테이블이 비어있음, extract_data_from_text 함수 호출")
-            return extract_data_from_text(soup, code)
-        
-        for i, row in enumerate(rows[:10]):  # 최대 10개
+        # JSON 데이터를 우리 형식으로 변환
+        reports = []
+        for item in data.get('comp', [])[:10]:  # 최대 10개
             try:
-                cells = row.find_all('td')
-                if len(cells) < 6:  # 6개 컬럼이 필요
-                    print(f"⚠️ 행 {i+1}: 컬럼 수 부족 ({len(cells)}개)")
-                    continue
-                
-                # 1번째 td: 날짜 추출
-                date_cell = cells[0]
-                date_spans = date_cell.find_all('span', class_=['yy1', 'yy2'])
-                if date_spans and len(date_spans) >= 2:
-                    year = date_spans[0].get_text(strip=True) + date_spans[1].get_text(strip=True)
-                    date_text = date_cell.get_text(strip=True).replace(year, '').strip()
-                    full_date = f"20{year}/{date_text}"
+                # 날짜 형식 변환 (20250825 -> 2025/08/25)
+                date_str = item.get('BULLET_DT', '')
+                if len(date_str) == 8:
+                    formatted_date = f"{date_str[:4]}/{date_str[4:6]}/{date_str[6:8]}"
                 else:
-                    full_date = date_cell.get_text(strip=True)
+                    formatted_date = item.get('BULLET_MMDD', '')
                 
-                # 2번째 td: 종목명과 리포트 제목
-                title_cell = cells[1]
-                title_link = title_cell.find('a')
-                if title_link:
-                    company_name = title_link.get_text(strip=True).split('A')[0].strip()
-                    title_text = title_cell.find('span', class_='txt2')
-                    if title_text:
-                        title = title_text.get_text(strip=True)
-                    else:
-                        title = f"{company_name} 리포트"
-                else:
-                    title = title_cell.get_text(strip=True)
+                # 목표주가와 종가 정리 (공백 제거)
+                target_price = item.get('TARGET_PRC', '').strip()
+                closing_price = item.get('CLS_PRC', '').strip()
                 
-                # 3번째 td: 투자의견
-                opinion_cell = cells[2]
-                opinion = opinion_cell.get_text(strip=True)
+                report = {
+                    "date": formatted_date,
+                    "title": item.get('TITLE', ''),
+                    "summary": item.get('SYNOPSIS', ''),
+                    "opinion": item.get('RECOMMEND', ''),
+                    "target_price": target_price,
+                    "closing_price": closing_price,
+                    "analyst": f"{item.get('OFFER_INST_NM', '')} {item.get('NICK_NM', '')}".strip()
+                }
                 
-                # 4번째 td: 목표주가
-                target_price_cell = cells[3]
-                target_price = target_price_cell.get_text(strip=True)
-                
-                # 5번째 td: 전일종가
-                closing_price_cell = cells[4]
-                closing_price = closing_price_cell.get_text(strip=True)
-                
-                # 6번째 td: 증권사/작성자
-                analyst_cell = cells[5]
-                analyst = analyst_cell.get_text(strip=True)
-                
-                # 요약 정보 추출 (dd 태그들)
-                summary_parts = title_cell.find_all('dd')
-                summary = " / ".join([p.get_text(strip=True) for p in summary_parts if p.get_text(strip=True)])
-                
-                # 데이터 정리
-                if title and len(title) > 3:  # 제목이 있으면 추가
-                    data.append({
-                        "date": full_date,
-                        "title": title,
-                        "summary": summary or f"투자 의견: {opinion} / 목표주가: {target_price} / 전일종가: {closing_price}",
-                        "opinion": opinion or "분석 중",
-                        "target_price": target_price or "분석 중",
-                        "closing_price": closing_price or "분석 중",
-                        "analyst": analyst or f"증권사{i+1}"
-                    })
-                    print(f"✅ 리포트 {i+1} 파싱 성공: {title[:30]}...")
+                reports.append(report)
+                print(f"✅ 리포트 파싱: {report['title'][:30]}...")
                 
             except Exception as e:
-                print(f"⚠️ 행 {i+1} 파싱 중 오류: {e}")
+                print(f"⚠️ 리포트 파싱 오류: {e}")
                 continue
         
-        if data:
-            print(f"✅ 리포트 데이터 파싱 성공: {len(data)}개")
-            print(f"📄 반환할 데이터: {data}")
-            return data
+        if reports:
+            print(f"✅ 최종 리포트 데이터: {len(reports)}개")
+            return reports
         else:
-            print("⚠️ 파싱된 데이터 없음, fallback 데이터 사용")
-            fallback_data = get_fallback_report_data(code)
-            print(f"📄 Fallback 데이터: {fallback_data}")
-            return fallback_data
+            print("⚠️ 파싱된 리포트 없음, fallback 데이터 사용")
+            return get_fallback_report_data(code)
             
     except Exception as e:
-        print(f"❌ 리포트 스크래핑 실패: {e}")
+        print(f"❌ 리포트 API 호출 실패: {e}")
         import traceback
         print(f"❌ 상세 오류: {traceback.format_exc()}")
         return get_fallback_report_data(code)
