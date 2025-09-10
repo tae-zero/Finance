@@ -33,18 +33,26 @@ function DashboardRedesigned() {
       try {
         setLoading(true);
         
-        // 병렬로 모든 데이터 가져오기
-        const [hotNewsRes, mainNewsRes, kospiRes] = await Promise.all([
+        // 병렬로 모든 데이터 가져오기 (오류 처리 포함)
+        const [hotNewsRes, mainNewsRes, kospiRes] = await Promise.allSettled([
           axios.get(API_ENDPOINTS.HOT_NEWS),
           axios.get(API_ENDPOINTS.MAIN_NEWS),
           axios.get(API_ENDPOINTS.KOSPI_DATA)
         ]);
 
-        setHotNews(hotNewsRes.data);
-        setMainNews(mainNewsRes.data);
+        // 각 응답 처리 (오류 시 fallback 데이터 사용)
+        setHotNews(hotNewsRes.status === 'fulfilled' ? hotNewsRes.value.data : [
+          { title: "서버 연결 오류", link: "#" },
+          { title: "데이터를 불러올 수 없습니다", link: "#" }
+        ]);
+        
+        setMainNews(mainNewsRes.status === 'fulfilled' ? mainNewsRes.value.data : [
+          { title: "서버 연결 오류", link: "#" },
+          { title: "데이터를 불러올 수 없습니다", link: "#" }
+        ]);
 
         // KOSPI 데이터 처리
-        const kospiData = kospiRes.data;
+        const kospiData = kospiRes.status === 'fulfilled' ? kospiRes.value.data : null;
         if (Array.isArray(kospiData) && kospiData.length > 0) {
           const labels = kospiData.map(item => item.Date);
           const closes = kospiData.map(item => parseFloat(item.Close));
