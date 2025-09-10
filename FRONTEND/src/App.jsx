@@ -8,7 +8,7 @@ import {
 } from 'react-router-dom';
 import IndustryAnalysis from './industryAnalysis';
 import Dashboard from './Dashboard';
-import CompanyDetail from './CompanyDetail';
+import CompanyDetail from './components/CompanyDetail/CompanyDetailRedesigned';
 import TreasureHunt from './TreasureHunt';
 import Sidebar from './Sidebar';
 import GuidePopup from './GuidePopup';
