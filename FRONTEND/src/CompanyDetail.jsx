@@ -76,7 +76,6 @@ function CompanyDetail() {
   useEffect(() => {
     // 한글 기업명을 URL 인코딩
     const encodedName = encodeURIComponent(name);
-    console.log(`🔍 기업 검색: ${name} → ${encodedName}`);
     
     axios.get(API_ENDPOINTS.COMPANY_DETAIL(encodedName))
       .then(res => {
@@ -92,18 +91,12 @@ function CompanyDetail() {
         axios.get(`${API_ENDPOINTS.NEWS}?keyword=${encodeURIComponent(res.data.기업명)}`)
           .then(newsRes => setNews(newsRes.data));
 
-        console.log(`🔍 리포트 API 호출: ${API_ENDPOINTS.REPORT}?code=A${code}`);
         axios.get(`${API_ENDPOINTS.REPORT}?code=A${code}`)
           .then(repRes => {
-            console.log('📄 리포트 응답 상태:', repRes.status);
-            console.log('📄 리포트 데이터 받음:', repRes.data);
-            console.log('📄 리포트 데이터 타입:', typeof repRes.data);
-            console.log('📄 리포트 데이터 길이:', Array.isArray(repRes.data) ? repRes.data.length : 'N/A');
             setReport(repRes.data);
           })
           .catch(err => {
             console.error('📛 리포트 데이터 오류:', err);
-            console.error('📛 오류 상세:', err.response?.data);
             setReport([]);
           });
 
@@ -111,7 +104,15 @@ function CompanyDetail() {
           .then(res => setInvestors(res.data))
           .catch(err => console.error("📛 투자자 매매 데이터 오류:", err));
 
-        // 기업 지표는 별도 useEffect에서 로드
+        // 기업 재무지표 로드
+        axios.get(API_ENDPOINTS.COMPANY_METRICS(encodedName))
+          .then(metricsRes => {
+            setMetrics(metricsRes.data);
+          })
+          .catch(err => {
+            console.error('📛 재무지표 데이터 오류:', err);
+            setMetrics({});
+          });
       })
       .catch(err => {
         console.error('기업 정보 요청 실패:', err);
@@ -144,13 +145,9 @@ function CompanyDetail() {
   // 기업 지표 로드 (company 상태가 설정된 후) - 백엔드 API 사용
   useEffect(() => {
     if (company?.기업명) {
-      console.log('🔍 기업 재무지표 로드 시도:', company.기업명);
-      
       axios.get(API_ENDPOINTS.COMPANY_METRICS(encodeURIComponent(company.기업명)))
         .then(res => {
-          console.log('🔍 재무지표 API 응답:', res.data);
           setMetrics(res.data);
-          console.log('✅ 기업 재무지표 로드 성공:', company.기업명, res.data);
         })
         .catch(err => {
           console.error('❌ 기업 재무지표 로드 실패:', err);
@@ -172,9 +169,6 @@ function CompanyDetail() {
 
   // 백엔드 API에서 받은 metrics 데이터 사용
   const rawIndicators = metrics || {};
-  console.log('🔍 metrics 데이터:', rawIndicators);
-  console.log('🔍 metrics 타입:', typeof rawIndicators);
-  console.log('🔍 metrics 키 개수:', Object.keys(rawIndicators).length);
   
   const indicatorMap = {};
   const allPeriods = new Set();
@@ -190,10 +184,6 @@ function CompanyDetail() {
       allPeriods.add(year);
     }
   }
-  
-  console.log('🔍 indicatorMap:', indicatorMap);
-  console.log('🔍 allPeriods:', allPeriods);
-  console.log('🔍 sortedMetrics:', Object.keys(indicatorMap));
 
   const sortedPeriods = Array.from(allPeriods)
   .filter(period => period !== '2025/05')  // 제외
