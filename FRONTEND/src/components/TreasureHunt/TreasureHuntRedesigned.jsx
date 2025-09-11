@@ -365,16 +365,22 @@ function TreasureHuntRedesigned() {
                     }
                   </td>
                   <td className="equity-cell">
-                    {getThreeYearAvg(item.지배주주지분) !== '-' && getThreeYearAvg(item.지배주주지분) !== '0' 
-                      ? `${(parseFloat(getThreeYearAvg(item.지배주주지분)) / 10000).toFixed(0)}억원`
-                      : '-'
-                    }
+                    {(() => {
+                      const avg = getThreeYearAvg(item.지배주주지분);
+                      console.log(`🔍 ${item.기업명} 지배주주지분 평균:`, avg, '원본 데이터:', item.지배주주지분);
+                      return avg !== '-' && avg !== '0' 
+                        ? `${(parseFloat(avg) / 10000).toFixed(0)}억원`
+                        : '-';
+                    })()}
                   </td>
                   <td className="income-cell">
-                    {getThreeYearAvg(item.지배주주순이익) !== '-' && getThreeYearAvg(item.지배주주순이익) !== '0' 
-                      ? `${(parseFloat(getThreeYearAvg(item.지배주주순이익)) / 10000).toFixed(0)}억원`
-                      : '-'
-                    }
+                    {(() => {
+                      const avg = getThreeYearAvg(item.지배주주순이익);
+                      console.log(`🔍 ${item.기업명} 지배주주순이익 평균:`, avg, '원본 데이터:', item.지배주주순이익);
+                      return avg !== '-' && avg !== '0' 
+                        ? `${(parseFloat(avg) / 10000).toFixed(0)}억원`
+                        : '-';
+                    })()}
                   </td>
                 </tr>
               ))}
