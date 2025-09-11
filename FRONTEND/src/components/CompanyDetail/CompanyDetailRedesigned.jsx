@@ -739,60 +739,59 @@ function CompanyDetailRedesigned() {
                   <div style={{ display: 'flex', gap: '50px', alignItems: 'flex-start', fontSize: '30px'}}>
                     {/* 좌측 - 요약 재무지표 표 */}
                     <div style={{ flex: 1 }}>
-                      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-8 shadow-2xl border border-slate-700 backdrop-blur-sm">
-                        <div className="flex items-center justify-between mb-8">
-                          <h3 className="text-3xl font-bold text-white flex items-center">
-                            <span className="text-4xl mr-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">📊</span>
-                            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">요약 재무지표</span>
+                      <div className="financial-metrics-table">
+                        <div className="financial-metrics-header">
+                          <h3 className="financial-metrics-title">
+                            <span className="financial-metrics-icon">📊</span>
+                            <span className="financial-metrics-title-text">요약 재무지표</span>
                           </h3>
-                          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                          <div className="financial-metrics-unit">
                             단위: 억원
                           </div>
                         </div>
-                        <p className="text-slate-300 text-sm mb-8 bg-slate-800/50 px-6 py-3 rounded-xl border border-slate-600/50 backdrop-blur-sm">
+                        <p className="financial-metrics-description">
                           💡 매출액, 당기순이익, 영업이익 등 주요 재무지표를 연도별로 비교할 수 있습니다
                         </p>
-                        <div className="overflow-x-auto rounded-xl border border-slate-600/50 shadow-inner">
-                          <table className="w-full text-sm">
-                            <thead className="bg-gradient-to-r from-slate-800 to-slate-700">
+                        <div className="financial-metrics-table-container">
+                          <table className="financial-metrics-table">
+                            <thead>
                               <tr>
-                                <th className="text-left py-5 px-6 text-slate-200 font-bold border-r border-slate-600/50 text-lg">지표</th>
-                                <th className="text-center py-5 px-6 text-slate-200 font-bold border-r border-slate-600/50 text-lg">2022</th>
-                                <th className="text-center py-5 px-6 text-slate-200 font-bold border-r border-slate-600/50 text-lg">2023</th>
-                                <th className="text-center py-5 px-6 text-slate-200 font-bold text-lg">2024</th>
+                                <th>지표</th>
+                                <th>2022</th>
+                                <th>2023</th>
+                                <th>2024</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-600/30">
+                            <tbody>
                           {['PER', 'PBR', 'ROE', 'ROA', 'DPS', 'EPS', 'BPS', '매출액', '영업이익', '당기순이익', '매출원가', '판매비와관리비', '부채비율', '배당수익률', '시가총액', '지배주주지분', '지배주주순이익', '자산총계', '부채총계', '자본총계', '총계'].map((metric, index) => (
-                            <tr key={metric} className={`hover:bg-slate-700/50 transition-all duration-300 group ${index % 2 === 0 ? 'bg-slate-800/30' : 'bg-slate-900/30'}`}>
-                              <td className="py-4 px-6 text-slate-200 font-semibold border-r border-slate-600/30 group-hover:text-blue-400 transition-colors duration-200">
+                            <tr key={metric}>
+                              <td>
                                 <span 
-                                  className="cursor-pointer hover:text-blue-400 transition-colors duration-200 text-lg font-medium"
                                   onClick={() => openMetricModal(metric)}
                                 >
                                   {metric}
                                 </span>
                               </td>
                               {['2022', '2023', '2024'].map(year => (
-                                <td key={year} className="py-4 px-6 text-center border-r border-slate-600/30">
+                                <td key={year}>
                                   {metricsData[metric]?.[year] 
                                     ? (() => {
                                         const value = metricsData[metric][year];
                                         if (metric === '매출액' || metric === '영업이익' || metric === '당기순이익' || metric === '매출원가' || metric === '판매비와관리비' || metric === '자산총계' || metric === '부채총계' || metric === '자본총계' || metric === '지배주주지분' || metric === '지배주주순이익' || metric === '총계') {
                                           // 만원 단위를 억원으로 변환 (10,000으로 나누기)
-                                          return <span className="text-yellow-400 font-bold text-lg">{(value / 10000).toFixed(1)}억원</span>;
+                                          return <span className="financial-metrics-value yellow">{(value / 10000).toFixed(1)}억원</span>;
                                         } else if (metric === '시가총액') {
                                           // 원 단위를 억원으로 변환 (100,000,000으로 나누기)
-                                          return <span className="text-purple-400 font-bold text-lg">{(value / 100000000).toFixed(1)}억원</span>;
+                                          return <span className="financial-metrics-value purple">{(value / 100000000).toFixed(1)}억원</span>;
                                         } else if (metric === 'DPS' || metric === 'EPS' || metric === 'BPS') {
                                           // 원 단위 (소수점 없이)
-                                          return <span className="text-green-400 font-bold text-lg">{value.toFixed(0)}원</span>;
+                                          return <span className="financial-metrics-value green">{value.toFixed(0)}원</span>;
                                         } else {
                                           // 비율이나 배수는 그대로 표시
-                                          return <span className="text-blue-400 font-bold text-lg">{value.toFixed(3)}</span>;
+                                          return <span className="financial-metrics-value blue">{value.toFixed(3)}</span>;
                                         }
                                       })()
-                                    : <span className="text-slate-500 text-lg">--</span>
+                                    : <span className="financial-metrics-value gray">--</span>
                                   }
                                 </td>
                               ))}
@@ -801,14 +800,14 @@ function CompanyDetailRedesigned() {
                             </tbody>
                           </table>
                         </div>
-                        <div className="mt-6 flex flex-wrap gap-2 justify-center">
-                          <div className="bg-slate-800/50 px-3 py-1 rounded-full text-xs text-slate-300 border border-slate-600/50">
+                        <div className="financial-metrics-tags">
+                          <div className="financial-metrics-tag">
                             💰 금액: 억원 단위
                           </div>
-                          <div className="bg-slate-800/50 px-3 py-1 rounded-full text-xs text-slate-300 border border-slate-600/50">
+                          <div className="financial-metrics-tag">
                             📊 비율: 소수점 3자리
                           </div>
-                          <div className="bg-slate-800/50 px-3 py-1 rounded-full text-xs text-slate-300 border border-slate-600/50">
+                          <div className="financial-metrics-tag">
                             💡 클릭: 용어 설명
                           </div>
                         </div>

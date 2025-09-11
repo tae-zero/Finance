@@ -352,6 +352,36 @@
   border-bottom: 2px solid var(--accent-color);
 }
 
+/* 지표별 차트 컨테이너 */
+.metric-chart-container {
+  margin-bottom: 50px;
+  background: var(--glass-bg);
+  border-radius: 20px;
+  padding: 30px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.metric-chart-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.metric-chart-title {
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  text-align: center;
+  padding-bottom: 15px;
+  border-bottom: 3px solid var(--accent-color);
+  background: linear-gradient(135deg, var(--accent-color), #00D1B2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .no-data {
   display: flex;
   flex-direction: column;

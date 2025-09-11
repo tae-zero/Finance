@@ -439,23 +439,22 @@ function IndustryAnalysisRedesigned() {
               {/* 기업 비교 차트 */}
               {selectedCompanyLeft && selectedCompanyRight && leftMetrics && rightMetrics && (
                 <div className="comparison-chart">
-                  <h4 className="chart-title">📊 기업별 재무지표 비교 차트 (연도별)</h4>
+                  <h4 className="chart-title">📊 기업별 재무지표 비교 차트 (지표별)</h4>
                   
-                  {/* 2022년 차트 */}
-                  <div className="year-chart-container">
-                    <h5 className="year-chart-title">2022년 재무지표 비교</h5>
+                  {/* PER 차트 */}
+                  <div className="metric-chart-container">
+                    <h5 className="metric-chart-title">PER (주가수익비율) 추이</h5>
                     <div className="chart-container">
                       <Line
                         data={{
-                          labels: ['PER', 'PBR', 'ROE', 'DPS'],
+                          labels: ['2022', '2023', '2024'],
                           datasets: [
                             {
                               label: selectedCompanyLeft,
                               data: [
                                 leftMetrics['PER']?.['2022'] || 0,
-                                leftMetrics['PBR']?.['2022'] || 0,
-                                leftMetrics['ROE']?.['2022'] || 0,
-                                leftMetrics['DPS']?.['2022'] || 0
+                                leftMetrics['PER']?.['2023'] || 0,
+                                leftMetrics['PER']?.['2024'] || 0
                               ],
                               borderColor: '#00D1B2',
                               backgroundColor: 'rgba(0, 209, 178, 0.1)',
@@ -469,9 +468,8 @@ function IndustryAnalysisRedesigned() {
                               label: selectedCompanyRight,
                               data: [
                                 rightMetrics['PER']?.['2022'] || 0,
-                                rightMetrics['PBR']?.['2022'] || 0,
-                                rightMetrics['ROE']?.['2022'] || 0,
-                                rightMetrics['DPS']?.['2022'] || 0
+                                rightMetrics['PER']?.['2023'] || 0,
+                                rightMetrics['PER']?.['2024'] || 0
                               ],
                               borderColor: '#FF6B6B',
                               backgroundColor: 'rgba(255, 107, 107, 0.1)',
@@ -506,7 +504,7 @@ function IndustryAnalysisRedesigned() {
                               cornerRadius: 8,
                               displayColors: true,
                               callbacks: {
-                                title: context => `지표: ${context[0].label}`,
+                                title: context => `연도: ${context[0].label}`,
                                 label: context => `${context.dataset.label}: ${typeof context.parsed.y === 'number' ? context.parsed.y.toFixed(2) : '--'}`,
                               },
                             }
@@ -545,21 +543,20 @@ function IndustryAnalysisRedesigned() {
                     </div>
                   </div>
 
-                  {/* 2023년 차트 */}
-                  <div className="year-chart-container">
-                    <h5 className="year-chart-title">2023년 재무지표 비교</h5>
+                  {/* PBR 차트 */}
+                  <div className="metric-chart-container">
+                    <h5 className="metric-chart-title">PBR (주가순자산비율) 추이</h5>
                     <div className="chart-container">
                       <Line
                         data={{
-                          labels: ['PER', 'PBR', 'ROE', 'DPS'],
+                          labels: ['2022', '2023', '2024'],
                           datasets: [
                             {
                               label: selectedCompanyLeft,
                               data: [
-                                leftMetrics['PER']?.['2023'] || 0,
+                                leftMetrics['PBR']?.['2022'] || 0,
                                 leftMetrics['PBR']?.['2023'] || 0,
-                                leftMetrics['ROE']?.['2023'] || 0,
-                                leftMetrics['DPS']?.['2023'] || 0
+                                leftMetrics['PBR']?.['2024'] || 0
                               ],
                               borderColor: '#00D1B2',
                               backgroundColor: 'rgba(0, 209, 178, 0.1)',
@@ -572,10 +569,9 @@ function IndustryAnalysisRedesigned() {
                             {
                               label: selectedCompanyRight,
                               data: [
-                                rightMetrics['PER']?.['2023'] || 0,
+                                rightMetrics['PBR']?.['2022'] || 0,
                                 rightMetrics['PBR']?.['2023'] || 0,
-                                rightMetrics['ROE']?.['2023'] || 0,
-                                rightMetrics['DPS']?.['2023'] || 0
+                                rightMetrics['PBR']?.['2024'] || 0
                               ],
                               borderColor: '#FF6B6B',
                               backgroundColor: 'rgba(255, 107, 107, 0.1)',
@@ -610,7 +606,7 @@ function IndustryAnalysisRedesigned() {
                               cornerRadius: 8,
                               displayColors: true,
                               callbacks: {
-                                title: context => `지표: ${context[0].label}`,
+                                title: context => `연도: ${context[0].label}`,
                                 label: context => `${context.dataset.label}: ${typeof context.parsed.y === 'number' ? context.parsed.y.toFixed(2) : '--'}`,
                               },
                             }
@@ -649,20 +645,121 @@ function IndustryAnalysisRedesigned() {
                     </div>
                   </div>
 
-                  {/* 2024년 차트 */}
-                  <div className="year-chart-container">
-                    <h5 className="year-chart-title">2024년 재무지표 비교</h5>
+                  {/* ROE 차트 */}
+                  <div className="metric-chart-container">
+                    <h5 className="metric-chart-title">ROE (자기자본이익률) 추이</h5>
                     <div className="chart-container">
                       <Line
                         data={{
-                          labels: ['PER', 'PBR', 'ROE', 'DPS'],
+                          labels: ['2022', '2023', '2024'],
                           datasets: [
                             {
                               label: selectedCompanyLeft,
                               data: [
-                                leftMetrics['PER']?.['2024'] || 0,
-                                leftMetrics['PBR']?.['2024'] || 0,
-                                leftMetrics['ROE']?.['2024'] || 0,
+                                leftMetrics['ROE']?.['2022'] || 0,
+                                leftMetrics['ROE']?.['2023'] || 0,
+                                leftMetrics['ROE']?.['2024'] || 0
+                              ],
+                              borderColor: '#00D1B2',
+                              backgroundColor: 'rgba(0, 209, 178, 0.1)',
+                              borderWidth: 3,
+                              pointRadius: 6,
+                              pointHoverRadius: 8,
+                              tension: 0.4,
+                              fill: false
+                            },
+                            {
+                              label: selectedCompanyRight,
+                              data: [
+                                rightMetrics['ROE']?.['2022'] || 0,
+                                rightMetrics['ROE']?.['2023'] || 0,
+                                rightMetrics['ROE']?.['2024'] || 0
+                              ],
+                              borderColor: '#FF6B6B',
+                              backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                              borderWidth: 3,
+                              pointRadius: 6,
+                              pointHoverRadius: 8,
+                              tension: 0.4,
+                              fill: false
+                            }
+                          ]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'top',
+                              labels: {
+                                color: 'var(--text-primary)',
+                                font: { size: 12, weight: 'bold' },
+                                boxWidth: 12,
+                                padding: 8,
+                                usePointStyle: true
+                              }
+                            },
+                            tooltip: {
+                              backgroundColor: 'var(--glass-bg)',
+                              titleColor: 'var(--text-primary)',
+                              bodyColor: 'var(--text-primary)',
+                              borderColor: 'var(--glass-border)',
+                              borderWidth: 1,
+                              cornerRadius: 8,
+                              displayColors: true,
+                              callbacks: {
+                                title: context => `연도: ${context[0].label}`,
+                                label: context => `${context.dataset.label}: ${typeof context.parsed.y === 'number' ? context.parsed.y.toFixed(2) : '--'}`,
+                              },
+                            }
+                          },
+                          scales: {
+                            x: {
+                              ticks: {
+                                color: 'var(--text-secondary)',
+                                font: { size: 12 }
+                              },
+                              grid: {
+                                color: 'var(--glass-border)',
+                                drawBorder: false
+                              }
+                            },
+                            y: {
+                              ticks: {
+                                color: 'var(--text-secondary)',
+                                font: { size: 12 },
+                                callback: value => typeof value === 'number' ? value.toFixed(2) : value
+                              },
+                              grid: {
+                                color: 'var(--glass-border)',
+                                drawBorder: false
+                              },
+                              beginAtZero: true
+                            }
+                          },
+                          interaction: {
+                            mode: 'nearest',
+                            axis: 'x',
+                            intersect: false
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* DPS 차트 */}
+                  <div className="metric-chart-container">
+                    <h5 className="metric-chart-title">DPS (주당배당금) 추이</h5>
+                    <div className="chart-container">
+                      <Line
+                        data={{
+                          labels: ['2022', '2023', '2024'],
+                          datasets: [
+                            {
+                              label: selectedCompanyLeft,
+                              data: [
+                                leftMetrics['DPS']?.['2022'] || 0,
+                                leftMetrics['DPS']?.['2023'] || 0,
                                 leftMetrics['DPS']?.['2024'] || 0
                               ],
                               borderColor: '#00D1B2',
@@ -676,9 +773,8 @@ function IndustryAnalysisRedesigned() {
                             {
                               label: selectedCompanyRight,
                               data: [
-                                rightMetrics['PER']?.['2024'] || 0,
-                                rightMetrics['PBR']?.['2024'] || 0,
-                                rightMetrics['ROE']?.['2024'] || 0,
+                                rightMetrics['DPS']?.['2022'] || 0,
+                                rightMetrics['DPS']?.['2023'] || 0,
                                 rightMetrics['DPS']?.['2024'] || 0
                               ],
                               borderColor: '#FF6B6B',
@@ -714,7 +810,7 @@ function IndustryAnalysisRedesigned() {
                               cornerRadius: 8,
                               displayColors: true,
                               callbacks: {
-                                title: context => `지표: ${context[0].label}`,
+                                title: context => `연도: ${context[0].label}`,
                                 label: context => `${context.dataset.label}: ${typeof context.parsed.y === 'number' ? context.parsed.y.toFixed(2) : '--'}`,
                               },
                             }

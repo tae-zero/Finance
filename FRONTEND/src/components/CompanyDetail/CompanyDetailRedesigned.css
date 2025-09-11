@@ -2,6 +2,183 @@
    기업 상세 페이지 재설계 스타일
    ======================================== */
 
+/* 재무지표 테이블 스타일 */
+.financial-metrics-table {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #1e293b 100%);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  border: 1px solid #475569;
+  backdrop-filter: blur(10px);
+}
+
+.financial-metrics-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.financial-metrics-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.financial-metrics-icon {
+  font-size: 40px;
+  margin-right: 16px;
+  background: linear-gradient(135deg, #60a5fa, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.financial-metrics-title-text {
+  background: linear-gradient(135deg, #60a5fa, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.financial-metrics-unit {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.financial-metrics-description {
+  color: #cbd5e1;
+  font-size: 14px;
+  margin-bottom: 32px;
+  background: rgba(51, 65, 85, 0.5);
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.financial-metrics-table-container {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.financial-metrics-table {
+  width: 100%;
+  font-size: 14px;
+}
+
+.financial-metrics-table thead {
+  background: linear-gradient(135deg, #334155, #475569);
+}
+
+.financial-metrics-table th {
+  text-align: left;
+  padding: 20px 24px;
+  color: #e2e8f0;
+  font-weight: 700;
+  border-right: 1px solid rgba(71, 85, 105, 0.5);
+  font-size: 18px;
+}
+
+.financial-metrics-table th:last-child {
+  border-right: none;
+}
+
+.financial-metrics-table tbody {
+  background: transparent;
+}
+
+.financial-metrics-table tbody tr {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+}
+
+.financial-metrics-table tbody tr:nth-child(even) {
+  background: rgba(30, 41, 59, 0.3);
+}
+
+.financial-metrics-table tbody tr:nth-child(odd) {
+  background: rgba(15, 23, 42, 0.3);
+}
+
+.financial-metrics-table tbody tr:hover {
+  background: rgba(51, 65, 85, 0.5);
+  transform: translateY(-1px);
+}
+
+.financial-metrics-table td {
+  padding: 16px 24px;
+  border-right: 1px solid rgba(71, 85, 105, 0.3);
+  text-align: center;
+}
+
+.financial-metrics-table td:first-child {
+  text-align: left;
+  color: #e2e8f0;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.financial-metrics-table td:first-child span {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.financial-metrics-table td:first-child span:hover {
+  color: #60a5fa;
+}
+
+.financial-metrics-value {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.financial-metrics-value.yellow {
+  color: #fbbf24;
+}
+
+.financial-metrics-value.purple {
+  color: #a855f7;
+}
+
+.financial-metrics-value.green {
+  color: #10b981;
+}
+
+.financial-metrics-value.blue {
+  color: #3b82f6;
+}
+
+.financial-metrics-value.gray {
+  color: #6b7280;
+}
+
+.financial-metrics-tags {
+  margin-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.financial-metrics-tag {
+  background: rgba(51, 65, 85, 0.5);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #cbd5e1;
+  border: 1px solid rgba(71, 85, 105, 0.5);
+}
+
 .company-detail-redesigned {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--dark-bg-primary) 0%, var(--dark-bg-secondary) 100%);
