@@ -440,215 +440,317 @@ function IndustryAnalysisRedesigned() {
               {selectedCompanyLeft && selectedCompanyRight && leftMetrics && rightMetrics && (
                 <div className="comparison-chart">
                   <h4 className="chart-title">📊 기업별 재무지표 비교 차트 (연도별)</h4>
-                  <div className="chart-container">
-                    <Line
-                      data={{
-                        labels: ['2022', '2023', '2024'],
-                        datasets: [
-                          {
-                            label: `${selectedCompanyLeft} - PER`,
-                            data: years.map(year => {
-                              const value = leftMetrics['PER'];
-                              if (typeof value === 'object' && value !== null) {
-                                return typeof value[year] === 'number' ? value[year] : 0;
-                              }
-                              return 0;
-                            }),
-                            borderColor: '#00D1B2',
-                            backgroundColor: 'rgba(0, 209, 178, 0.1)',
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            tension: 0.4,
-                            fill: false
-                          },
-                          {
-                            label: `${selectedCompanyLeft} - PBR`,
-                            data: years.map(year => {
-                              const value = leftMetrics['PBR'];
-                              if (typeof value === 'object' && value !== null) {
-                                return typeof value[year] === 'number' ? value[year] : 0;
-                              }
-                              return 0;
-                            }),
-                            borderColor: '#00D1B2',
-                            backgroundColor: 'rgba(0, 209, 178, 0.1)',
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            tension: 0.4,
-                            fill: false,
-                            borderDash: [5, 5]
-                          },
-                          {
-                            label: `${selectedCompanyLeft} - ROE`,
-                            data: years.map(year => {
-                              const value = leftMetrics['ROE'];
-                              if (typeof value === 'object' && value !== null) {
-                                return typeof value[year] === 'number' ? value[year] : 0;
-                              }
-                              return 0;
-                            }),
-                            borderColor: '#00D1B2',
-                            backgroundColor: 'rgba(0, 209, 178, 0.1)',
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            tension: 0.4,
-                            fill: false,
-                            borderDash: [10, 5]
-                          },
-                          {
-                            label: `${selectedCompanyLeft} - DPS`,
-                            data: years.map(year => {
-                              const value = leftMetrics['DPS'];
-                              if (typeof value === 'object' && value !== null) {
-                                return typeof value[year] === 'number' ? value[year] : 0;
-                              }
-                              return 0;
-                            }),
-                            borderColor: '#00D1B2',
-                            backgroundColor: 'rgba(0, 209, 178, 0.1)',
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            tension: 0.4,
-                            fill: false,
-                            borderDash: [15, 5]
-                          },
-                          {
-                            label: `${selectedCompanyRight} - PER`,
-                            data: years.map(year => {
-                              const value = rightMetrics['PER'];
-                              if (typeof value === 'object' && value !== null) {
-                                return typeof value[year] === 'number' ? value[year] : 0;
-                              }
-                              return 0;
-                            }),
-                            borderColor: '#FF6B6B',
-                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            tension: 0.4,
-                            fill: false
-                          },
-                          {
-                            label: `${selectedCompanyRight} - PBR`,
-                            data: years.map(year => {
-                              const value = rightMetrics['PBR'];
-                              if (typeof value === 'object' && value !== null) {
-                                return typeof value[year] === 'number' ? value[year] : 0;
-                              }
-                              return 0;
-                            }),
-                            borderColor: '#FF6B6B',
-                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            tension: 0.4,
-                            fill: false,
-                            borderDash: [5, 5]
-                          },
-                          {
-                            label: `${selectedCompanyRight} - ROE`,
-                            data: years.map(year => {
-                              const value = rightMetrics['ROE'];
-                              if (typeof value === 'object' && value !== null) {
-                                return typeof value[year] === 'number' ? value[year] : 0;
-                              }
-                              return 0;
-                            }),
-                            borderColor: '#FF6B6B',
-                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            tension: 0.4,
-                            fill: false,
-                            borderDash: [10, 5]
-                          },
-                          {
-                            label: `${selectedCompanyRight} - DPS`,
-                            data: years.map(year => {
-                              const value = rightMetrics['DPS'];
-                              if (typeof value === 'object' && value !== null) {
-                                return typeof value[year] === 'number' ? value[year] : 0;
-                              }
-                              return 0;
-                            }),
-                            borderColor: '#FF6B6B',
-                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            tension: 0.4,
-                            fill: false,
-                            borderDash: [15, 5]
-                          }
-                        ]
-                      }}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          legend: {
-                            position: 'top',
-                            labels: {
-                              color: 'var(--text-primary)',
-                              font: { size: 12, weight: 'bold' },
-                              boxWidth: 12,
-                              padding: 8,
-                              usePointStyle: true
+                  
+                  {/* 2022년 차트 */}
+                  <div className="year-chart-container">
+                    <h5 className="year-chart-title">2022년 재무지표 비교</h5>
+                    <div className="chart-container">
+                      <Line
+                        data={{
+                          labels: ['PER', 'PBR', 'ROE', 'DPS'],
+                          datasets: [
+                            {
+                              label: selectedCompanyLeft,
+                              data: [
+                                leftMetrics['PER']?.['2022'] || 0,
+                                leftMetrics['PBR']?.['2022'] || 0,
+                                leftMetrics['ROE']?.['2022'] || 0,
+                                leftMetrics['DPS']?.['2022'] || 0
+                              ],
+                              borderColor: '#00D1B2',
+                              backgroundColor: 'rgba(0, 209, 178, 0.1)',
+                              borderWidth: 3,
+                              pointRadius: 6,
+                              pointHoverRadius: 8,
+                              tension: 0.4,
+                              fill: false
                             },
-                            maxHeight: 100
-                          },
-                          tooltip: {
-                            backgroundColor: 'var(--glass-bg)',
-                            titleColor: 'var(--text-primary)',
-                            bodyColor: 'var(--text-primary)',
-                            borderColor: 'var(--glass-border)',
-                            borderWidth: 1,
-                            cornerRadius: 8,
-                            displayColors: true,
-                            callbacks: {
-                              title: context => `지표: ${context[0].label}`,
-                              label: context => `${context.dataset.label}: ${typeof context.parsed.y === 'number' ? context.parsed.y.toFixed(2) : '--'}`,
+                            {
+                              label: selectedCompanyRight,
+                              data: [
+                                rightMetrics['PER']?.['2022'] || 0,
+                                rightMetrics['PBR']?.['2022'] || 0,
+                                rightMetrics['ROE']?.['2022'] || 0,
+                                rightMetrics['DPS']?.['2022'] || 0
+                              ],
+                              borderColor: '#FF6B6B',
+                              backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                              borderWidth: 3,
+                              pointRadius: 6,
+                              pointHoverRadius: 8,
+                              tension: 0.4,
+                              fill: false
+                            }
+                          ]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'top',
+                              labels: {
+                                color: 'var(--text-primary)',
+                                font: { size: 12, weight: 'bold' },
+                                boxWidth: 12,
+                                padding: 8,
+                                usePointStyle: true
+                              }
                             },
-                          }
-                        },
-                        scales: {
-                          x: {
-                            ticks: {
-                              color: 'var(--text-secondary)',
-                              font: { size: 12 }
-                            },
-                            grid: {
-                              color: 'var(--glass-border)',
-                              drawBorder: false
+                            tooltip: {
+                              backgroundColor: 'var(--glass-bg)',
+                              titleColor: 'var(--text-primary)',
+                              bodyColor: 'var(--text-primary)',
+                              borderColor: 'var(--glass-border)',
+                              borderWidth: 1,
+                              cornerRadius: 8,
+                              displayColors: true,
+                              callbacks: {
+                                title: context => `지표: ${context[0].label}`,
+                                label: context => `${context.dataset.label}: ${typeof context.parsed.y === 'number' ? context.parsed.y.toFixed(2) : '--'}`,
+                              },
                             }
                           },
-                          y: {
-                            ticks: {
-                              color: 'var(--text-secondary)',
-                              font: { size: 12 },
-                              callback: value => typeof value === 'number' ? value.toFixed(2) : value
+                          scales: {
+                            x: {
+                              ticks: {
+                                color: 'var(--text-secondary)',
+                                font: { size: 12 }
+                              },
+                              grid: {
+                                color: 'var(--glass-border)',
+                                drawBorder: false
+                              }
                             },
-                            grid: {
-                              color: 'var(--glass-border)',
-                              drawBorder: false
-                            },
-                            beginAtZero: true
+                            y: {
+                              ticks: {
+                                color: 'var(--text-secondary)',
+                                font: { size: 12 },
+                                callback: value => typeof value === 'number' ? value.toFixed(2) : value
+                              },
+                              grid: {
+                                color: 'var(--glass-border)',
+                                drawBorder: false
+                              },
+                              beginAtZero: true
+                            }
+                          },
+                          interaction: {
+                            mode: 'nearest',
+                            axis: 'x',
+                            intersect: false
                           }
-                        },
-                        interaction: {
-                          mode: 'nearest',
-                          axis: 'x',
-                          intersect: false
-                        }
-                      }}
-                    />
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* 2023년 차트 */}
+                  <div className="year-chart-container">
+                    <h5 className="year-chart-title">2023년 재무지표 비교</h5>
+                    <div className="chart-container">
+                      <Line
+                        data={{
+                          labels: ['PER', 'PBR', 'ROE', 'DPS'],
+                          datasets: [
+                            {
+                              label: selectedCompanyLeft,
+                              data: [
+                                leftMetrics['PER']?.['2023'] || 0,
+                                leftMetrics['PBR']?.['2023'] || 0,
+                                leftMetrics['ROE']?.['2023'] || 0,
+                                leftMetrics['DPS']?.['2023'] || 0
+                              ],
+                              borderColor: '#00D1B2',
+                              backgroundColor: 'rgba(0, 209, 178, 0.1)',
+                              borderWidth: 3,
+                              pointRadius: 6,
+                              pointHoverRadius: 8,
+                              tension: 0.4,
+                              fill: false
+                            },
+                            {
+                              label: selectedCompanyRight,
+                              data: [
+                                rightMetrics['PER']?.['2023'] || 0,
+                                rightMetrics['PBR']?.['2023'] || 0,
+                                rightMetrics['ROE']?.['2023'] || 0,
+                                rightMetrics['DPS']?.['2023'] || 0
+                              ],
+                              borderColor: '#FF6B6B',
+                              backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                              borderWidth: 3,
+                              pointRadius: 6,
+                              pointHoverRadius: 8,
+                              tension: 0.4,
+                              fill: false
+                            }
+                          ]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'top',
+                              labels: {
+                                color: 'var(--text-primary)',
+                                font: { size: 12, weight: 'bold' },
+                                boxWidth: 12,
+                                padding: 8,
+                                usePointStyle: true
+                              }
+                            },
+                            tooltip: {
+                              backgroundColor: 'var(--glass-bg)',
+                              titleColor: 'var(--text-primary)',
+                              bodyColor: 'var(--text-primary)',
+                              borderColor: 'var(--glass-border)',
+                              borderWidth: 1,
+                              cornerRadius: 8,
+                              displayColors: true,
+                              callbacks: {
+                                title: context => `지표: ${context[0].label}`,
+                                label: context => `${context.dataset.label}: ${typeof context.parsed.y === 'number' ? context.parsed.y.toFixed(2) : '--'}`,
+                              },
+                            }
+                          },
+                          scales: {
+                            x: {
+                              ticks: {
+                                color: 'var(--text-secondary)',
+                                font: { size: 12 }
+                              },
+                              grid: {
+                                color: 'var(--glass-border)',
+                                drawBorder: false
+                              }
+                            },
+                            y: {
+                              ticks: {
+                                color: 'var(--text-secondary)',
+                                font: { size: 12 },
+                                callback: value => typeof value === 'number' ? value.toFixed(2) : value
+                              },
+                              grid: {
+                                color: 'var(--glass-border)',
+                                drawBorder: false
+                              },
+                              beginAtZero: true
+                            }
+                          },
+                          interaction: {
+                            mode: 'nearest',
+                            axis: 'x',
+                            intersect: false
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* 2024년 차트 */}
+                  <div className="year-chart-container">
+                    <h5 className="year-chart-title">2024년 재무지표 비교</h5>
+                    <div className="chart-container">
+                      <Line
+                        data={{
+                          labels: ['PER', 'PBR', 'ROE', 'DPS'],
+                          datasets: [
+                            {
+                              label: selectedCompanyLeft,
+                              data: [
+                                leftMetrics['PER']?.['2024'] || 0,
+                                leftMetrics['PBR']?.['2024'] || 0,
+                                leftMetrics['ROE']?.['2024'] || 0,
+                                leftMetrics['DPS']?.['2024'] || 0
+                              ],
+                              borderColor: '#00D1B2',
+                              backgroundColor: 'rgba(0, 209, 178, 0.1)',
+                              borderWidth: 3,
+                              pointRadius: 6,
+                              pointHoverRadius: 8,
+                              tension: 0.4,
+                              fill: false
+                            },
+                            {
+                              label: selectedCompanyRight,
+                              data: [
+                                rightMetrics['PER']?.['2024'] || 0,
+                                rightMetrics['PBR']?.['2024'] || 0,
+                                rightMetrics['ROE']?.['2024'] || 0,
+                                rightMetrics['DPS']?.['2024'] || 0
+                              ],
+                              borderColor: '#FF6B6B',
+                              backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                              borderWidth: 3,
+                              pointRadius: 6,
+                              pointHoverRadius: 8,
+                              tension: 0.4,
+                              fill: false
+                            }
+                          ]
+                        }}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'top',
+                              labels: {
+                                color: 'var(--text-primary)',
+                                font: { size: 12, weight: 'bold' },
+                                boxWidth: 12,
+                                padding: 8,
+                                usePointStyle: true
+                              }
+                            },
+                            tooltip: {
+                              backgroundColor: 'var(--glass-bg)',
+                              titleColor: 'var(--text-primary)',
+                              bodyColor: 'var(--text-primary)',
+                              borderColor: 'var(--glass-border)',
+                              borderWidth: 1,
+                              cornerRadius: 8,
+                              displayColors: true,
+                              callbacks: {
+                                title: context => `지표: ${context[0].label}`,
+                                label: context => `${context.dataset.label}: ${typeof context.parsed.y === 'number' ? context.parsed.y.toFixed(2) : '--'}`,
+                              },
+                            }
+                          },
+                          scales: {
+                            x: {
+                              ticks: {
+                                color: 'var(--text-secondary)',
+                                font: { size: 12 }
+                              },
+                              grid: {
+                                color: 'var(--glass-border)',
+                                drawBorder: false
+                              }
+                            },
+                            y: {
+                              ticks: {
+                                color: 'var(--text-secondary)',
+                                font: { size: 12 },
+                                callback: value => typeof value === 'number' ? value.toFixed(2) : value
+                              },
+                              grid: {
+                                color: 'var(--glass-border)',
+                                drawBorder: false
+                              },
+                              beginAtZero: true
+                            }
+                          },
+                          interaction: {
+                            mode: 'nearest',
+                            axis: 'x',
+                            intersect: false
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               )}
