@@ -370,7 +370,7 @@ function TreasureHuntRedesigned() {
                       const isNotDash = avg !== '-';
                       const isNotZero = avg !== '0';
                       const parsed = parseFloat(avg);
-                      const converted = (parsed / 10000).toFixed(0);
+                      const converted = parsed.toFixed(0);
                       console.log(`🔍 ${item.기업명} 지배주주지분:`, {
                         avg, isNotDash, isNotZero, parsed, converted,
                         final: isNotDash && isNotZero ? `${converted}억원` : '-'
@@ -386,7 +386,7 @@ function TreasureHuntRedesigned() {
                       const isNotDash = avg !== '-';
                       const isNotZero = avg !== '0';
                       const parsed = parseFloat(avg);
-                      const converted = (parsed / 10000).toFixed(0);
+                      const converted = parsed.toFixed(0);
                       console.log(`🔍 ${item.기업명} 지배주주순이익:`, {
                         avg, isNotDash, isNotZero, parsed, converted,
                         final: isNotDash && isNotZero ? `${converted}억원` : '-'
