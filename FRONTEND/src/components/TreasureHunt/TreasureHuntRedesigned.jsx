@@ -367,18 +367,32 @@ function TreasureHuntRedesigned() {
                   <td className="equity-cell">
                     {(() => {
                       const avg = getThreeYearAvg(item.지배주주지분);
-                      console.log(`🔍 ${item.기업명} 지배주주지분 평균:`, avg, '원본 데이터:', item.지배주주지분);
-                      return avg !== '-' && avg !== '0' 
-                        ? `${(parseFloat(avg) / 10000).toFixed(0)}억원`
+                      const isNotDash = avg !== '-';
+                      const isNotZero = avg !== '0';
+                      const parsed = parseFloat(avg);
+                      const converted = (parsed / 10000).toFixed(0);
+                      console.log(`🔍 ${item.기업명} 지배주주지분:`, {
+                        avg, isNotDash, isNotZero, parsed, converted,
+                        final: isNotDash && isNotZero ? `${converted}억원` : '-'
+                      });
+                      return isNotDash && isNotZero 
+                        ? `${converted}억원`
                         : '-';
                     })()}
                   </td>
                   <td className="income-cell">
                     {(() => {
                       const avg = getThreeYearAvg(item.지배주주순이익);
-                      console.log(`🔍 ${item.기업명} 지배주주순이익 평균:`, avg, '원본 데이터:', item.지배주주순이익);
-                      return avg !== '-' && avg !== '0' 
-                        ? `${(parseFloat(avg) / 10000).toFixed(0)}억원`
+                      const isNotDash = avg !== '-';
+                      const isNotZero = avg !== '0';
+                      const parsed = parseFloat(avg);
+                      const converted = (parsed / 10000).toFixed(0);
+                      console.log(`🔍 ${item.기업명} 지배주주순이익:`, {
+                        avg, isNotDash, isNotZero, parsed, converted,
+                        final: isNotDash && isNotZero ? `${converted}억원` : '-'
+                      });
+                      return isNotDash && isNotZero 
+                        ? `${converted}억원`
                         : '-';
                     })()}
                   </td>
