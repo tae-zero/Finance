@@ -365,14 +365,14 @@ function TreasureHuntRedesigned() {
                     }
                   </td>
                   <td className="equity-cell">
-                    {getThreeYearAvg(item.지배주주지분) !== '0' 
-                      ? `${(parseFloat(getThreeYearAvg(item.지배주주지분)) / 100000000).toFixed(0)}억원`
+                    {getThreeYearAvg(item.지배주주지분) !== '-' && getThreeYearAvg(item.지배주주지분) !== '0' 
+                      ? `${(parseFloat(getThreeYearAvg(item.지배주주지분)) / 10000).toFixed(0)}억원`
                       : '-'
                     }
                   </td>
                   <td className="income-cell">
-                    {getThreeYearAvg(item.지배주주순이익) !== '0' 
-                      ? `${(parseFloat(getThreeYearAvg(item.지배주주순이익)) / 100000000).toFixed(0)}억원`
+                    {getThreeYearAvg(item.지배주주순이익) !== '-' && getThreeYearAvg(item.지배주주순이익) !== '0' 
+                      ? `${(parseFloat(getThreeYearAvg(item.지배주주순이익)) / 10000).toFixed(0)}억원`
                       : '-'
                     }
                   </td>

@@ -35,7 +35,7 @@ print(f"🔍 MONGODB_URL: {os.getenv('MONGODB_URL', 'NOT_SET')}")
 print(f"🔍 RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'NOT_SET')}")
 
 # MongoDB URL 우선순위: MONGODB_URL > MONGODB_URI > 기본값
-MONGODB_URL = os.getenv("MONGODB_URL") or os.getenv("MONGODB_URI") or "mongodb://localhost:27017"
+MONGODB_URL = os.getenv("MONGODB_URL") or os.getenv("MONGODB_URI") or "mongodb://localhost:27017/finance_data"
 print(f"🔍 최종 MongoDB URL: {MONGODB_URL[:30]}...")  # 처음 30자만 출력
 
 # 클라우드 환경에서는 MongoDB 연결 실패 시에도 서버가 정상 작동하도록 설정
@@ -43,11 +43,16 @@ client = None
 collection = None
 
 try:
-    client = MongoClient(MONGODB_URL, serverSelectionTimeoutMS=3000)
+    client = MongoClient(MONGODB_URL, serverSelectionTimeoutMS=10000)
     # 연결 테스트
     client.admin.command('ping')
     print("✅ MongoDB 연결 성공")
     collection = client["finance_data"]["companies"]
+    
+    # 연결 테스트 - 실제 데이터 조회
+    test_docs = list(collection.find({}, {"_id": 0, "기업명": 1}).limit(1))
+    print(f"✅ MongoDB 데이터 조회 테스트 성공: {len(test_docs)}개 문서")
+    
 except Exception as e:
     print(f"❌ MongoDB 연결 실패: {e}")
     print(f"❌ MongoDB URL: {MONGODB_URL}")
@@ -1186,7 +1191,7 @@ def get_treasure_data():
     # MongoDB 연결 확인
     if collection is None:
         print("❌ MongoDB collection이 None입니다")
-        print("🔄 로컬 JSON 파일 사용으로 전환")
+        return JSONResponse(content={"error": "MongoDB 연결이 필요합니다. 데이터베이스 연결을 확인해주세요."}, status_code=500)
         
         # 로컬 JSON 파일에서 데이터 로드
         try:
