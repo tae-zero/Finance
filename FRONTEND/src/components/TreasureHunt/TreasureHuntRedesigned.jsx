@@ -41,6 +41,11 @@ function TreasureHuntRedesigned() {
           return hasAnyPER && hasAnyPBR && hasAnyROE;
         });
 
+        // 디버깅을 위한 로그
+        console.log('🔍 보물찾기 데이터 샘플:', cleaned.slice(0, 2));
+        console.log('🔍 지배주주지분 데이터 예시:', cleaned[0]?.지배주주지분);
+        console.log('🔍 지배주주순이익 데이터 예시:', cleaned[0]?.지배주주순이익);
+
         setData(cleaned);
         setFiltered(cleaned);
         
